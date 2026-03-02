@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#D2691E">
+    <title>Anniversary Goals Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-container">
+            <h1>Anniversary Goals Tracker</h1>
+            <p class="auth-subtitle">Track your personal and couple goals</p>
+            <div class="auth-form">
+                <input type="password" id="github-token" placeholder="Enter GitHub Token" />
+                <button id="auth-button">Login</button>
+            </div>
+            <p class="auth-help">Need a token? <a href="https://github.com/settings/tokens/new" target="_blank">Create one here</a></p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Anniversary Goals</h1>
+            <button id="sync-button" class="sync-button">
+                <span class="sync-icon">↻</span>
+            </button>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-button active" data-tab="personal">Personal</button>
+            <button class="tab-button" data-tab="couple">Couple</button>
+            <button class="tab-button" data-tab="stats">Stats</button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="tab-content">
+            <!-- Personal Tab -->
+            <div id="personal-tab" class="tab-pane active">
+                <div class="tab-header">
+                    <h2>My Personal Goals</h2>
+                    <button class="add-goal-button" data-type="personal">+ Add Goal</button>
+                </div>
+                <div id="personal-goals" class="goals-list">
+                    <!-- Goals will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Couple Tab -->
+            <div id="couple-tab" class="tab-pane">
+                <div class="tab-header">
+                    <h2>Our Couple Goals</h2>
+                    <button class="add-goal-button" data-type="couple">+ Add Goal</button>
+                </div>
+                <div id="couple-goals" class="goals-list">
+                    <!-- Goals will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats-tab" class="tab-pane">
+                <h2>Statistics</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Personal Progress</h3>
+                        <div id="personal-stats" class="stats-content">
+                            <!-- Stats will be dynamically added here -->
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Couple Progress</h3>
+                        <div id="couple-stats" class="stats-content">
+                            <!-- Stats will be dynamically added here -->
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Overall Progress</h3>
+                        <div id="overall-stats" class="stats-content">
+                            <!-- Stats will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Adding/Editing Goals -->
+    <div id="goal-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Goal</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="goal-form">
+                    <div class="form-group">
+                        <label for="goal-type">Goal Type</label>
+                        <select id="goal-type" required>
+                            <option value="personal">Personal</option>
+                            <option value="couple">Couple</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-name">Goal Name</label>
+                        <input type="text" id="goal-name" placeholder="Enter goal name" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-category">Category</label>
+                        <input type="text" id="goal-category" placeholder="e.g., Wellness, Active" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-frequency">Frequency</label>
+                        <select id="goal-frequency" required>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Anytime">Anytime</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Or Select Predefined Goal</label>
+                        <select id="predefined-goals">
+                            <option value="">-- Select a predefined goal --</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel">Cancel</button>
+                        <button type="submit" class="btn-submit">Save Goal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
