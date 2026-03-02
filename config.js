@@ -2,6 +2,7 @@ export const GITHUB_CONFIG = {
     owner: 'kalemans',
     repo: 'kalemans.github.io',
     dataPath: 'data/goals.json',
+    clientId: 'YOUR_GITHUB_OAUTH_CLIENT_ID', // TODO: Set up GitHub OAuth App
 };
 
 export const PREDEFINED_TASKS = {
