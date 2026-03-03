@@ -2,9 +2,9 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.1.1';
+const APP_VERSION = '4.1.2-DEBUG';
 
-console.log('🚀 APP.JS LOADED - VERSION 4.1.1 - WIREFRAME ENABLED');
+console.log('🚀 APP.JS LOADED - VERSION 4.1.2-DEBUG - WIREFRAME ENABLED - EXTENSIVE LOGGING');
 
 // State Management
 let currentData = null;
@@ -380,6 +380,8 @@ function renderCoupleGoals(data) {
     // Apply filters
     tasks = applyFilters(tasks, filters.couple);
 
+    console.log(`📋 Rendering ${tasks.length} couple tasks:`, tasks.map(t => ({name: t.name, type: t.type, id: t.id})));
+
     if (tasks.length === 0) {
         const allTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
         if (allTasks.length === 0) {
@@ -414,8 +416,11 @@ function createGoalCard(task, completed, data) {
     const card = document.createElement('div');
     const isCustom = task.id.startsWith('custom-');
 
+    console.log(`🎯 createGoalCard called - Task: ${task.name}, Type: ${task.type}, ID: ${task.id}`);
+
     // Render wireframe style for couple goals
     if (task.type === 'couple') {
+        console.log(`✅ WIREFRAME BRANCH - Rendering ${task.name} as wireframe card`);
         debugLog(`Creating wireframe couple card: ${task.name}`);
         card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
@@ -440,11 +445,14 @@ function createGoalCard(task, completed, data) {
             </div>
         `;
 
+        console.log(`✅ Wireframe HTML set for ${task.name}, className: ${card.className}`);
+
         const starBtn = card.querySelector('.wireframe-goal-star');
         starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
     } else {
         // Personal goal card (original style)
+        console.log(`❌ PERSONAL BRANCH - Rendering ${task.name} as regular card`);
         card.className = `goal-card ${completed ? 'completed' : ''} goal-card-${task.type}`;
 
         card.innerHTML = `
