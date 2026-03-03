@@ -2,9 +2,9 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.1.3-FIXED';
+const APP_VERSION = '4.2.0';
 
-console.log('🚀 APP.JS LOADED - VERSION 4.1.3-FIXED - TYPE PROPERTY ADDED TO ALL TASKS');
+console.log('🚀 APP.JS LOADED - VERSION 4.2.0 - WIREFRAME FOR BOTH TABS WITH COLOR PALETTES');
 
 // State Management
 let currentData = null;
@@ -324,11 +324,14 @@ function renderPersonalGoals(data) {
     const container = document.getElementById('personal-goals');
     container.innerHTML = '';
 
+    // Render weekly overview
+    renderWeeklyOverviewPersonal(data);
+
     const today = getTodayString();
     let tasks = getAllTasksWithType(data, 'personal');
 
-    // Update category filters
-    updateCategoryFilters('personal', tasks);
+    // Update category filters for modal
+    updateCategoryFiltersModal('personal', tasks);
 
     // Apply filters
     tasks = applyFilters(tasks, filters.personal);
@@ -417,79 +420,35 @@ function createGoalCard(task, completed, data) {
 
     console.log(`🎯 createGoalCard called - Task: ${task.name}, Type: ${task.type}, ID: ${task.id}`);
 
-    // Render wireframe style for couple goals
-    if (task.type === 'couple') {
-        console.log(`✅ WIREFRAME BRANCH - Rendering ${task.name} as wireframe card`);
-        debugLog(`Creating wireframe couple card: ${task.name}`);
-        card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
+    // Render wireframe style for all goals (both personal and couple)
+    console.log(`✅ WIREFRAME BRANCH - Rendering ${task.name} as wireframe card`);
+    card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
-        card.innerHTML = `
-            <div class="wireframe-goal-header">
-                <div class="wireframe-goal-name">${task.name}</div>
-                <div class="wireframe-goal-actions">
-                    <div class="wireframe-grip-icon hidden">
-                        <i data-lucide="grip-vertical"></i>
-                    </div>
-                    <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="32" height="32" viewBox="0 0 24 24" data-id="${task.id}">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                              fill="${completed ? 'url(#gold-gradient)' : 'none'}"
-                              stroke="var(--wireframe-border)"
-                              stroke-width="1"/>
-                    </svg>
+    card.innerHTML = `
+        <div class="wireframe-goal-header">
+            <div class="wireframe-goal-name">${task.name}</div>
+            <div class="wireframe-goal-actions">
+                <div class="wireframe-grip-icon hidden">
+                    <i data-lucide="grip-vertical"></i>
                 </div>
+                <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="32" height="32" viewBox="0 0 24 24" data-id="${task.id}">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                          fill="${completed ? 'url(#gold-gradient)' : 'none'}"
+                          stroke="var(--wireframe-border)"
+                          stroke-width="1"/>
+                </svg>
             </div>
-            <div class="wireframe-goal-meta">
-                <span class="wireframe-goal-tag">${task.category}</span>
-                <span class="wireframe-goal-tag">${task.frequency}</span>
-            </div>
-        `;
+        </div>
+        <div class="wireframe-goal-meta">
+            <span class="wireframe-goal-tag">${task.category}</span>
+            <span class="wireframe-goal-tag">${task.frequency}</span>
+        </div>
+    `;
 
-        console.log(`✅ Wireframe HTML set for ${task.name}, className: ${card.className}`);
+    console.log(`✅ Wireframe HTML set for ${task.name}, className: ${card.className}`);
 
-        const starBtn = card.querySelector('.wireframe-goal-star');
-        starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
-
-    } else {
-        // Personal goal card (original style)
-        console.log(`❌ PERSONAL BRANCH - Rendering ${task.name} as regular card`);
-        card.className = `goal-card ${completed ? 'completed' : ''} goal-card-${task.type}`;
-
-        card.innerHTML = `
-            <div class="goal-header">
-                <div class="goal-info">
-                    <div class="goal-name">${task.name}</div>
-                    <div class="goal-meta">
-                        <span class="goal-category">${task.category}</span>
-                        <span class="goal-frequency">${task.frequency}</span>
-                    </div>
-                </div>
-                <div class="goal-actions">
-                    ${isCustom ? `
-                        <button class="goal-action-btn edit" data-id="${task.id}" title="Edit goal">
-                            ✎
-                        </button>
-                        <button class="goal-action-btn delete" data-id="${task.id}" title="Delete goal">
-                            ×
-                        </button>
-                    ` : ''}
-                    <button class="goal-action-btn star ${completed ? 'completed' : ''}" data-id="${task.id}" title="Complete goal">
-                        ${completed ? '★' : '☆'}
-                    </button>
-                </div>
-            </div>
-        `;
-
-        const starBtn = card.querySelector('.star');
-        starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
-
-        if (isCustom) {
-            const editBtn = card.querySelector('.edit');
-            const deleteBtn = card.querySelector('.delete');
-
-            editBtn.addEventListener('click', () => openEditModal(task));
-            deleteBtn.addEventListener('click', () => confirmDeleteGoal(task));
-        }
-    }
+    const starBtn = card.querySelector('.wireframe-goal-star');
+    starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
     // Add swipe gestures to card
     addSwipeToCard(card, task, isCustom);
@@ -827,6 +786,60 @@ function renderWeeklyOverview(data) {
     statusEl.textContent = `Today: ${todayCompleted}/${totalTasks} goals completed`;
 }
 
+function renderWeeklyOverviewPersonal(data) {
+    const container = document.getElementById('personal-weekly-chart');
+    const weekRangeEl = document.getElementById('personal-week-range');
+    const statusEl = document.getElementById('personal-weekly-status');
+
+    if (!container || !weekRangeEl || !statusEl) return;
+
+    // Get the last 5 days (including today)
+    const days = [];
+    const today = new Date();
+    for (let i = 4; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        days.push(date);
+    }
+
+    // Get personal tasks
+    const personalTasks = getAllTasksWithType(data, 'personal');
+    const totalTasks = personalTasks.length;
+
+    // Calculate completions for each day
+    const dailyStats = days.map(date => {
+        const dateStr = date.toISOString().split('T')[0];
+        const completed = personalTasks.filter(task =>
+            data.completions[dateStr]?.[task.id]?.completed
+        ).length;
+        const percentage = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
+        return { date, dateStr, completed, percentage };
+    });
+
+    // Render bars
+    container.innerHTML = dailyStats.map((stat, index) => {
+        const isToday = index === 4;
+        const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
+        const height = Math.max(stat.percentage, 10); // Minimum 10% height for visibility
+
+        return `
+            <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
+                <div class="weekly-bar ${isToday ? 'active' : ''}" style="height: ${height}%"></div>
+                <div class="weekly-bar-label">${dayName}</div>
+            </div>
+        `;
+    }).join('');
+
+    // Set week range
+    const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const lastDay = days[4].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
+
+    // Set status message
+    const todayCompleted = dailyStats[4].completed;
+    statusEl.textContent = `Today: ${todayCompleted}/${totalTasks} goals completed`;
+}
+
 function renderOverallStats(data) {
     const container = document.getElementById('overall-stats');
     const personalStats = calculateStats(data, 'personal');
@@ -1105,10 +1118,91 @@ async function deleteGoal(goalId, goalName) {
 // ===================================
 
 function setupFilters() {
-    setupFilterButtons('personal');
+    setupPersonalModalFilters();
+    setupPersonalFilterModal();
+    setupPersonalWireframeAddGoal();
     setupCoupleModalFilters();
     setupCoupleFilterModal();
     setupWireframeAddGoal();
+}
+
+function setupPersonalModalFilters() {
+    // Setup category filters in modal
+    const categoryContainer = document.getElementById('personal-category-filters-modal');
+    if (categoryContainer) {
+        categoryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                categoryContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                filters.personal.category = e.target.dataset.filter;
+                renderGoals(currentData);
+            }
+        });
+    }
+
+    // Setup frequency filters in modal
+    const frequencyContainer = document.getElementById('personal-frequency-filters-modal');
+    if (frequencyContainer) {
+        frequencyContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                frequencyContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                filters.personal.frequency = e.target.dataset.filter;
+                renderGoals(currentData);
+            }
+        });
+    }
+}
+
+function setupPersonalFilterModal() {
+    const modal = document.getElementById('personal-filter-modal');
+    const openBtn = document.getElementById('personal-filter-btn');
+    const closeBtn = document.getElementById('personal-filter-close');
+    const backdrop = modal?.querySelector('.filter-modal-backdrop');
+
+    if (!modal || !openBtn) return;
+
+    // Open modal
+    openBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        // Initialize Lucide icons in modal
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    });
+
+    // Close modal
+    const closeModal = () => {
+        modal.classList.add('hidden');
+    };
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeModal);
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+}
+
+function setupPersonalWireframeAddGoal() {
+    const addGoalBtn = document.getElementById('personal-add-goal-wireframe');
+    if (addGoalBtn) {
+        addGoalBtn.addEventListener('click', () => {
+            openModal('personal');
+        });
+    }
 }
 
 function setupCoupleModalFilters() {

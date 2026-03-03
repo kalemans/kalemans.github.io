@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1772525255">
+    <link rel="stylesheet" href="styles.css?v=1772525876">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -39,7 +39,7 @@
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
-                <h1>Check Those Boxes! <small style="font-size: 0.5em; opacity: 0.7;">v4.1.3-FIXED</small></h1>
+                <h1>Check Those Boxes! <small style="font-size: 0.5em; opacity: 0.7;">v4.2.0</small></h1>
                 <div id="daily-progress" class="daily-progress hidden">
                     <div class="progress-ring">
                         <svg width="36" height="36">
@@ -65,30 +65,64 @@
         <!-- Tab Content -->
         <main class="tab-content">
             <!-- Personal Tab -->
-            <div id="personal-tab" class="tab-pane active">
-                <div class="tab-header">
-                    <h2>My Personal Goals</h2>
-                    <button class="add-goal-button" data-type="personal">+ Add Goal</button>
+            <div id="personal-tab" class="tab-pane active personal-tab-wireframe">
+                <!-- Sticky Header -->
+                <div class="personal-sticky-header">
+                    <h2 class="personal-tab-title">Personal Goals</h2>
+                    <button class="filter-trigger-btn" id="personal-filter-btn" aria-label="Open filters">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </button>
                 </div>
-                <div class="filters-container">
-                    <div class="filter-group">
-                        <label class="filter-label">Category:</label>
-                        <div id="personal-category-filters" class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">All</button>
+
+                <!-- Weekly Overview Stats Card -->
+                <div class="weekly-overview-card">
+                    <div class="weekly-overview-header">
+                        <h3 class="weekly-overview-title">Weekly Overview</h3>
+                        <span class="weekly-date-range" id="personal-week-range"></span>
+                    </div>
+                    <div class="weekly-bar-chart" id="personal-weekly-chart">
+                        <!-- Bars will be generated dynamically -->
+                    </div>
+                    <div class="weekly-overview-footer">
+                        <span id="personal-weekly-status"></span>
+                    </div>
+                </div>
+
+                <!-- Goal Cards Container -->
+                <div id="personal-goals" class="personal-goals-list wireframe-goals-list">
+                    <!-- Goal cards rendered dynamically -->
+                </div>
+
+                <!-- Add Goal Button -->
+                <button class="add-goal-wireframe" id="personal-add-goal-wireframe">
+                    <span class="plus-icon">+</span>
+                    <span>Add Goal</span>
+                </button>
+
+                <!-- Filter Modal (Hidden by default) -->
+                <div class="filter-modal hidden" id="personal-filter-modal">
+                    <div class="filter-modal-backdrop"></div>
+                    <div class="filter-modal-content">
+                        <div class="filter-modal-header">
+                            <h3>Filters</h3>
+                            <button class="filter-modal-close" id="personal-filter-close">&times;</button>
+                        </div>
+                        <div class="filter-section">
+                            <label class="filter-section-label">Category</label>
+                            <div id="personal-category-filters-modal" class="filter-buttons-modal">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                            </div>
+                        </div>
+                        <div class="filter-section">
+                            <label class="filter-section-label">Frequency</label>
+                            <div id="personal-frequency-filters-modal" class="filter-buttons-modal">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="Daily">Daily</button>
+                                <button class="filter-btn" data-filter="Weekly">Weekly</button>
+                                <button class="filter-btn" data-filter="Anytime">Anytime</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Frequency:</label>
-                        <div id="personal-frequency-filters" class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="Daily">Daily</button>
-                            <button class="filter-btn" data-filter="Weekly">Weekly</button>
-                            <button class="filter-btn" data-filter="Anytime">Anytime</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="personal-goals" class="goals-list">
-                    <!-- Goals will be dynamically added here -->
                 </div>
             </div>
 
@@ -179,7 +213,7 @@
                 </div>
                 <div class="app-footer">
                     <p>Made with love for our anniversary 💝</p>
-                    <p class="version">v4.1.0</p>
+                    <p class="version">v4.2.0</p>
                 </div>
             </div>
         </main>
@@ -265,6 +299,6 @@
         </defs>
     </svg>
 
-    <script type="module" src="app.js?v=1772525255"></script>
+    <script type="module" src="app.js?v=1772525876"></script>
 </body>
 </html>

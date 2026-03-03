@@ -43,6 +43,7 @@ html {
     --text-medium: #5C4D3E;
 
     /* Wireframe Design Colors - Couple Tab */
+    /* Couple Tab Wireframe Colors */
     --wireframe-bg: #fad4d4ff;
     --wireframe-card: #FFFFFF;
     --wireframe-border: #38000a;
@@ -53,6 +54,16 @@ html {
     --wireframe-gold-start: #ffcc00ff;
     --wireframe-gold-end: #f4e091ff;
     --wireframe-filter-border: #D1D5DB;
+
+    /* Personal Tab Wireframe Colors */
+    --wireframe-personal-bg: #d4f1ff;
+    --wireframe-personal-card: #FFFFFF;
+    --wireframe-personal-border: #4272ff;
+    --wireframe-personal-text-primary: #4272ff;
+    --wireframe-personal-text-secondary: #ff7e42;
+    --wireframe-personal-accent: #ffb343;
+    --wireframe-personal-inactive: #ffb343;
+    --wireframe-personal-active: #ff7e42;
 
     /* Spacing */
     --spacing-xs: 0.25rem;
@@ -480,9 +491,10 @@ input, select, textarea {
     display: block;
 }
 
-/* Personal tab background */
-#personal-tab {
-    background: linear-gradient(135deg, #fff9f0 0%, #f0f9ff 50%, #fff5e6 100%);
+/* Global tab background for coherence */
+.tab-pane {
+    background: var(--wireframe-bg);
+    min-height: 100vh;
 }
 
 /* Couple tab background */
@@ -2103,6 +2115,164 @@ select:focus-visible {
     .filter-modal-content {
         width: 95%;
         padding: 20px;
+    }
+}
+
+/* ===================================
+   WIREFRAME PERSONAL TAB
+   =================================== */
+
+#personal-tab.personal-tab-wireframe {
+    background: var(--wireframe-personal-bg);
+    min-height: 100vh;
+}
+
+/* Sticky Header */
+.personal-sticky-header {
+    position: sticky;
+    top: 124px;
+    background: rgba(212, 241, 255, 0.9);
+    backdrop-filter: blur(4px);
+    padding: 56px 24px 24px;
+    z-index: 98;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.personal-tab-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--wireframe-personal-accent);
+    margin: 0;
+}
+
+.personal-sticky-header .filter-trigger-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--wireframe-personal-border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.personal-sticky-header .filter-trigger-btn:hover {
+    background: rgba(66, 114, 255, 0.1);
+}
+
+.personal-sticky-header .filter-trigger-btn i {
+    color: var(--wireframe-personal-border);
+    width: 20px;
+    height: 20px;
+}
+
+/* Personal tab uses same weekly overview, goal cards, and button styles as couple tab */
+/* Just override colors where needed */
+
+#personal-tab .weekly-overview-card {
+    background: var(--wireframe-personal-card);
+    border: 1px solid var(--wireframe-personal-border);
+}
+
+#personal-tab .weekly-overview-title {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-tab .weekly-date-range {
+    color: var(--wireframe-personal-text-secondary);
+}
+
+#personal-tab .weekly-bar {
+    background: var(--wireframe-personal-inactive);
+}
+
+#personal-tab .weekly-bar.active {
+    background: var(--wireframe-personal-active);
+}
+
+#personal-tab .weekly-overview-footer {
+    color: var(--wireframe-personal-text-secondary);
+}
+
+#personal-tab .wireframe-goal-card {
+    background: var(--wireframe-personal-card);
+    border: 1px solid var(--wireframe-personal-border);
+}
+
+#personal-tab .wireframe-goal-name {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-tab .wireframe-goal-tag {
+    background: var(--wireframe-personal-inactive);
+    color: var(--wireframe-personal-text-secondary);
+}
+
+#personal-tab .wireframe-goal-star {
+    stroke: var(--wireframe-personal-border);
+}
+
+#personal-tab .wireframe-grip-icon {
+    color: var(--wireframe-personal-border);
+}
+
+#personal-tab .add-goal-wireframe {
+    border: 2px dashed var(--wireframe-filter-border);
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-tab .add-goal-wireframe:hover {
+    border-color: var(--wireframe-personal-border);
+    color: var(--wireframe-personal-border);
+}
+
+/* Personal Filter Modal */
+#personal-filter-modal .filter-modal-backdrop {
+    background: rgba(66, 114, 255, 0.5);
+}
+
+#personal-filter-modal .filter-modal-content {
+    background: var(--wireframe-personal-card);
+    border: 1px solid var(--wireframe-personal-border);
+}
+
+#personal-filter-modal .filter-modal-header h3 {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-filter-modal .filter-section-label {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-filter-modal .filter-btn {
+    border: 1px solid var(--wireframe-personal-border);
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-filter-modal .filter-btn:hover {
+    background: rgba(66, 114, 255, 0.05);
+}
+
+#personal-filter-modal .filter-btn.active {
+    background: var(--wireframe-personal-border);
+    color: var(--wireframe-personal-card);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .personal-sticky-header {
+        padding-top: 40px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .personal-tab-title {
+        font-size: 24px;
     }
 }
 
