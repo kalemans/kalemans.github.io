@@ -461,14 +461,14 @@ input, select, textarea {
     display: block;
 }
 
-/* Personal tab background tint */
+/* Personal tab background */
 #personal-tab {
-    background: linear-gradient(180deg, rgba(255, 179, 67, 0.02), rgba(66, 234, 255, 0.02));
+    background: linear-gradient(135deg, #fff9f0 0%, #f0f9ff 50%, #fff5e6 100%);
 }
 
-/* Couple tab background tint */
+/* Couple tab background */
 #couple-tab {
-    background: linear-gradient(180deg, rgba(205, 28, 24, 0.02), rgba(255, 168, 150, 0.02));
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e6 50%, #fff0f0 100%);
 }
 
 @keyframes fadeIn {
@@ -562,14 +562,16 @@ input, select, textarea {
 
 /* Personal tab filters container */
 #personal-tab .filters-container {
-    background: linear-gradient(135deg, rgba(255, 179, 67, 0.05), rgba(66, 234, 255, 0.05));
-    border: 1px solid rgba(255, 179, 67, 0.2);
+    background: linear-gradient(135deg, #fff5e6 0%, #e6f7ff 100%);
+    border: 2px solid #ffb343;
+    box-shadow: 0 2px 8px rgba(255, 179, 67, 0.2);
 }
 
 /* Couple tab filters container */
 #couple-tab .filters-container {
-    background: linear-gradient(135deg, rgba(205, 28, 24, 0.05), rgba(255, 168, 150, 0.05));
-    border: 1px solid rgba(205, 28, 24, 0.2);
+    background: linear-gradient(135deg, #ffe8e6 0%, #ffd4d0 100%);
+    border: 2px solid #cd1c18;
+    box-shadow: 0 2px 8px rgba(205, 28, 24, 0.2);
 }
 
 .filter-group {
@@ -583,9 +585,21 @@ input, select, textarea {
 .filter-label {
     display: block;
     font-size: 0.813rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-medium);
     margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Personal tab filter labels */
+#personal-tab .filter-label {
+    color: #ff7e42;
+}
+
+/* Couple tab filter labels */
+#couple-tab .filter-label {
+    color: #9b1313;
 }
 
 .filter-buttons {
@@ -618,25 +632,39 @@ input, select, textarea {
 }
 
 /* Personal tab filters */
+#personal-tab .filter-btn {
+    border-color: #4272ff;
+    color: #4272ff;
+}
+
 #personal-tab .filter-btn.active {
     border-color: #ffb343;
     background: linear-gradient(135deg, #ffb343, #ff7e42);
     color: white;
+    box-shadow: 0 2px 8px rgba(255, 179, 67, 0.4);
 }
 
 #personal-tab .filter-btn:hover {
-    border-color: #ffb343;
+    border-color: #42eaff;
+    background: rgba(66, 234, 255, 0.1);
 }
 
 /* Couple tab filters */
+#couple-tab .filter-btn {
+    border-color: #ffa896;
+    color: #cd1c18;
+}
+
 #couple-tab .filter-btn.active {
     border-color: #cd1c18;
     background: linear-gradient(135deg, #cd1c18, #9b1313);
     color: white;
+    box-shadow: 0 2px 8px rgba(205, 28, 24, 0.4);
 }
 
 #couple-tab .filter-btn:hover {
-    border-color: #cd1c18;
+    border-color: #9b1313;
+    background: rgba(255, 168, 150, 0.1);
 }
 
 .filter-btn:active {
@@ -666,104 +694,120 @@ input, select, textarea {
 
 /* Personal goals color palette */
 .goal-card-personal {
-    border-left-color: #ffb343;
-    background: linear-gradient(135deg, rgba(255, 179, 67, 0.03), rgba(66, 234, 255, 0.03));
+    border-left: 5px solid #ffb343;
+    background: linear-gradient(135deg, #fff9f0 0%, #f0faff 100%);
+    box-shadow: 0 2px 8px rgba(66, 114, 255, 0.15);
 }
 
 .goal-card-personal:hover {
-    background: linear-gradient(135deg, rgba(255, 179, 67, 0.08), rgba(66, 234, 255, 0.08));
+    background: linear-gradient(135deg, #ffedd5 0%, #e0f7ff 100%);
     border-left-color: #ff7e42;
+    box-shadow: 0 4px 12px rgba(66, 234, 255, 0.25);
 }
 
 .goal-card-personal .goal-category {
-    background-color: rgba(255, 179, 67, 0.2);
-    color: #ff7e42;
-    border: 1px solid rgba(255, 126, 66, 0.3);
+    background: linear-gradient(135deg, #ffb343, #ff7e42);
+    color: white;
+    border: none;
+    font-weight: 600;
 }
 
 .goal-card-personal .goal-frequency {
-    background-color: rgba(66, 114, 255, 0.2);
-    color: #4272ff;
-    border: 1px solid rgba(66, 114, 255, 0.3);
+    background: linear-gradient(135deg, #4272ff, #42eaff);
+    color: white;
+    border: none;
+    font-weight: 600;
 }
 
 .goal-card-personal .goal-action-btn.star {
     color: #ffb343;
+    filter: drop-shadow(0 2px 4px rgba(255, 179, 67, 0.3));
 }
 
 .goal-card-personal .goal-action-btn.star.completed {
     color: #42eaff;
+    filter: drop-shadow(0 2px 8px rgba(66, 234, 255, 0.5));
 }
 
 .goal-card-personal .goal-action-btn.edit {
-    border-color: #4272ff;
-    color: #4272ff;
+    background: linear-gradient(135deg, #4272ff, #42eaff);
+    border: none;
+    color: white;
 }
 
 .goal-card-personal .goal-action-btn.edit:hover {
-    background: #4272ff;
-    color: white;
+    background: linear-gradient(135deg, #42eaff, #4272ff);
+    transform: scale(1.05);
 }
 
 .goal-card-personal .goal-action-btn.delete {
-    border-color: #ff7e42;
-    color: #ff7e42;
+    background: linear-gradient(135deg, #ff7e42, #ffb343);
+    border: none;
+    color: white;
 }
 
 .goal-card-personal .goal-action-btn.delete:hover {
-    background: #ff7e42;
-    color: white;
+    background: linear-gradient(135deg, #ffb343, #ff7e42);
+    transform: scale(1.05);
 }
 
 /* Couple goals color palette */
 .goal-card-couple {
-    border-left-color: #cd1c18;
-    background: linear-gradient(135deg, rgba(205, 28, 24, 0.03), rgba(255, 168, 150, 0.03));
+    border-left: 5px solid #cd1c18;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e6 100%);
+    box-shadow: 0 2px 8px rgba(155, 19, 19, 0.15);
 }
 
 .goal-card-couple:hover {
-    background: linear-gradient(135deg, rgba(205, 28, 24, 0.08), rgba(255, 168, 150, 0.08));
+    background: linear-gradient(135deg, #ffe0de 0%, #ffd4d0 100%);
     border-left-color: #9b1313;
+    box-shadow: 0 4px 12px rgba(205, 28, 24, 0.25);
 }
 
 .goal-card-couple .goal-category {
-    background-color: rgba(205, 28, 24, 0.2);
-    color: #9b1313;
-    border: 1px solid rgba(155, 19, 19, 0.3);
+    background: linear-gradient(135deg, #9b1313, #38000a);
+    color: white;
+    border: none;
+    font-weight: 600;
 }
 
 .goal-card-couple .goal-frequency {
-    background-color: rgba(255, 168, 150, 0.2);
-    color: #cd1c18;
-    border: 1px solid rgba(205, 28, 24, 0.3);
+    background: linear-gradient(135deg, #cd1c18, #ffa896);
+    color: white;
+    border: none;
+    font-weight: 600;
 }
 
 .goal-card-couple .goal-action-btn.star {
     color: #cd1c18;
+    filter: drop-shadow(0 2px 4px rgba(205, 28, 24, 0.3));
 }
 
 .goal-card-couple .goal-action-btn.star.completed {
     color: #ffa896;
+    filter: drop-shadow(0 2px 8px rgba(255, 168, 150, 0.5));
 }
 
 .goal-card-couple .goal-action-btn.edit {
-    border-color: #cd1c18;
-    color: #cd1c18;
+    background: linear-gradient(135deg, #ffa896, #cd1c18);
+    border: none;
+    color: white;
 }
 
 .goal-card-couple .goal-action-btn.edit:hover {
-    background: #cd1c18;
-    color: white;
+    background: linear-gradient(135deg, #cd1c18, #ffa896);
+    transform: scale(1.05);
 }
 
 .goal-card-couple .goal-action-btn.delete {
-    border-color: #9b1313;
-    color: #9b1313;
+    background: linear-gradient(135deg, #9b1313, #38000a);
+    border: none;
+    color: white;
 }
 
 .goal-card-couple .goal-action-btn.delete:hover {
-    background: #9b1313;
-    color: white;
+    background: linear-gradient(135deg, #38000a, #9b1313);
+    transform: scale(1.05);
 }
 
 @keyframes slideInUp {
@@ -783,18 +827,18 @@ input, select, textarea {
 }
 
 .goal-card.completed {
-    opacity: 0.85;
+    opacity: 0.9;
     animation: completeCard var(--transition-medium) ease-out;
 }
 
 .goal-card-personal.completed {
     border-left-color: #42eaff;
-    background: linear-gradient(135deg, rgba(66, 234, 255, 0.05), rgba(66, 114, 255, 0.05));
+    background: linear-gradient(135deg, #e0f7ff 0%, #e6f0ff 100%);
 }
 
 .goal-card-couple.completed {
     border-left-color: #ffa896;
-    background: linear-gradient(135deg, rgba(255, 168, 150, 0.05), rgba(205, 28, 24, 0.05));
+    background: linear-gradient(135deg, #ffe8e6 0%, #ffd4d0 100%);
 }
 
 @keyframes completeCard {
@@ -823,14 +867,31 @@ input, select, textarea {
 
 .goal-name {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-dark);
     word-wrap: break-word;
 }
 
+/* Personal goal names */
+.goal-card-personal .goal-name {
+    color: #ff7e42;
+}
+
+/* Couple goal names */
+.goal-card-couple .goal-name {
+    color: #9b1313;
+}
+
 .goal-card.completed .goal-name {
     text-decoration: line-through;
-    color: var(--text-medium);
+}
+
+.goal-card-personal.completed .goal-name {
+    color: #42eaff;
+}
+
+.goal-card-couple.completed .goal-name {
+    color: #ffa896;
 }
 
 .goal-meta {
@@ -973,15 +1034,23 @@ input, select, textarea {
 }
 
 /* Personal stats progress bar */
+#personal-stats .progress-bar-container {
+    background: linear-gradient(90deg, rgba(66, 114, 255, 0.2), rgba(66, 234, 255, 0.2));
+}
+
 #personal-stats .progress-bar-fill {
-    background: linear-gradient(90deg, #ffb343, #ff7e42);
-    box-shadow: 0 0 8px rgba(255, 179, 67, 0.4);
+    background: linear-gradient(90deg, #ffb343 0%, #ff7e42 50%, #42eaff 100%);
+    box-shadow: 0 0 12px rgba(66, 234, 255, 0.6);
 }
 
 /* Couple stats progress bar */
+#couple-stats .progress-bar-container {
+    background: linear-gradient(90deg, rgba(255, 168, 150, 0.3), rgba(205, 28, 24, 0.2));
+}
+
 #couple-stats .progress-bar-fill {
-    background: linear-gradient(90deg, #cd1c18, #9b1313);
-    box-shadow: 0 0 8px rgba(205, 28, 24, 0.4);
+    background: linear-gradient(90deg, #ffa896 0%, #cd1c18 50%, #9b1313 100%);
+    box-shadow: 0 0 12px rgba(205, 28, 24, 0.6);
 }
 
 .progress-text {
@@ -1034,14 +1103,16 @@ input, select, textarea {
 
 /* Personal stats card styling */
 .stat-card-personal {
-    background: linear-gradient(135deg, rgba(255, 179, 67, 0.05), rgba(66, 234, 255, 0.05));
-    border: 1px solid rgba(255, 179, 67, 0.2);
+    background: linear-gradient(135deg, #fff9f0 0%, #e0f7ff 100%);
+    border: 2px solid #ffb343;
+    box-shadow: 0 4px 12px rgba(66, 234, 255, 0.15);
 }
 
 /* Couple stats card styling */
 .stat-card-couple {
-    background: linear-gradient(135deg, rgba(205, 28, 24, 0.05), rgba(255, 168, 150, 0.05));
-    border: 1px solid rgba(205, 28, 24, 0.2);
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe0de 100%);
+    border: 2px solid #cd1c18;
+    box-shadow: 0 4px 12px rgba(205, 28, 24, 0.15);
 }
 
 .stat-card h3 {
@@ -1087,12 +1158,20 @@ input, select, textarea {
 
 /* Personal stats values */
 #personal-stats .stat-value {
-    color: #ff7e42;
+    background: linear-gradient(135deg, #ff7e42, #ffb343);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
 }
 
 /* Couple stats values */
 #couple-stats .stat-value {
-    color: #cd1c18;
+    background: linear-gradient(135deg, #cd1c18, #ffa896);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
 }
 
 .stat-circle {
@@ -1330,13 +1409,39 @@ input, select, textarea {
 }
 
 /* Personal tab empty state */
+#personal-tab .empty-state {
+    background: linear-gradient(135deg, rgba(255, 179, 67, 0.1), rgba(66, 234, 255, 0.1));
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
 #personal-tab .empty-state-text {
-    color: #ff7e42;
+    background: linear-gradient(135deg, #ff7e42, #ffb343);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#personal-tab .empty-state-hint {
+    color: #4272ff;
 }
 
 /* Couple tab empty state */
+#couple-tab .empty-state {
+    background: linear-gradient(135deg, rgba(205, 28, 24, 0.1), rgba(255, 168, 150, 0.1));
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
 #couple-tab .empty-state-text {
-    color: #cd1c18;
+    background: linear-gradient(135deg, #cd1c18, #9b1313);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#couple-tab .empty-state-hint {
+    color: #9b1313;
 }
 
 .empty-state-hint {
