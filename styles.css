@@ -517,6 +517,7 @@ input, select, textarea {
 .goal-actions {
     display: flex;
     gap: var(--spacing-xs);
+    flex-shrink: 0;
 }
 
 .goal-action-btn {
@@ -547,6 +548,28 @@ input, select, textarea {
 
 .goal-action-btn.star:active {
     animation: starPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.goal-action-btn.edit {
+    background: linear-gradient(135deg, var(--steel-blue), var(--cadet-blue));
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.goal-action-btn.edit:hover {
+    background: linear-gradient(135deg, var(--cadet-blue), var(--steel-blue));
+}
+
+.goal-action-btn.delete {
+    background: linear-gradient(135deg, var(--deep-orange), #D32F2F);
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.goal-action-btn.delete:hover {
+    background: linear-gradient(135deg, #D32F2F, #B71C1C);
 }
 
 .goal-action-btn.star.earned {

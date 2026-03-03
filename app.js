@@ -289,6 +289,8 @@ function createGoalCard(task, completed, data) {
     const card = document.createElement('div');
     card.className = `goal-card ${completed ? 'completed' : ''}`;
 
+    const isCustom = task.id.startsWith('custom-');
+
     card.innerHTML = `
         <div class="goal-header">
             <div class="goal-info">
@@ -299,7 +301,15 @@ function createGoalCard(task, completed, data) {
                 </div>
             </div>
             <div class="goal-actions">
-                <button class="goal-action-btn star" data-id="${task.id}">
+                ${isCustom ? `
+                    <button class="goal-action-btn edit" data-id="${task.id}" title="Edit goal">
+                        ✎
+                    </button>
+                    <button class="goal-action-btn delete" data-id="${task.id}" title="Delete goal">
+                        ×
+                    </button>
+                ` : ''}
+                <button class="goal-action-btn star" data-id="${task.id}" title="Complete goal">
                     ${completed ? '★' : '☆'}
                 </button>
             </div>
@@ -308,6 +318,14 @@ function createGoalCard(task, completed, data) {
 
     const starBtn = card.querySelector('.star');
     starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
+
+    if (isCustom) {
+        const editBtn = card.querySelector('.edit');
+        const deleteBtn = card.querySelector('.delete');
+
+        editBtn.addEventListener('click', () => openEditModal(task));
+        deleteBtn.addEventListener('click', () => confirmDeleteGoal(task));
+    }
 
     return card;
 }
@@ -530,6 +548,8 @@ function showToast(message, type = 'info') {
 // MODAL & CUSTOM GOALS
 // ===================================
 
+let editingGoalId = null;
+
 function setupModal() {
     const modal = document.getElementById('goal-modal');
     const modalClose = document.querySelector('.modal-close');
@@ -566,22 +586,38 @@ function setupModal() {
     goalForm.addEventListener('submit', handleGoalFormSubmit);
 }
 
-function openModal(goalType = 'personal') {
+function openModal(goalType = 'personal', editMode = false) {
     const modal = document.getElementById('goal-modal');
     const modalTitle = document.getElementById('modal-title');
     const goalTypeSelect = document.getElementById('goal-type');
     const goalForm = document.getElementById('goal-form');
     const predefinedGoalsSelect = document.getElementById('predefined-goals');
+    const submitBtn = document.querySelector('.btn-submit');
 
-    // Reset form
-    goalForm.reset();
-    goalTypeSelect.value = goalType;
+    // Reset editing state if not in edit mode
+    if (!editMode) {
+        editingGoalId = null;
+        goalForm.reset();
+        goalTypeSelect.value = goalType;
+    }
 
-    // Update modal title
-    modalTitle.textContent = `Add ${goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal`;
+    // Update modal title and button
+    modalTitle.textContent = editMode ?
+        `Edit ${goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal` :
+        `Add ${goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal`;
+    submitBtn.textContent = editMode ? 'Update Goal' : 'Save Goal';
+
+    // Disable goal type in edit mode
+    goalTypeSelect.disabled = editMode;
+
+    // Show/hide predefined goals dropdown (only for add mode)
+    const predefinedGroup = predefinedGoalsSelect.parentElement;
+    predefinedGroup.style.display = editMode ? 'none' : 'block';
 
     // Populate predefined goals dropdown
-    populatePredefinedGoals(goalType);
+    if (!editMode) {
+        populatePredefinedGoals(goalType);
+    }
 
     // Listen for predefined goal selection
     predefinedGoalsSelect.addEventListener('change', (e) => {
@@ -600,8 +636,10 @@ function openModal(goalType = 'personal') {
 
     // Listen for goal type changes to update predefined options
     goalTypeSelect.addEventListener('change', (e) => {
-        populatePredefinedGoals(e.target.value);
-        modalTitle.textContent = `Add ${e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)} Goal`;
+        if (!editMode) {
+            populatePredefinedGoals(e.target.value);
+            modalTitle.textContent = `Add ${e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)} Goal`;
+        }
     });
 
     // Show modal and focus first input
@@ -610,7 +648,7 @@ function openModal(goalType = 'personal') {
         document.getElementById('goal-name').focus();
     }, 100);
 
-    debugLog(`📝 Opening modal for ${goalType} goal`);
+    debugLog(`📝 Opening modal for ${goalType} goal (${editMode ? 'edit' : 'add'} mode)`);
 }
 
 function populatePredefinedGoals(goalType) {
@@ -631,6 +669,57 @@ function populatePredefinedGoals(goalType) {
 function closeModal() {
     const modal = document.getElementById('goal-modal');
     modal.classList.add('hidden');
+    editingGoalId = null;
+}
+
+function openEditModal(task) {
+    editingGoalId = task.id;
+
+    // Pre-fill form with task data
+    document.getElementById('goal-type').value = task.type;
+    document.getElementById('goal-name').value = task.name;
+    document.getElementById('goal-category').value = task.category;
+    document.getElementById('goal-frequency').value = task.frequency;
+
+    openModal(task.type, true);
+}
+
+function confirmDeleteGoal(task) {
+    // Use native confirm for simplicity
+    const confirmed = confirm(`Delete "${task.name}"?\n\nThis will also delete all completion history for this goal.`);
+
+    if (confirmed) {
+        deleteGoal(task.id, task.name);
+    }
+}
+
+async function deleteGoal(goalId, goalName) {
+    debugLog(`🗑️ Deleting goal: ${goalId}`);
+
+    // Remove from custom tasks
+    currentData.customTasks = currentData.customTasks.filter(t => t.id !== goalId);
+
+    // Remove completion history for this goal
+    Object.keys(currentData.completions || {}).forEach(date => {
+        if (currentData.completions[date][goalId]) {
+            delete currentData.completions[date][goalId];
+        }
+    });
+
+    // Remove streak data
+    if (currentData.streaks && currentData.streaks[goalId]) {
+        delete currentData.streaks[goalId];
+    }
+
+    debugLog('✓ Goal deleted', { goalId });
+
+    // Save to Firebase
+    await saveGoalsData(currentData);
+
+    // Re-render goals
+    renderGoals(currentData);
+
+    showToast(`${goalName} deleted`, 'success');
 }
 
 async function handleGoalFormSubmit(e) {
@@ -646,48 +735,83 @@ async function handleGoalFormSubmit(e) {
         return;
     }
 
-    // Check for duplicate names
-    const allTasks = [
-        ...currentData.predefinedTasks.personal,
-        ...currentData.predefinedTasks.couple,
-        ...(currentData.customTasks || [])
-    ];
+    if (editingGoalId) {
+        // EDIT MODE
+        const customTaskIndex = currentData.customTasks.findIndex(t => t.id === editingGoalId);
 
-    const isDuplicate = allTasks.some(task =>
-        task.name.toLowerCase() === goalName.toLowerCase() && task.type === goalType
-    );
+        if (customTaskIndex === -1) {
+            showToast('Goal not found', 'error');
+            return;
+        }
 
-    if (isDuplicate) {
-        showToast('Goal with this name already exists', 'error');
-        return;
+        // Check for duplicate names (excluding current goal)
+        const isDuplicate = currentData.customTasks.some(task =>
+            task.id !== editingGoalId &&
+            task.name.toLowerCase() === goalName.toLowerCase() &&
+            task.type === goalType
+        );
+
+        if (isDuplicate) {
+            showToast('Goal with this name already exists', 'error');
+            return;
+        }
+
+        // Update the goal
+        currentData.customTasks[customTaskIndex] = {
+            ...currentData.customTasks[customTaskIndex],
+            name: goalName,
+            category: goalCategory,
+            frequency: goalFrequency,
+            type: goalType
+        };
+
+        debugLog('✓ Updating custom goal', currentData.customTasks[customTaskIndex]);
+
+        await saveGoalsData(currentData);
+        renderGoals(currentData);
+        closeModal();
+        showToast(`${goalName} updated! ✓`, 'success');
+
+    } else {
+        // ADD MODE
+        // Check for duplicate names
+        const allTasks = [
+            ...currentData.predefinedTasks.personal,
+            ...currentData.predefinedTasks.couple,
+            ...(currentData.customTasks || [])
+        ];
+
+        const isDuplicate = allTasks.some(task =>
+            task.name.toLowerCase() === goalName.toLowerCase() && task.type === goalType
+        );
+
+        if (isDuplicate) {
+            showToast('Goal with this name already exists', 'error');
+            return;
+        }
+
+        // Generate unique ID
+        const goalId = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        const newGoal = {
+            id: goalId,
+            name: goalName,
+            category: goalCategory,
+            frequency: goalFrequency,
+            type: goalType
+        };
+
+        // Add to custom tasks
+        if (!currentData.customTasks) {
+            currentData.customTasks = [];
+        }
+        currentData.customTasks.push(newGoal);
+
+        debugLog('✓ Creating custom goal', newGoal);
+
+        await saveGoalsData(currentData);
+        renderGoals(currentData);
+        closeModal();
+        showToast(`${goalName} added! ✓`, 'success');
     }
-
-    // Generate unique ID
-    const goalId = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    const newGoal = {
-        id: goalId,
-        name: goalName,
-        category: goalCategory,
-        frequency: goalFrequency,
-        type: goalType
-    };
-
-    // Add to custom tasks
-    if (!currentData.customTasks) {
-        currentData.customTasks = [];
-    }
-    currentData.customTasks.push(newGoal);
-
-    debugLog('✓ Creating custom goal', newGoal);
-
-    // Save to Firebase
-    await saveGoalsData(currentData);
-
-    // Re-render goals
-    renderGoals(currentData);
-
-    // Close modal and show success
-    closeModal();
-    showToast(`${goalName} added! ✓`, 'success');
 }
