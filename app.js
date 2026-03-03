@@ -97,8 +97,8 @@ async function init() {
         return;
     }
 
-    // Hide auth screen (no login needed with Firebase)
-    authScreen.style.display = 'none';
+    // Permanently hide auth screen (no login needed with Firebase)
+    authScreen.remove();
     showMainApp();
     await loadApp();
 
@@ -176,6 +176,10 @@ async function loadGoalsData() {
 async function saveGoalsData(data) {
     debugLog('📤 Saving data to Firebase...');
 
+    // Show syncing indicator
+    const syncIcon = syncButton.querySelector('.sync-icon');
+    syncButton.classList.add('syncing');
+
     try {
         const docRef = db.collection('goals').doc('main');
 
@@ -185,11 +189,13 @@ async function saveGoalsData(data) {
 
         // Also cache locally
         localStorage.setItem('goals_cache', JSON.stringify(data));
-        showToast('Saved! ✓', 'success');
+
+        syncButton.classList.remove('syncing');
         return true;
     } catch (error) {
         debugLog('✗ Firebase save error', { error: error.message });
         showToast('Error saving data', 'error');
+        syncButton.classList.remove('syncing');
         return false;
     }
 }
@@ -313,10 +319,39 @@ async function toggleGoalCompletion(taskId, data) {
     }
 
     const isCurrentlyCompleted = data.completions[today][taskId]?.completed || false;
+    const nowCompleted = !isCurrentlyCompleted;
+
     data.completions[today][taskId] = {
-        completed: !isCurrentlyCompleted,
+        completed: nowCompleted,
         timestamp: new Date().toISOString()
     };
+
+    // Update streaks
+    if (!data.streaks) data.streaks = {};
+    if (!data.streaks[taskId]) {
+        data.streaks[taskId] = { current: 0, longest: 0 };
+    }
+
+    if (nowCompleted) {
+        // Increment streak
+        data.streaks[taskId].current += 1;
+        if (data.streaks[taskId].current > data.streaks[taskId].longest) {
+            data.streaks[taskId].longest = data.streaks[taskId].current;
+        }
+
+        // Celebrate with confetti!
+        if (typeof confetti !== 'undefined') {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513']
+            });
+        }
+    } else {
+        // Reset streak
+        data.streaks[taskId].current = 0;
+    }
 
     currentData = data;
     renderGoals(currentData);
@@ -325,10 +360,157 @@ async function toggleGoalCompletion(taskId, data) {
 }
 
 function renderStats(data) {
-    // Basic stats rendering
-    document.getElementById('personal-stats').innerHTML = '<p>Stats coming soon</p>';
-    document.getElementById('couple-stats').innerHTML = '<p>Stats coming soon</p>';
-    document.getElementById('overall-stats').innerHTML = '<p>Stats coming soon</p>';
+    renderPersonalStats(data);
+    renderCoupleStats(data);
+    renderOverallStats(data);
+}
+
+function renderPersonalStats(data) {
+    const container = document.getElementById('personal-stats');
+    const stats = calculateStats(data, 'personal');
+
+    const today = getTodayString();
+    const personalTasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+    const completedToday = personalTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
+    const completionPercentage = personalTasks.length > 0 ? Math.round((completedToday / personalTasks.length) * 100) : 0;
+
+    container.innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Today's Progress</span>
+            <span class="stat-value">${completedToday}/${personalTasks.length}</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Completions</span>
+            <span class="stat-value">${stats.totalCompletions}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Active Days</span>
+            <span class="stat-value">${stats.activeDays}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Current Streak</span>
+            <span class="stat-value">${stats.currentStreak} days 🔥</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Longest Streak</span>
+            <span class="stat-value">${stats.longestStreak} days ⭐</span>
+        </div>
+    `;
+}
+
+function renderCoupleStats(data) {
+    const container = document.getElementById('couple-stats');
+    const stats = calculateStats(data, 'couple');
+
+    const today = getTodayString();
+    const coupleTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    const completedToday = coupleTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
+    const completionPercentage = coupleTasks.length > 0 ? Math.round((completedToday / coupleTasks.length) * 100) : 0;
+
+    container.innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Today's Progress</span>
+            <span class="stat-value">${completedToday}/${coupleTasks.length}</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Completions</span>
+            <span class="stat-value">${stats.totalCompletions}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Active Days</span>
+            <span class="stat-value">${stats.activeDays}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Current Streak</span>
+            <span class="stat-value">${stats.currentStreak} days 🔥</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Longest Streak</span>
+            <span class="stat-value">${stats.longestStreak} days ⭐</span>
+        </div>
+    `;
+}
+
+function renderOverallStats(data) {
+    const container = document.getElementById('overall-stats');
+    const personalStats = calculateStats(data, 'personal');
+    const coupleStats = calculateStats(data, 'couple');
+    const totalCompletions = personalStats.totalCompletions + coupleStats.totalCompletions;
+    const totalDays = Math.max(personalStats.activeDays, coupleStats.activeDays);
+
+    const today = getTodayString();
+    const allTasks = [
+        ...data.predefinedTasks.personal,
+        ...data.predefinedTasks.couple,
+        ...data.customTasks
+    ];
+    const completedToday = allTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
+    const completionPercentage = allTasks.length > 0 ? Math.round((completedToday / allTasks.length) * 100) : 0;
+
+    container.innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Today's Overall Progress</span>
+            <span class="stat-value">${completedToday}/${allTasks.length}</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Completions</span>
+            <span class="stat-value">${totalCompletions}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Days Active</span>
+            <span class="stat-value">${totalDays}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Average Per Day</span>
+            <span class="stat-value">${totalDays > 0 ? Math.round(totalCompletions / totalDays) : 0}</span>
+        </div>
+    `;
+}
+
+function calculateStats(data, type) {
+    const tasks = [...data.predefinedTasks[type], ...data.customTasks.filter(t => t.type === type)];
+    const taskIds = tasks.map(t => t.id);
+
+    let totalCompletions = 0;
+    const daysWithCompletions = new Set();
+    let currentStreak = 0;
+    let longestStreak = 0;
+
+    // Count completions
+    Object.entries(data.completions || {}).forEach(([date, dayCompletions]) => {
+        const dayCount = Object.entries(dayCompletions).filter(([id, comp]) =>
+            taskIds.includes(id) && comp.completed
+        ).length;
+
+        if (dayCount > 0) {
+            totalCompletions += dayCount;
+            daysWithCompletions.add(date);
+        }
+    });
+
+    // Calculate streaks from stored data
+    taskIds.forEach(taskId => {
+        if (data.streaks && data.streaks[taskId]) {
+            currentStreak = Math.max(currentStreak, data.streaks[taskId].current || 0);
+            longestStreak = Math.max(longestStreak, data.streaks[taskId].longest || 0);
+        }
+    });
+
+    return {
+        totalCompletions,
+        activeDays: daysWithCompletions.size,
+        currentStreak,
+        longestStreak
+    };
 }
 
 function getTodayString() {
