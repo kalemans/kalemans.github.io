@@ -147,6 +147,17 @@
         <span id="toast-message"></span>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <!-- Debug Panel -->
+    <div id="debug-panel" class="debug-panel hidden">
+        <div class="debug-header">
+            <span>HTTP Request Log</span>
+            <button id="debug-close" class="debug-close-btn">×</button>
+        </div>
+        <div id="debug-content" class="debug-content"></div>
+        <button id="debug-clear" class="debug-clear-btn">Clear</button>
+    </div>
+    <button id="debug-toggle" class="debug-toggle-btn">🐛</button>
+
+    <script type="module" src="app.js?v=3.0.0"></script>
 </body>
 </html>
