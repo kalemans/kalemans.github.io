@@ -2,9 +2,9 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.1.2-DEBUG';
+const APP_VERSION = '4.1.3-FIXED';
 
-console.log('🚀 APP.JS LOADED - VERSION 4.1.2-DEBUG - WIREFRAME ENABLED - EXTENSIVE LOGGING');
+console.log('🚀 APP.JS LOADED - VERSION 4.1.3-FIXED - TYPE PROPERTY ADDED TO ALL TASKS');
 
 // State Management
 let currentData = null;
@@ -283,9 +283,8 @@ function renderGoals(data) {
 function updateDailyProgress(data) {
     const today = getTodayString();
     const allTasks = [
-        ...data.predefinedTasks.personal,
-        ...data.predefinedTasks.couple,
-        ...data.customTasks
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
     ];
 
     if (allTasks.length === 0) {
@@ -326,7 +325,7 @@ function renderPersonalGoals(data) {
     container.innerHTML = '';
 
     const today = getTodayString();
-    let tasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+    let tasks = getAllTasksWithType(data, 'personal');
 
     // Update category filters
     updateCategoryFilters('personal', tasks);
@@ -335,7 +334,7 @@ function renderPersonalGoals(data) {
     tasks = applyFilters(tasks, filters.personal);
 
     if (tasks.length === 0) {
-        const allTasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+        const allTasks = getAllTasksWithType(data, 'personal');
         if (allTasks.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -372,7 +371,7 @@ function renderCoupleGoals(data) {
     renderWeeklyOverview(data);
 
     const today = getTodayString();
-    let tasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    let tasks = getAllTasksWithType(data, 'couple');
 
     // Update category filters for modal
     updateCategoryFiltersModal('couple', tasks);
@@ -383,7 +382,7 @@ function renderCoupleGoals(data) {
     console.log(`📋 Rendering ${tasks.length} couple tasks:`, tasks.map(t => ({name: t.name, type: t.type, id: t.id})));
 
     if (tasks.length === 0) {
-        const allTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+        const allTasks = getAllTasksWithType(data, 'couple');
         if (allTasks.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -701,7 +700,7 @@ function renderPersonalStats(data) {
     }
 
     const today = getTodayString();
-    const personalTasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+    const personalTasks = getAllTasksWithType(data, 'personal');
     const completedToday = personalTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
     const completionPercentage = personalTasks.length > 0 ? Math.round((completedToday / personalTasks.length) * 100) : 0;
 
@@ -743,7 +742,7 @@ function renderCoupleStats(data) {
     }
 
     const today = getTodayString();
-    const coupleTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    const coupleTasks = getAllTasksWithType(data, 'couple');
     const completedToday = coupleTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
     const completionPercentage = coupleTasks.length > 0 ? Math.round((completedToday / coupleTasks.length) * 100) : 0;
 
@@ -791,7 +790,7 @@ function renderWeeklyOverview(data) {
     }
 
     // Get couple tasks
-    const coupleTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    const coupleTasks = getAllTasksWithType(data, 'couple');
     const totalTasks = coupleTasks.length;
 
     // Calculate completions for each day
@@ -837,9 +836,8 @@ function renderOverallStats(data) {
 
     const today = getTodayString();
     const allTasks = [
-        ...data.predefinedTasks.personal,
-        ...data.predefinedTasks.couple,
-        ...data.customTasks
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
     ];
     const completedToday = allTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
     const completionPercentage = allTasks.length > 0 ? Math.round((completedToday / allTasks.length) * 100) : 0;
@@ -868,7 +866,7 @@ function renderOverallStats(data) {
 }
 
 function calculateStats(data, type) {
-    const tasks = [...data.predefinedTasks[type], ...data.customTasks.filter(t => t.type === type)];
+    const tasks = getAllTasksWithType(data, type);
     const taskIds = tasks.map(t => t.id);
 
     let totalCompletions = 0;
@@ -907,6 +905,14 @@ function calculateStats(data, type) {
 function getTodayString() {
     const today = new Date();
     return today.toISOString().split('T')[0];
+}
+
+// Helper function to get all tasks with type property
+function getAllTasksWithType(data, type) {
+    return [
+        ...data.predefinedTasks[type].map(t => ({...t, type})),
+        ...data.customTasks.filter(t => t.type === type)
+    ];
 }
 
 function showToast(message, type = 'info', duration = 3000) {
