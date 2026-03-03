@@ -415,6 +415,33 @@ input, select, textarea {
     border-radius: 3px 3px 0 0;
 }
 
+/* Personal tab active color */
+.tab-button[data-tab="personal"].active {
+    color: #ff7e42;
+}
+
+.tab-button[data-tab="personal"].active::after {
+    background: linear-gradient(90deg, #ffb343, #ff7e42);
+}
+
+/* Couple tab active color */
+.tab-button[data-tab="couple"].active {
+    color: #cd1c18;
+}
+
+.tab-button[data-tab="couple"].active::after {
+    background: linear-gradient(90deg, #cd1c18, #9b1313);
+}
+
+/* Stats tab active color */
+.tab-button[data-tab="stats"].active {
+    color: var(--light-brown);
+}
+
+.tab-button[data-tab="stats"].active::after {
+    background: linear-gradient(90deg, var(--light-brown), var(--burnt-orange));
+}
+
 /* ===================================
    TAB CONTENT
    =================================== */
@@ -432,6 +459,16 @@ input, select, textarea {
 
 .tab-pane.active {
     display: block;
+}
+
+/* Personal tab background tint */
+#personal-tab {
+    background: linear-gradient(180deg, rgba(255, 179, 67, 0.02), rgba(66, 234, 255, 0.02));
+}
+
+/* Couple tab background tint */
+#couple-tab {
+    background: linear-gradient(180deg, rgba(205, 28, 24, 0.02), rgba(255, 168, 150, 0.02));
 }
 
 @keyframes fadeIn {
@@ -462,6 +499,16 @@ input, select, textarea {
     font-size: 1.5rem;
     color: var(--primary-brown);
     font-weight: 700;
+}
+
+/* Personal tab header */
+#personal-tab .tab-header h2 {
+    color: #ff7e42;
+}
+
+/* Couple tab header */
+#couple-tab .tab-header h2 {
+    color: #cd1c18;
 }
 
 .add-goal-button {
@@ -511,6 +558,18 @@ input, select, textarea {
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
+}
+
+/* Personal tab filters container */
+#personal-tab .filters-container {
+    background: linear-gradient(135deg, rgba(255, 179, 67, 0.05), rgba(66, 234, 255, 0.05));
+    border: 1px solid rgba(255, 179, 67, 0.2);
+}
+
+/* Couple tab filters container */
+#couple-tab .filters-container {
+    background: linear-gradient(135deg, rgba(205, 28, 24, 0.05), rgba(255, 168, 150, 0.05));
+    border: 1px solid rgba(205, 28, 24, 0.2);
 }
 
 .filter-group {
@@ -608,31 +667,103 @@ input, select, textarea {
 /* Personal goals color palette */
 .goal-card-personal {
     border-left-color: #ffb343;
+    background: linear-gradient(135deg, rgba(255, 179, 67, 0.03), rgba(66, 234, 255, 0.03));
+}
+
+.goal-card-personal:hover {
+    background: linear-gradient(135deg, rgba(255, 179, 67, 0.08), rgba(66, 234, 255, 0.08));
+    border-left-color: #ff7e42;
 }
 
 .goal-card-personal .goal-category {
-    background-color: rgba(255, 179, 67, 0.15);
+    background-color: rgba(255, 179, 67, 0.2);
     color: #ff7e42;
+    border: 1px solid rgba(255, 126, 66, 0.3);
 }
 
 .goal-card-personal .goal-frequency {
-    background-color: rgba(66, 114, 255, 0.15);
+    background-color: rgba(66, 114, 255, 0.2);
     color: #4272ff;
+    border: 1px solid rgba(66, 114, 255, 0.3);
+}
+
+.goal-card-personal .goal-action-btn.star {
+    color: #ffb343;
+}
+
+.goal-card-personal .goal-action-btn.star.completed {
+    color: #42eaff;
+}
+
+.goal-card-personal .goal-action-btn.edit {
+    border-color: #4272ff;
+    color: #4272ff;
+}
+
+.goal-card-personal .goal-action-btn.edit:hover {
+    background: #4272ff;
+    color: white;
+}
+
+.goal-card-personal .goal-action-btn.delete {
+    border-color: #ff7e42;
+    color: #ff7e42;
+}
+
+.goal-card-personal .goal-action-btn.delete:hover {
+    background: #ff7e42;
+    color: white;
 }
 
 /* Couple goals color palette */
 .goal-card-couple {
     border-left-color: #cd1c18;
+    background: linear-gradient(135deg, rgba(205, 28, 24, 0.03), rgba(255, 168, 150, 0.03));
+}
+
+.goal-card-couple:hover {
+    background: linear-gradient(135deg, rgba(205, 28, 24, 0.08), rgba(255, 168, 150, 0.08));
+    border-left-color: #9b1313;
 }
 
 .goal-card-couple .goal-category {
-    background-color: rgba(205, 28, 24, 0.15);
+    background-color: rgba(205, 28, 24, 0.2);
     color: #9b1313;
+    border: 1px solid rgba(155, 19, 19, 0.3);
 }
 
 .goal-card-couple .goal-frequency {
-    background-color: rgba(255, 168, 150, 0.15);
+    background-color: rgba(255, 168, 150, 0.2);
     color: #cd1c18;
+    border: 1px solid rgba(205, 28, 24, 0.3);
+}
+
+.goal-card-couple .goal-action-btn.star {
+    color: #cd1c18;
+}
+
+.goal-card-couple .goal-action-btn.star.completed {
+    color: #ffa896;
+}
+
+.goal-card-couple .goal-action-btn.edit {
+    border-color: #cd1c18;
+    color: #cd1c18;
+}
+
+.goal-card-couple .goal-action-btn.edit:hover {
+    background: #cd1c18;
+    color: white;
+}
+
+.goal-card-couple .goal-action-btn.delete {
+    border-color: #9b1313;
+    color: #9b1313;
+}
+
+.goal-card-couple .goal-action-btn.delete:hover {
+    background: #9b1313;
+    color: white;
 }
 
 @keyframes slideInUp {
@@ -658,10 +789,12 @@ input, select, textarea {
 
 .goal-card-personal.completed {
     border-left-color: #42eaff;
+    background: linear-gradient(135deg, rgba(66, 234, 255, 0.05), rgba(66, 114, 255, 0.05));
 }
 
 .goal-card-couple.completed {
     border-left-color: #ffa896;
+    background: linear-gradient(135deg, rgba(255, 168, 150, 0.05), rgba(205, 28, 24, 0.05));
 }
 
 @keyframes completeCard {
@@ -868,6 +1001,23 @@ input, select, textarea {
     font-weight: 700;
 }
 
+.stat-card h3 {
+    font-size: 1.125rem;
+    color: var(--primary-brown);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+/* Personal stats card */
+.stat-card-personal h3 {
+    color: #ff7e42;
+}
+
+/* Couple stats card */
+.stat-card-couple h3 {
+    color: #cd1c18;
+}
+
 .stats-container {
     display: flex;
     flex-direction: column;
@@ -880,6 +1030,18 @@ input, select, textarea {
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
     animation: fadeIn 0.4s ease-out;
+}
+
+/* Personal stats card styling */
+.stat-card-personal {
+    background: linear-gradient(135deg, rgba(255, 179, 67, 0.05), rgba(66, 234, 255, 0.05));
+    border: 1px solid rgba(255, 179, 67, 0.2);
+}
+
+/* Couple stats card styling */
+.stat-card-couple {
+    background: linear-gradient(135deg, rgba(205, 28, 24, 0.05), rgba(255, 168, 150, 0.05));
+    border: 1px solid rgba(205, 28, 24, 0.2);
 }
 
 .stat-card h3 {
@@ -921,6 +1083,16 @@ input, select, textarea {
 
 .stat-item:hover .stat-value {
     transform: scale(1.05);
+}
+
+/* Personal stats values */
+#personal-stats .stat-value {
+    color: #ff7e42;
+}
+
+/* Couple stats values */
+#couple-stats .stat-value {
+    color: #cd1c18;
 }
 
 .stat-circle {
@@ -1155,6 +1327,16 @@ input, select, textarea {
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: var(--spacing-sm);
+}
+
+/* Personal tab empty state */
+#personal-tab .empty-state-text {
+    color: #ff7e42;
+}
+
+/* Couple tab empty state */
+#couple-tab .empty-state-text {
+    color: #cd1c18;
 }
 
 .empty-state-hint {

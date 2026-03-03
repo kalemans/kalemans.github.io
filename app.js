@@ -496,12 +496,20 @@ function addSwipeToCard(card, task, isCustom) {
         }
 
         if (isSwiping) {
-            // Visual feedback
+            // Visual feedback - use different colors based on task type
             const opacity = Math.min(Math.abs(diffX) / 150, 0.3);
             if (swipeDirection === 'right') {
-                card.style.backgroundColor = `rgba(70, 130, 180, ${opacity})`;
+                if (task.type === 'personal') {
+                    card.style.backgroundColor = `rgba(66, 234, 255, ${opacity})`;
+                } else {
+                    card.style.backgroundColor = `rgba(255, 168, 150, ${opacity})`;
+                }
             } else if (swipeDirection === 'left' && isCustom) {
-                card.style.backgroundColor = `rgba(255, 99, 71, ${opacity})`;
+                if (task.type === 'personal') {
+                    card.style.backgroundColor = `rgba(255, 126, 66, ${opacity})`;
+                } else {
+                    card.style.backgroundColor = `rgba(155, 19, 19, ${opacity})`;
+                }
             }
         }
     }, { passive: true });
@@ -570,11 +578,28 @@ async function toggleGoalCompletion(taskId, data) {
 
         // Celebrate with confetti!
         if (typeof confetti !== 'undefined') {
+            // Get the task to determine colors
+            const allTasks = [
+                ...currentData.predefinedTasks.personal,
+                ...currentData.predefinedTasks.couple,
+                ...currentData.customTasks
+            ];
+            const task = allTasks.find(t => t.id === taskId);
+
+            let colors;
+            if (task && task.type === 'personal') {
+                colors = ['#ffb343', '#42eaff', '#4272ff', '#ff7e42'];
+            } else if (task && task.type === 'couple') {
+                colors = ['#cd1c18', '#ffa896', '#9b1313', '#ff6b6b'];
+            } else {
+                colors = ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513'];
+            }
+
             confetti({
                 particleCount: 100,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513']
+                colors: colors
             });
         }
 
@@ -603,14 +628,14 @@ function checkAllGoalsCompleted(data, today) {
     );
 
     if (allCompleted && allTasks.length > 0) {
-        // Epic celebration!
+        // Epic celebration with both color palettes!
         setTimeout(() => {
             if (typeof confetti !== 'undefined') {
                 confetti({
                     particleCount: 200,
                     spread: 120,
                     origin: { y: 0.5 },
-                    colors: ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513', '#4682B4'],
+                    colors: ['#ffb343', '#42eaff', '#4272ff', '#ff7e42', '#cd1c18', '#ffa896', '#9b1313'],
                     startVelocity: 45,
                     gravity: 0.8
                 });
@@ -629,6 +654,12 @@ function renderStats(data) {
 function renderPersonalStats(data) {
     const container = document.getElementById('personal-stats');
     const stats = calculateStats(data, 'personal');
+
+    // Add personal class to parent stat card
+    const statCard = container.closest('.stat-card');
+    if (statCard) {
+        statCard.classList.add('stat-card-personal');
+    }
 
     const today = getTodayString();
     const personalTasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
@@ -665,6 +696,12 @@ function renderPersonalStats(data) {
 function renderCoupleStats(data) {
     const container = document.getElementById('couple-stats');
     const stats = calculateStats(data, 'couple');
+
+    // Add couple class to parent stat card
+    const statCard = container.closest('.stat-card');
+    if (statCard) {
+        statCard.classList.add('stat-card-couple');
+    }
 
     const today = getTodayString();
     const coupleTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
