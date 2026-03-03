@@ -435,7 +435,7 @@ function createGoalCard(task, completed, data) {
                         ×
                     </button>
                 ` : ''}
-                <button class="goal-action-btn star" data-id="${task.id}" title="Complete goal">
+                <button class="goal-action-btn star ${completed ? 'completed' : ''}" data-id="${task.id}" title="Complete goal">
                     ${completed ? '★' : '☆'}
                 </button>
             </div>

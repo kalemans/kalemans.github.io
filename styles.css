@@ -565,7 +565,7 @@ input, select, textarea {
 .goal-card {
     background: var(--warm-white);
     border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-md);
     box-shadow: var(--shadow-sm);
     border-left: 4px solid var(--light-brown);
     transition: all var(--transition-fast);
@@ -609,9 +609,8 @@ input, select, textarea {
 
 .goal-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--spacing-sm);
     gap: var(--spacing-sm);
 }
 
@@ -621,10 +620,9 @@ input, select, textarea {
 }
 
 .goal-name {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: var(--spacing-xs);
     word-wrap: break-word;
 }
 
@@ -636,16 +634,18 @@ input, select, textarea {
 .goal-meta {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 0.375rem;
     flex-wrap: wrap;
+    margin-top: 0.25rem;
 }
 
 .goal-category,
 .goal-frequency {
-    font-size: 0.813rem;
-    padding: 0.25rem 0.625rem;
-    border-radius: 12px;
+    font-size: 0.688rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
     font-weight: 500;
+    line-height: 1.4;
 }
 
 .goal-category {
@@ -665,20 +665,21 @@ input, select, textarea {
 }
 
 .goal-action-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.125rem;
-    background: var(--beige);
+    font-size: 1rem;
+    background: transparent;
     color: var(--text-dark);
     flex-shrink: 0;
+    border: 2px solid transparent;
 }
 
 .goal-action-btn:hover {
-    background: var(--light-gray);
+    background: var(--beige);
 }
 
 .goal-action-btn:active {
@@ -691,9 +692,15 @@ input, select, textarea {
 }
 
 .goal-action-btn.star {
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
-    color: white;
+    background: transparent;
+    color: var(--gold);
+    font-size: 1.5rem;
+    border: none;
     transition: all var(--transition-fast);
+}
+
+.goal-action-btn.star.completed {
+    color: var(--gold);
 }
 
 .goal-action-btn.star:active {
@@ -701,25 +708,29 @@ input, select, textarea {
 }
 
 .goal-action-btn.edit {
-    background: linear-gradient(135deg, var(--steel-blue), var(--cadet-blue));
-    color: white;
-    font-size: 1rem;
+    background: transparent;
+    color: var(--steel-blue);
+    font-size: 1.125rem;
     font-weight: bold;
+    border: 2px solid var(--steel-blue);
 }
 
 .goal-action-btn.edit:hover {
-    background: linear-gradient(135deg, var(--cadet-blue), var(--steel-blue));
+    background: var(--steel-blue);
+    color: white;
 }
 
 .goal-action-btn.delete {
-    background: linear-gradient(135deg, var(--deep-orange), #D32F2F);
-    color: white;
+    background: transparent;
+    color: var(--deep-orange);
     font-size: 1.5rem;
     line-height: 1;
+    border: 2px solid var(--deep-orange);
 }
 
 .goal-action-btn.delete:hover {
-    background: linear-gradient(135deg, #D32F2F, #B71C1C);
+    background: var(--deep-orange);
+    color: white;
 }
 
 .goal-action-btn.star.earned {
@@ -1078,7 +1089,7 @@ input, select, textarea {
 /* Mobile specific adjustments */
 @media (max-width: 639px) {
     .goal-card {
-        padding: var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-md);
         position: relative;
     }
 
@@ -1091,19 +1102,33 @@ input, select, textarea {
     }
 
     .goal-action-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 1rem;
-        min-width: 38px;
-        min-height: 38px;
+        width: 34px;
+        height: 34px;
+        font-size: 0.938rem;
+        min-width: 34px;
+        min-height: 34px;
+    }
+
+    .goal-action-btn.star {
+        font-size: 1.375rem;
     }
 
     .goal-action-btn.delete {
         font-size: 1.25rem;
     }
 
-    .goal-name {
+    .goal-action-btn.edit {
         font-size: 1rem;
+    }
+
+    .goal-name {
+        font-size: 0.938rem;
+    }
+
+    .goal-category,
+    .goal-frequency {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.375rem;
     }
 
     /* Improve touch targets */
@@ -1175,7 +1200,7 @@ input, select, textarea {
     }
 
     .goal-card {
-        padding: var(--spacing-xl);
+        padding: var(--spacing-md) var(--spacing-lg);
     }
 
     .stats-container {
