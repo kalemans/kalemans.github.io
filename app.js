@@ -104,6 +104,7 @@ async function init() {
 
     // Set up event listeners
     setupTabs();
+    setupModal();
     syncButton.addEventListener('click', handleManualSync);
 }
 
@@ -523,4 +524,170 @@ function showToast(message, type = 'info') {
     toast.className = `toast ${type}`;
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// ===================================
+// MODAL & CUSTOM GOALS
+// ===================================
+
+function setupModal() {
+    const modal = document.getElementById('goal-modal');
+    const modalClose = document.querySelector('.modal-close');
+    const goalForm = document.getElementById('goal-form');
+    const addGoalButtons = document.querySelectorAll('.add-goal-button');
+
+    // Open modal when clicking "Add Goal" buttons
+    addGoalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const goalType = button.dataset.type;
+            openModal(goalType);
+        });
+    });
+
+    // Close modal
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // Cancel button
+    document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+
+    // Form submission
+    goalForm.addEventListener('submit', handleGoalFormSubmit);
+}
+
+function openModal(goalType = 'personal') {
+    const modal = document.getElementById('goal-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const goalTypeSelect = document.getElementById('goal-type');
+    const goalForm = document.getElementById('goal-form');
+    const predefinedGoalsSelect = document.getElementById('predefined-goals');
+
+    // Reset form
+    goalForm.reset();
+    goalTypeSelect.value = goalType;
+
+    // Update modal title
+    modalTitle.textContent = `Add ${goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal`;
+
+    // Populate predefined goals dropdown
+    populatePredefinedGoals(goalType);
+
+    // Listen for predefined goal selection
+    predefinedGoalsSelect.addEventListener('change', (e) => {
+        if (e.target.value) {
+            const selectedGoal = JSON.parse(e.target.value);
+            document.getElementById('goal-name').value = selectedGoal.name;
+            document.getElementById('goal-category').value = selectedGoal.category;
+            document.getElementById('goal-frequency').value = selectedGoal.frequency;
+        } else {
+            // Clear form when deselecting predefined goal
+            document.getElementById('goal-name').value = '';
+            document.getElementById('goal-category').value = '';
+            document.getElementById('goal-frequency').value = 'Daily';
+        }
+    });
+
+    // Listen for goal type changes to update predefined options
+    goalTypeSelect.addEventListener('change', (e) => {
+        populatePredefinedGoals(e.target.value);
+        modalTitle.textContent = `Add ${e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)} Goal`;
+    });
+
+    // Show modal and focus first input
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('goal-name').focus();
+    }, 100);
+
+    debugLog(`📝 Opening modal for ${goalType} goal`);
+}
+
+function populatePredefinedGoals(goalType) {
+    const predefinedGoalsSelect = document.getElementById('predefined-goals');
+    predefinedGoalsSelect.innerHTML = '<option value="">-- Select a predefined goal --</option>';
+
+    // Get available predefined tasks
+    const availableTasks = PREDEFINED_TASKS[goalType] || [];
+
+    availableTasks.forEach(task => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(task);
+        option.textContent = task.name;
+        predefinedGoalsSelect.appendChild(option);
+    });
+}
+
+function closeModal() {
+    const modal = document.getElementById('goal-modal');
+    modal.classList.add('hidden');
+}
+
+async function handleGoalFormSubmit(e) {
+    e.preventDefault();
+
+    const goalType = document.getElementById('goal-type').value;
+    const goalName = document.getElementById('goal-name').value.trim();
+    const goalCategory = document.getElementById('goal-category').value.trim();
+    const goalFrequency = document.getElementById('goal-frequency').value;
+
+    if (!goalName || !goalCategory) {
+        showToast('Please fill in all fields', 'error');
+        return;
+    }
+
+    // Check for duplicate names
+    const allTasks = [
+        ...currentData.predefinedTasks.personal,
+        ...currentData.predefinedTasks.couple,
+        ...(currentData.customTasks || [])
+    ];
+
+    const isDuplicate = allTasks.some(task =>
+        task.name.toLowerCase() === goalName.toLowerCase() && task.type === goalType
+    );
+
+    if (isDuplicate) {
+        showToast('Goal with this name already exists', 'error');
+        return;
+    }
+
+    // Generate unique ID
+    const goalId = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const newGoal = {
+        id: goalId,
+        name: goalName,
+        category: goalCategory,
+        frequency: goalFrequency,
+        type: goalType
+    };
+
+    // Add to custom tasks
+    if (!currentData.customTasks) {
+        currentData.customTasks = [];
+    }
+    currentData.customTasks.push(newGoal);
+
+    debugLog('✓ Creating custom goal', newGoal);
+
+    // Save to Firebase
+    await saveGoalsData(currentData);
+
+    // Re-render goals
+    renderGoals(currentData);
+
+    // Close modal and show success
+    closeModal();
+    showToast(`${goalName} added! ✓`, 'success');
 }

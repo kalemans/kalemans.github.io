@@ -683,6 +683,11 @@ input, select, textarea {
     z-index: 1000;
     padding: var(--spacing-md);
     backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal.hidden {
+    pointer-events: none;
 }
 
 .modal-content {
