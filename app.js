@@ -184,6 +184,7 @@ async function saveGoalsData(data) {
     // Show syncing indicator
     const syncIcon = syncButton.querySelector('.sync-icon');
     syncButton.classList.add('syncing');
+    syncButton.disabled = true;
 
     try {
         const docRef = db.collection('goals').doc('main');
@@ -195,12 +196,20 @@ async function saveGoalsData(data) {
         // Also cache locally
         localStorage.setItem('goals_cache', JSON.stringify(data));
 
+        // Brief success indicator
         syncButton.classList.remove('syncing');
+        syncButton.classList.add('sync-success');
+        setTimeout(() => {
+            syncButton.classList.remove('sync-success');
+        }, 600);
+
+        syncButton.disabled = false;
         return true;
     } catch (error) {
         debugLog('✗ Firebase save error', { error: error.message });
         showToast('Error saving data', 'error');
         syncButton.classList.remove('syncing');
+        syncButton.disabled = false;
         return false;
     }
 }
@@ -234,6 +243,8 @@ function getDefaultData() {
 
 function setupTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContent = document.querySelector('.tab-content');
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tab = button.dataset.tab;
@@ -241,6 +252,14 @@ function setupTabs() {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             button.classList.add('active');
             document.getElementById(`${tab}-tab`).classList.add('active');
+
+            // Smooth scroll to top when switching tabs
+            if (tabContent) {
+                tabContent.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
         });
     });
 }
@@ -249,6 +268,48 @@ function renderGoals(data) {
     renderPersonalGoals(data);
     renderCoupleGoals(data);
     renderStats(data);
+    updateDailyProgress(data);
+}
+
+function updateDailyProgress(data) {
+    const today = getTodayString();
+    const allTasks = [
+        ...data.predefinedTasks.personal,
+        ...data.predefinedTasks.couple,
+        ...data.customTasks
+    ];
+
+    if (allTasks.length === 0) {
+        document.getElementById('daily-progress').classList.add('hidden');
+        return;
+    }
+
+    const completedTasks = allTasks.filter(task =>
+        data.completions[today]?.[task.id]?.completed === true
+    ).length;
+
+    const percentage = Math.round((completedTasks / allTasks.length) * 100);
+
+    // Update progress ring
+    const progressRing = document.getElementById('progress-ring-circle');
+    const progressText = document.getElementById('progress-text');
+    const dailyProgress = document.getElementById('daily-progress');
+    const progressRingContainer = dailyProgress.querySelector('.progress-ring');
+
+    if (progressRing && progressText) {
+        const circumference = 94.25; // 2 * π * 15
+        const offset = circumference - (percentage / 100) * circumference;
+        progressRing.style.strokeDashoffset = offset;
+        progressText.textContent = `${percentage}%`;
+        dailyProgress.classList.remove('hidden');
+
+        // Add complete class when 100%
+        if (percentage === 100) {
+            progressRingContainer.classList.add('complete');
+        } else {
+            progressRingContainer.classList.remove('complete');
+        }
+    }
 }
 
 function renderPersonalGoals(data) {
@@ -259,13 +320,20 @@ function renderPersonalGoals(data) {
     const tasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
 
     if (tasks.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>No personal goals yet</p></div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🎯</div>
+                <div class="empty-state-text">No personal goals yet</div>
+                <p class="empty-state-hint">Click "+ Add Goal" above to create your first personal goal!</p>
+            </div>
+        `;
         return;
     }
 
-    tasks.forEach(task => {
+    tasks.forEach((task, index) => {
         const completed = data.completions[today]?.[task.id]?.completed || false;
         const card = createGoalCard(task, completed, data);
+        card.style.animationDelay = `${index * 0.05}s`;
         container.appendChild(card);
     });
 }
@@ -278,13 +346,20 @@ function renderCoupleGoals(data) {
     const tasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
 
     if (tasks.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>No couple goals yet</p></div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">💑</div>
+                <div class="empty-state-text">No couple goals yet</div>
+                <p class="empty-state-hint">Click "+ Add Goal" above to create your first couple goal!</p>
+            </div>
+        `;
         return;
     }
 
-    tasks.forEach(task => {
+    tasks.forEach((task, index) => {
         const completed = data.completions[today]?.[task.id]?.completed || false;
         const card = createGoalCard(task, completed, data);
+        card.style.animationDelay = `${index * 0.05}s`;
         container.appendChild(card);
     });
 }
@@ -455,6 +530,9 @@ async function toggleGoalCompletion(taskId, data) {
                 colors: ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513']
             });
         }
+
+        // Check if all goals are completed
+        checkAllGoalsCompleted(data, today);
     } else {
         // Reset streak
         data.streaks[taskId].current = 0;
@@ -464,6 +542,35 @@ async function toggleGoalCompletion(taskId, data) {
     renderGoals(currentData);
 
     await saveGoalsData(currentData);
+}
+
+function checkAllGoalsCompleted(data, today) {
+    const allTasks = [
+        ...data.predefinedTasks.personal,
+        ...data.predefinedTasks.couple,
+        ...data.customTasks
+    ];
+
+    const allCompleted = allTasks.every(task =>
+        data.completions[today]?.[task.id]?.completed === true
+    );
+
+    if (allCompleted && allTasks.length > 0) {
+        // Epic celebration!
+        setTimeout(() => {
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 200,
+                    spread: 120,
+                    origin: { y: 0.5 },
+                    colors: ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513', '#4682B4'],
+                    startVelocity: 45,
+                    gravity: 0.8
+                });
+            }
+            showToast('🎉 All goals completed! Amazing work!', 'success', 4000);
+        }, 300);
+    }
 }
 
 function renderStats(data) {

@@ -31,7 +31,18 @@
     <div id="main-app" class="main-app hidden">
         <!-- Header -->
         <header class="app-header">
-            <h1>Anniversary Goals</h1>
+            <div class="header-content">
+                <h1>Anniversary Goals</h1>
+                <div id="daily-progress" class="daily-progress hidden">
+                    <div class="progress-ring">
+                        <svg width="36" height="36">
+                            <circle class="progress-ring-circle-bg" cx="18" cy="18" r="15" stroke-width="3"></circle>
+                            <circle id="progress-ring-circle" class="progress-ring-circle" cx="18" cy="18" r="15" stroke-width="3"></circle>
+                        </svg>
+                        <span id="progress-text" class="progress-ring-text">0%</span>
+                    </div>
+                </div>
+            </div>
             <button id="sync-button" class="sync-button">
                 <span class="sync-icon">↻</span>
             </button>
@@ -90,6 +101,10 @@
                             <!-- Stats will be dynamically added here -->
                         </div>
                     </div>
+                </div>
+                <div class="app-footer">
+                    <p>Made with love for our anniversary 💝</p>
+                    <p class="version">v4.0.0</p>
                 </div>
             </div>
         </main>
