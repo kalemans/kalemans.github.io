@@ -1,11 +1,12 @@
-import { GITHUB_CONFIG, PREDEFINED_TASKS } from './config.js';
+import { PREDEFINED_TASKS } from './config.js';
+import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '4.0.0';
 
 // State Management
-let authToken = null;
 let currentData = null;
+let db = null;
 
 // DOM Elements
 const authScreen = document.getElementById('auth-screen');
@@ -72,25 +73,36 @@ async function init() {
         debugContent.innerHTML = '';
     });
 
-    debugLog(`🚀 App v${APP_VERSION} started`);
+    debugLog(`🚀 App v${APP_VERSION} started with Firebase`);
 
-    // Check for existing token
-    const storedToken = localStorage.getItem('github_token');
-    if (storedToken) {
-        authToken = storedToken;
-        debugLog('✓ Found stored token');
-        showMainApp();
-        await loadApp();
-    } else {
-        debugLog('No stored token, showing auth screen');
+    // Initialize Firebase
+    if (!isFirebaseConfigured()) {
+        debugLog('⚠️ Firebase not configured yet! Edit firebase-config.js');
+        authScreen.querySelector('.auth-container h1').textContent = 'Firebase Setup Required';
+        authScreen.querySelector('.auth-subtitle').textContent = 'Please configure Firebase in firebase-config.js';
+        authScreen.querySelector('.auth-form').style.display = 'none';
+        authScreen.querySelector('.auth-help').style.display = 'none';
         showAuthScreen();
+        return;
     }
 
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        debugLog('✓ Firebase initialized', { projectId: firebaseConfig.projectId });
+    } catch (error) {
+        debugLog('✗ Firebase initialization failed', { error: error.message });
+        showToast('Firebase error - check console', 'error');
+        showAuthScreen();
+        return;
+    }
+
+    // Hide auth screen (no login needed with Firebase)
+    authScreen.style.display = 'none';
+    showMainApp();
+    await loadApp();
+
     // Set up event listeners
-    authButton.addEventListener('click', initiateGitHubLogin);
-    tokenInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') initiateGitHubLogin();
-    });
     setupTabs();
     syncButton.addEventListener('click', handleManualSync);
 }
@@ -103,22 +115,6 @@ function showAuthScreen() {
 function showMainApp() {
     authScreen.classList.add('hidden');
     mainApp.classList.remove('hidden');
-}
-
-function initiateGitHubLogin() {
-    const token = tokenInput.value.trim();
-    if (!token) {
-        showToast('Please enter a GitHub token', 'error');
-        return;
-    }
-
-    authToken = token;
-    localStorage.setItem('github_token', authToken);
-    tokenInput.value = '';
-
-    debugLog('Token saved to localStorage');
-    showMainApp();
-    loadApp();
 }
 
 async function loadApp() {
@@ -137,133 +133,62 @@ async function loadApp() {
 }
 
 // ===================================
-// GITHUB DATA LAYER
+// FIREBASE DATA LAYER
 // ===================================
 
 async function loadGoalsData() {
-    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataPath}`;
-    const headers = {
-        'Authorization': `token ${authToken}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Access-Control-Allow-Origin': '*'
-    };
-
-    debugLog('📤 HTTP REQUEST:', {
-        method: 'GET',
-        url: url,
-        headers: headers
-    });
+    debugLog('📥 Loading data from Firebase...');
 
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: headers
+        const docRef = db.collection('goals').doc('main');
+        const doc = await docRef.get();
+
+        debugLog('📥 Firebase response:', {
+            exists: doc.exists,
+            id: doc.id
         });
 
-        debugLog('📥 HTTP RESPONSE:', {
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok,
-            headers: Object.fromEntries(response.headers.entries())
-        });
-
-        if (response.ok) {
-            const fileData = await response.json();
-            const content = atob(fileData.content);
-            const data = JSON.parse(content);
+        if (doc.exists) {
+            const data = doc.data();
             localStorage.setItem('goals_cache', JSON.stringify(data));
+            debugLog('✓ Data loaded from Firebase');
             return data;
-        } else if (response.status === 404) {
-            debugLog('File not found, creating initial data');
+        } else {
+            debugLog('📄 No data found, creating initial data');
             const defaultData = getDefaultData();
             await saveGoalsData(defaultData);
             return defaultData;
-        } else {
-            throw new Error(`GitHub API error: ${response.status}`);
         }
     } catch (error) {
-        debugLog('✗ Fetch error', { error: error.message });
+        debugLog('✗ Firebase error', { error: error.message });
+
+        // Fall back to cached data
         const cached = localStorage.getItem('goals_cache');
         if (cached) {
+            debugLog('⚠️ Using cached data');
             return JSON.parse(cached);
         }
+
         return getDefaultData();
     }
 }
 
 async function saveGoalsData(data) {
-    const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataPath}`;
-    const headers = {
-        'Authorization': `token ${authToken}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Access-Control-Allow-Origin': '*'
-    };
-
-    debugLog('📤 HTTP REQUEST (GET SHA):', {
-        method: 'GET',
-        url: getUrl,
-        headers: headers
-    });
+    debugLog('📤 Saving data to Firebase...');
 
     try {
-        // Get current file SHA
-        const getResponse = await fetch(getUrl, { method: 'GET', headers: headers });
+        const docRef = db.collection('goals').doc('main');
 
-        debugLog('📥 HTTP RESPONSE (GET SHA):', {
-            status: getResponse.status,
-            ok: getResponse.ok,
-            headers: Object.fromEntries(getResponse.headers.entries())
-        });
+        await docRef.set(data);
 
-        let sha = null;
-        if (getResponse.ok) {
-            const fileData = await getResponse.json();
-            sha = fileData.sha;
-        }
+        debugLog('✓ Data saved to Firebase');
 
-        // Prepare content
-        const content = btoa(JSON.stringify(data, null, 2));
-        const putHeaders = {
-            ...headers,
-            'Content-Type': 'application/json'
-        };
-        const body = {
-            message: `Update goals data - ${new Date().toISOString()}`,
-            content: content,
-            sha: sha
-        };
-
-        debugLog('📤 HTTP REQUEST (PUT):', {
-            method: 'PUT',
-            url: getUrl,
-            headers: putHeaders,
-            body: body
-        });
-
-        const putResponse = await fetch(getUrl, {
-            method: 'PUT',
-            headers: putHeaders,
-            body: JSON.stringify(body)
-        });
-
-        debugLog('📥 HTTP RESPONSE (PUT):', {
-            status: putResponse.status,
-            ok: putResponse.ok,
-            headers: Object.fromEntries(putResponse.headers.entries())
-        });
-
-        if (putResponse.ok) {
-            localStorage.setItem('goals_cache', JSON.stringify(data));
-            showToast('Saved! ✓', 'success');
-            return true;
-        } else {
-            const errorText = await putResponse.text();
-            debugLog('✗ Save failed', { status: putResponse.status, error: errorText });
-            showToast(`Error ${putResponse.status}: ${errorText.substring(0, 50)}`, 'error');
-            return false;
-        }
+        // Also cache locally
+        localStorage.setItem('goals_cache', JSON.stringify(data));
+        showToast('Saved! ✓', 'success');
+        return true;
     } catch (error) {
-        debugLog('✗ Save error', { error: error.message });
+        debugLog('✗ Firebase save error', { error: error.message });
         showToast('Error saving data', 'error');
         return false;
     }
