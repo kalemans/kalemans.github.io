@@ -427,6 +427,7 @@ input, select, textarea {
     border-left: 4px solid var(--light-brown);
     transition: all var(--transition-fast);
     animation: slideInUp 0.3s ease-out;
+    overflow: visible;
 }
 
 @keyframes slideInUp {
@@ -521,8 +522,8 @@ input, select, textarea {
 }
 
 .goal-action-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -530,6 +531,7 @@ input, select, textarea {
     font-size: 1.125rem;
     background: var(--beige);
     color: var(--text-dark);
+    flex-shrink: 0;
 }
 
 .goal-action-btn:hover {
@@ -898,6 +900,35 @@ input, select, textarea {
 /* ===================================
    RESPONSIVE DESIGN
    =================================== */
+
+/* Mobile specific adjustments */
+@media (max-width: 639px) {
+    .goal-card {
+        padding: var(--spacing-md);
+    }
+
+    .goal-header {
+        gap: 0.375rem;
+    }
+
+    .goal-actions {
+        gap: 0.25rem;
+    }
+
+    .goal-action-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .goal-action-btn.delete {
+        font-size: 1.25rem;
+    }
+
+    .goal-name {
+        font-size: 1rem;
+    }
+}
 
 @media (min-width: 640px) {
     .tab-content {
