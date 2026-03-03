@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#D2691E">
     <title>Check Those Boxes!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <!-- Loading Screen -->
@@ -86,30 +90,64 @@
             </div>
 
             <!-- Couple Tab -->
-            <div id="couple-tab" class="tab-pane">
-                <div class="tab-header">
-                    <h2>Our Couple Goals</h2>
-                    <button class="add-goal-button" data-type="couple">+ Add Goal</button>
+            <div id="couple-tab" class="tab-pane couple-tab-wireframe">
+                <!-- Sticky Header -->
+                <div class="couple-sticky-header">
+                    <h2 class="couple-tab-title">Couple Goals</h2>
+                    <button class="filter-trigger-btn" id="couple-filter-btn" aria-label="Open filters">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </button>
                 </div>
-                <div class="filters-container">
-                    <div class="filter-group">
-                        <label class="filter-label">Category:</label>
-                        <div id="couple-category-filters" class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">All</button>
+
+                <!-- Weekly Overview Stats Card -->
+                <div class="weekly-overview-card">
+                    <div class="weekly-overview-header">
+                        <h3 class="weekly-overview-title">Weekly Overview</h3>
+                        <span class="weekly-date-range" id="couple-week-range"></span>
+                    </div>
+                    <div class="weekly-bar-chart" id="couple-weekly-chart">
+                        <!-- Bars will be generated dynamically -->
+                    </div>
+                    <div class="weekly-overview-footer">
+                        <span id="couple-weekly-status"></span>
+                    </div>
+                </div>
+
+                <!-- Goal Cards Container -->
+                <div id="couple-goals" class="couple-goals-list wireframe-goals-list">
+                    <!-- Goal cards rendered dynamically -->
+                </div>
+
+                <!-- Add Goal Button -->
+                <button class="add-goal-wireframe" id="couple-add-goal-wireframe">
+                    <span class="plus-icon">+</span>
+                    <span>Add Goal</span>
+                </button>
+
+                <!-- Filter Modal (Hidden by default) -->
+                <div class="filter-modal hidden" id="couple-filter-modal">
+                    <div class="filter-modal-backdrop"></div>
+                    <div class="filter-modal-content">
+                        <div class="filter-modal-header">
+                            <h3>Filters</h3>
+                            <button class="filter-modal-close" id="couple-filter-close">&times;</button>
+                        </div>
+                        <div class="filter-section">
+                            <label class="filter-section-label">Category</label>
+                            <div id="couple-category-filters-modal" class="filter-buttons-modal">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                            </div>
+                        </div>
+                        <div class="filter-section">
+                            <label class="filter-section-label">Frequency</label>
+                            <div id="couple-frequency-filters-modal" class="filter-buttons-modal">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="Daily">Daily</button>
+                                <button class="filter-btn" data-filter="Weekly">Weekly</button>
+                                <button class="filter-btn" data-filter="Anytime">Anytime</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Frequency:</label>
-                        <div id="couple-frequency-filters" class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="Daily">Daily</button>
-                            <button class="filter-btn" data-filter="Weekly">Weekly</button>
-                            <button class="filter-btn" data-filter="Anytime">Anytime</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="couple-goals" class="goals-list">
-                    <!-- Goals will be dynamically added here -->
                 </div>
             </div>
 
@@ -213,6 +251,16 @@
 
     <!-- Confetti library for celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- SVG Definitions for Wireframe Design -->
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#ffcc00ff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f4e091ff;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
 
     <script type="module" src="app.js?v=4.0.0"></script>
 </body>
