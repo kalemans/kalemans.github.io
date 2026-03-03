@@ -2,7 +2,7 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.0.0';
+const APP_VERSION = '4.1.0';
 
 // State Management
 let currentData = null;
