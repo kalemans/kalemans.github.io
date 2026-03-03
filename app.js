@@ -414,6 +414,7 @@ function createGoalCard(task, completed, data) {
 
     // Render wireframe style for couple goals
     if (task.type === 'couple') {
+        debugLog(`Creating wireframe couple card: ${task.name}`);
         card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
         card.innerHTML = `
