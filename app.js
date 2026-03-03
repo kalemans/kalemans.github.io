@@ -439,35 +439,25 @@ function createGoalCard(task, completed, data) {
         card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
         card.innerHTML = `
-            <div class="wireframe-goal-content">
+            <div class="wireframe-goal-header">
                 <div class="wireframe-goal-name">${task.name}</div>
-                <div class="wireframe-goal-meta">
-                    <span class="wireframe-goal-tag">${task.category}</span>
-                    <span class="wireframe-goal-tag">${task.frequency}</span>
+                <div class="wireframe-goal-actions">
+                    <div class="wireframe-grip-icon hidden">
+                        <i data-lucide="grip-vertical"></i>
+                    </div>
+                    <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="32" height="32" viewBox="0 0 24 24" data-id="${task.id}">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                              fill="${completed ? 'url(#gold-gradient)' : 'none'}"
+                              stroke="var(--wireframe-border)"
+                              stroke-width="1"/>
+                    </svg>
                 </div>
             </div>
-            <div class="wireframe-goal-actions">
-                <div class="wireframe-grip-icon hidden">
-                    <i data-lucide="grip-vertical"></i>
-                </div>
-                <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="24" height="24" viewBox="0 0 24 24" data-id="${task.id}">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                          fill="${completed ? 'url(#gold-gradient)' : 'none'}"
-                          stroke="var(--wireframe-border)"
-                          stroke-width="1"/>
-                </svg>
+            <div class="wireframe-goal-meta">
+                <span class="wireframe-goal-tag">${task.category}</span>
+                <span class="wireframe-goal-tag">${task.frequency}</span>
             </div>
         `;
-
-        // Show grip icon on hover (desktop)
-        card.addEventListener('mouseenter', () => {
-            const gripIcon = card.querySelector('.wireframe-grip-icon');
-            if (gripIcon) gripIcon.classList.remove('hidden');
-        });
-        card.addEventListener('mouseleave', () => {
-            const gripIcon = card.querySelector('.wireframe-grip-icon');
-            if (gripIcon) gripIcon.classList.add('hidden');
-        });
 
         const starBtn = card.querySelector('.wireframe-goal-star');
         starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));

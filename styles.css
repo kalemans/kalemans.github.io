@@ -1840,7 +1840,7 @@ select:focus-visible {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     transition: all 0.2s ease;
 }
 
@@ -1848,27 +1848,28 @@ select:focus-visible {
     box-shadow: 0 2px 8px rgba(56, 0, 10, 0.1);
 }
 
+.wireframe-goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
 .wireframe-goal-name {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 16px;
     color: var(--wireframe-text-primary);
-    padding-right: 40px;
+    flex: 1;
 }
 
-.wireframe-goal-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.wireframe-goal-tags {
+.wireframe-goal-meta {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.wireframe-tag {
+.wireframe-goal-tag {
     background: var(--wireframe-inactive);
     border-radius: 12px;
     padding: 4px 12px;
@@ -1877,7 +1878,13 @@ select:focus-visible {
     color: var(--wireframe-text-secondary);
 }
 
-.wireframe-star {
+.wireframe-goal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wireframe-goal-star {
     width: 32px;
     height: 32px;
     cursor: pointer;
@@ -1885,45 +1892,29 @@ select:focus-visible {
     transition: transform 0.2s ease;
 }
 
-.wireframe-star:hover {
+.wireframe-goal-star:hover {
     transform: scale(1.1);
 }
 
-.wireframe-star svg {
-    width: 100%;
-    height: 100%;
-}
-
-.wireframe-star.empty {
-    color: var(--wireframe-gold-start);
-}
-
-.wireframe-star.filled {
-    color: var(--wireframe-gold-start);
-}
-
-.wireframe-grip {
-    position: absolute;
-    right: 12px;
-    top: 16px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+.wireframe-grip-icon {
     color: var(--wireframe-border);
     cursor: grab;
-}
-
-.wireframe-grip svg {
     width: 20px;
     height: 20px;
+    flex-shrink: 0;
 }
 
-.wireframe-goal-card:hover .wireframe-grip {
-    opacity: 1;
+.wireframe-grip-icon.hidden {
+    display: none;
+}
+
+.wireframe-goal-card:hover .wireframe-grip-icon.hidden {
+    display: block;
 }
 
 @media (hover: none) {
-    .wireframe-grip {
-        opacity: 1;
+    .wireframe-grip-icon.hidden {
+        display: block;
     }
 }
 
