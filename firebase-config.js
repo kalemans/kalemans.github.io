@@ -6,13 +6,14 @@
 // 4. Copy the config values below
 // 5. Enable Firestore Database in Firebase Console
 
+
 export const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBYrHYxTZGZkNbo-vXiQ7fR7PX6oEZaM90",
+    authDomain: "kalemans-firebase.firebaseapp.com",
+    projectId: "kalemans-firebase",
+    storageBucket: "kalemans-firebase.firebasestorage.app",
+    messagingSenderId: "843702658668",
+    appId: "1:843702658668:web:8086344d0120fe0e641a49"
 };
 
 // Flag to check if Firebase is configured
