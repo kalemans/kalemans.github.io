@@ -139,6 +139,12 @@ async function loadApp() {
         renderGoals(currentData);
         debugLog('✓ App loaded successfully');
 
+        // Initialize Lucide icons
+        if (window.lucide) {
+            window.lucide.createIcons();
+            debugLog('✓ Lucide icons initialized');
+        }
+
         // Show swipe hint on mobile
         showSwipeHint();
     } catch (error) {
@@ -147,6 +153,11 @@ async function loadApp() {
         const cached = localStorage.getItem('goals_cache');
         currentData = cached ? JSON.parse(cached) : getDefaultData();
         renderGoals(currentData);
+
+        // Initialize Lucide icons even on error
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
     }
 }
 
@@ -282,6 +293,11 @@ function renderGoals(data) {
     renderCoupleGoals(data);
     renderStats(data);
     updateDailyProgress(data);
+
+    // Initialize Lucide icons after rendering
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 }
 
 function updateDailyProgress(data) {
@@ -372,11 +388,14 @@ function renderCoupleGoals(data) {
     const container = document.getElementById('couple-goals');
     container.innerHTML = '';
 
+    // Render weekly overview
+    renderWeeklyOverview(data);
+
     const today = getTodayString();
     let tasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
 
-    // Update category filters
-    updateCategoryFilters('couple', tasks);
+    // Update category filters for modal
+    updateCategoryFiltersModal('couple', tasks);
 
     // Apply filters
     tasks = applyFilters(tasks, filters.couple);
@@ -413,44 +432,85 @@ function renderCoupleGoals(data) {
 
 function createGoalCard(task, completed, data) {
     const card = document.createElement('div');
-    card.className = `goal-card ${completed ? 'completed' : ''} goal-card-${task.type}`;
-
     const isCustom = task.id.startsWith('custom-');
 
-    card.innerHTML = `
-        <div class="goal-header">
-            <div class="goal-info">
-                <div class="goal-name">${task.name}</div>
-                <div class="goal-meta">
-                    <span class="goal-category">${task.category}</span>
-                    <span class="goal-frequency">${task.frequency}</span>
+    // Render wireframe style for couple goals
+    if (task.type === 'couple') {
+        card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
+
+        card.innerHTML = `
+            <div class="wireframe-goal-content">
+                <div class="wireframe-goal-name">${task.name}</div>
+                <div class="wireframe-goal-meta">
+                    <span class="wireframe-goal-tag">${task.category}</span>
+                    <span class="wireframe-goal-tag">${task.frequency}</span>
                 </div>
             </div>
-            <div class="goal-actions">
-                ${isCustom ? `
-                    <button class="goal-action-btn edit" data-id="${task.id}" title="Edit goal">
-                        ✎
-                    </button>
-                    <button class="goal-action-btn delete" data-id="${task.id}" title="Delete goal">
-                        ×
-                    </button>
-                ` : ''}
-                <button class="goal-action-btn star ${completed ? 'completed' : ''}" data-id="${task.id}" title="Complete goal">
-                    ${completed ? '★' : '☆'}
-                </button>
+            <div class="wireframe-goal-actions">
+                <div class="wireframe-grip-icon hidden">
+                    <i data-lucide="grip-vertical"></i>
+                </div>
+                <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="24" height="24" viewBox="0 0 24 24" data-id="${task.id}">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                          fill="${completed ? 'url(#gold-gradient)' : 'none'}"
+                          stroke="var(--wireframe-border)"
+                          stroke-width="1"/>
+                </svg>
             </div>
-        </div>
-    `;
+        `;
 
-    const starBtn = card.querySelector('.star');
-    starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
+        // Show grip icon on hover (desktop)
+        card.addEventListener('mouseenter', () => {
+            const gripIcon = card.querySelector('.wireframe-grip-icon');
+            if (gripIcon) gripIcon.classList.remove('hidden');
+        });
+        card.addEventListener('mouseleave', () => {
+            const gripIcon = card.querySelector('.wireframe-grip-icon');
+            if (gripIcon) gripIcon.classList.add('hidden');
+        });
 
-    if (isCustom) {
-        const editBtn = card.querySelector('.edit');
-        const deleteBtn = card.querySelector('.delete');
+        const starBtn = card.querySelector('.wireframe-goal-star');
+        starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
-        editBtn.addEventListener('click', () => openEditModal(task));
-        deleteBtn.addEventListener('click', () => confirmDeleteGoal(task));
+    } else {
+        // Personal goal card (original style)
+        card.className = `goal-card ${completed ? 'completed' : ''} goal-card-${task.type}`;
+
+        card.innerHTML = `
+            <div class="goal-header">
+                <div class="goal-info">
+                    <div class="goal-name">${task.name}</div>
+                    <div class="goal-meta">
+                        <span class="goal-category">${task.category}</span>
+                        <span class="goal-frequency">${task.frequency}</span>
+                    </div>
+                </div>
+                <div class="goal-actions">
+                    ${isCustom ? `
+                        <button class="goal-action-btn edit" data-id="${task.id}" title="Edit goal">
+                            ✎
+                        </button>
+                        <button class="goal-action-btn delete" data-id="${task.id}" title="Delete goal">
+                            ×
+                        </button>
+                    ` : ''}
+                    <button class="goal-action-btn star ${completed ? 'completed' : ''}" data-id="${task.id}" title="Complete goal">
+                        ${completed ? '★' : '☆'}
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const starBtn = card.querySelector('.star');
+        starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
+
+        if (isCustom) {
+            const editBtn = card.querySelector('.edit');
+            const deleteBtn = card.querySelector('.delete');
+
+            editBtn.addEventListener('click', () => openEditModal(task));
+            deleteBtn.addEventListener('click', () => confirmDeleteGoal(task));
+        }
     }
 
     // Add swipe gestures to card
@@ -735,6 +795,60 @@ function renderCoupleStats(data) {
     `;
 }
 
+function renderWeeklyOverview(data) {
+    const container = document.getElementById('couple-weekly-chart');
+    const weekRangeEl = document.getElementById('couple-week-range');
+    const statusEl = document.getElementById('couple-weekly-status');
+
+    if (!container || !weekRangeEl || !statusEl) return;
+
+    // Get the last 5 days (including today)
+    const days = [];
+    const today = new Date();
+    for (let i = 4; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        days.push(date);
+    }
+
+    // Get couple tasks
+    const coupleTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    const totalTasks = coupleTasks.length;
+
+    // Calculate completions for each day
+    const dailyStats = days.map(date => {
+        const dateStr = date.toISOString().split('T')[0];
+        const completed = coupleTasks.filter(task =>
+            data.completions[dateStr]?.[task.id]?.completed
+        ).length;
+        const percentage = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
+        return { date, dateStr, completed, percentage };
+    });
+
+    // Render bars
+    container.innerHTML = dailyStats.map((stat, index) => {
+        const isToday = index === 4;
+        const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
+        const height = Math.max(stat.percentage, 10); // Minimum 10% height for visibility
+
+        return `
+            <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
+                <div class="weekly-bar ${isToday ? 'active' : ''}" style="height: ${height}%"></div>
+                <div class="weekly-bar-label">${dayName}</div>
+            </div>
+        `;
+    }).join('');
+
+    // Set week range
+    const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const lastDay = days[4].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
+
+    // Set status message
+    const todayCompleted = dailyStats[4].completed;
+    statusEl.textContent = `Today: ${todayCompleted}/${totalTasks} goals completed`;
+}
+
 function renderOverallStats(data) {
     const container = document.getElementById('overall-stats');
     const personalStats = calculateStats(data, 'personal');
@@ -1007,7 +1121,88 @@ async function deleteGoal(goalId, goalName) {
 
 function setupFilters() {
     setupFilterButtons('personal');
-    setupFilterButtons('couple');
+    setupCoupleModalFilters();
+    setupCoupleFilterModal();
+    setupWireframeAddGoal();
+}
+
+function setupCoupleModalFilters() {
+    // Setup category filters in modal
+    const categoryContainer = document.getElementById('couple-category-filters-modal');
+    if (categoryContainer) {
+        categoryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                categoryContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                filters.couple.category = e.target.dataset.filter;
+                renderGoals(currentData);
+            }
+        });
+    }
+
+    // Setup frequency filters in modal
+    const frequencyContainer = document.getElementById('couple-frequency-filters-modal');
+    if (frequencyContainer) {
+        frequencyContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                frequencyContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                filters.couple.frequency = e.target.dataset.filter;
+                renderGoals(currentData);
+            }
+        });
+    }
+}
+
+function setupCoupleFilterModal() {
+    const modal = document.getElementById('couple-filter-modal');
+    const openBtn = document.getElementById('couple-filter-btn');
+    const closeBtn = document.getElementById('couple-filter-close');
+    const backdrop = modal?.querySelector('.filter-modal-backdrop');
+
+    if (!modal || !openBtn) return;
+
+    // Open modal
+    openBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        // Initialize Lucide icons in modal
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    });
+
+    // Close modal
+    const closeModal = () => {
+        modal.classList.add('hidden');
+    };
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeModal);
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+}
+
+function setupWireframeAddGoal() {
+    const addGoalBtn = document.getElementById('couple-add-goal-wireframe');
+    if (addGoalBtn) {
+        addGoalBtn.addEventListener('click', () => {
+            openModal('couple');
+        });
+    }
 }
 
 function setupFilterButtons(type) {
@@ -1053,6 +1248,44 @@ function setupFilterButtons(type) {
 
 function updateCategoryFilters(type, tasks) {
     const container = document.getElementById(`${type}-category-filters`);
+    if (!container) return;
+
+    // Get unique categories
+    const categories = new Set();
+    tasks.forEach(task => {
+        if (task.category) {
+            categories.add(task.category);
+        }
+    });
+
+    // Sort categories alphabetically
+    const sortedCategories = Array.from(categories).sort();
+
+    // Build filter buttons HTML
+    let html = '<button class="filter-btn active" data-filter="all">All</button>';
+    sortedCategories.forEach(category => {
+        const isActive = filters[type].category === category ? 'active' : '';
+        html += `<button class="filter-btn ${isActive}" data-filter="${category}">${category}</button>`;
+    });
+
+    container.innerHTML = html;
+
+    // Restore active state
+    if (filters[type].category !== 'all') {
+        const activeBtn = container.querySelector(`[data-filter="${filters[type].category}"]`);
+        if (activeBtn) {
+            container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            activeBtn.classList.add('active');
+        } else {
+            // Category no longer exists, reset to all
+            filters[type].category = 'all';
+            container.querySelector('[data-filter="all"]').classList.add('active');
+        }
+    }
+}
+
+function updateCategoryFiltersModal(type, tasks) {
+    const container = document.getElementById(`${type}-category-filters-modal`);
     if (!container) return;
 
     // Get unique categories
