@@ -249,11 +249,6 @@ function renderGoals(data) {
     renderPersonalGoals(data);
     renderCoupleGoals(data);
     renderStats(data);
-
-    // Re-setup swipe gestures after rendering
-    if (typeof setupSwipeGestures === 'function') {
-        setupSwipeGestures();
-    }
 }
 
 function renderPersonalGoals(data) {
@@ -336,7 +331,91 @@ function createGoalCard(task, completed, data) {
         deleteBtn.addEventListener('click', () => confirmDeleteGoal(task));
     }
 
+    // Add swipe gestures to card
+    addSwipeToCard(card, task, isCustom);
+
     return card;
+}
+
+function addSwipeToCard(card, task, isCustom) {
+    let startX = 0;
+    let startY = 0;
+    let isSwiping = false;
+    let swipeDirection = null;
+
+    card.addEventListener('touchstart', (e) => {
+        // Don't interfere with button clicks
+        if (e.target.closest('.goal-action-btn')) {
+            return;
+        }
+
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isSwiping = false;
+        swipeDirection = null;
+    }, { passive: true });
+
+    card.addEventListener('touchmove', (e) => {
+        if (!startX || e.target.closest('.goal-action-btn')) {
+            return;
+        }
+
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+
+        // Determine if this is a horizontal swipe
+        if (!isSwiping && Math.abs(diffX) > 10) {
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                isSwiping = true;
+                swipeDirection = diffX > 0 ? 'right' : 'left';
+            }
+        }
+
+        if (isSwiping) {
+            // Visual feedback
+            const opacity = Math.min(Math.abs(diffX) / 150, 0.3);
+            if (swipeDirection === 'right') {
+                card.style.backgroundColor = `rgba(70, 130, 180, ${opacity})`;
+            } else if (swipeDirection === 'left' && isCustom) {
+                card.style.backgroundColor = `rgba(255, 99, 71, ${opacity})`;
+            }
+        }
+    }, { passive: true });
+
+    card.addEventListener('touchend', (e) => {
+        if (!startX) {
+            return;
+        }
+
+        const endX = e.changedTouches[0].clientX;
+        const diffX = endX - startX;
+
+        // Trigger action if swiped far enough
+        if (isSwiping) {
+            if (diffX > 80 && swipeDirection === 'right') {
+                // Swipe right to complete
+                toggleGoalCompletion(task.id, currentData);
+            } else if (diffX < -80 && swipeDirection === 'left' && isCustom) {
+                // Swipe left to delete (custom goals only)
+                confirmDeleteGoal(task);
+            } else if (diffX < -80 && swipeDirection === 'left' && !isCustom) {
+                showToast('Can only delete custom goals', 'info', 2000);
+            }
+        }
+
+        // Reset visual feedback
+        setTimeout(() => {
+            card.style.backgroundColor = '';
+        }, 100);
+
+        // Reset
+        startX = 0;
+        startY = 0;
+        isSwiping = false;
+        swipeDirection = null;
+    }, { passive: true });
 }
 
 async function toggleGoalCompletion(taskId, data) {
@@ -737,7 +816,6 @@ async function deleteGoal(goalId, goalName) {
 
 function setupMobileFeatures() {
     setupPullToRefresh();
-    setupSwipeGestures();
 }
 
 function setupPullToRefresh() {
@@ -785,93 +863,6 @@ function setupPullToRefresh() {
     }, { passive: true });
 }
 
-function setupSwipeGestures() {
-    const goals = document.querySelectorAll('.goals-list');
-
-    goals.forEach(goalsList => {
-        let startX = 0;
-        let startY = 0;
-        let currentCard = null;
-        let swiping = false;
-
-        goalsList.addEventListener('touchstart', (e) => {
-            const card = e.target.closest('.goal-card');
-            if (!card) return;
-
-            // Don't interfere with button clicks
-            if (e.target.closest('.goal-action-btn')) return;
-
-            currentCard = card;
-            startX = e.touches[0].pageX;
-            startY = e.touches[0].pageY;
-            swiping = false;
-        }, { passive: true });
-
-        goalsList.addEventListener('touchmove', (e) => {
-            if (!currentCard) return;
-
-            const currentX = e.touches[0].pageX;
-            const currentY = e.touches[0].pageY;
-            const diffX = currentX - startX;
-            const diffY = currentY - startY;
-
-            // Detect horizontal swipe
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 20) {
-                swiping = true;
-
-                // Add visual feedback
-                const opacity = Math.min(Math.abs(diffX) / 100, 0.3);
-                if (diffX > 0) {
-                    currentCard.style.background = `rgba(70, 130, 180, ${opacity})`;
-                } else {
-                    currentCard.style.background = `rgba(255, 99, 71, ${opacity})`;
-                }
-            }
-        }, { passive: true });
-
-        goalsList.addEventListener('touchend', (e) => {
-            if (!currentCard) return;
-
-            // Reset background
-            currentCard.style.background = '';
-
-            if (!swiping) {
-                currentCard = null;
-                return;
-            }
-
-            const endX = e.changedTouches[0].pageX;
-            const diffX = endX - startX;
-
-            // Swipe left to delete (custom goals only)
-            if (diffX < -100) {
-                const taskId = currentCard.querySelector('.star').dataset.id;
-                if (taskId && taskId.startsWith('custom-')) {
-                    const task = currentData.customTasks.find(t => t.id === taskId);
-                    if (task) {
-                        confirmDeleteGoal(task);
-                    }
-                } else {
-                    showToast('Swipe left only works on custom goals', 'info');
-                }
-            }
-
-            // Swipe right to complete/uncomplete
-            if (diffX > 100) {
-                const taskId = currentCard.querySelector('.star').dataset.id;
-                if (taskId) {
-                    toggleGoalCompletion(taskId, currentData);
-                }
-            }
-
-            currentCard = null;
-            startX = 0;
-            startY = 0;
-            swiping = false;
-        });
-    });
-}
-
 function showSwipeHint() {
     // Show hint only once per session
     if (sessionStorage.getItem('swipe-hint-shown')) return;
@@ -880,9 +871,9 @@ function showSwipeHint() {
     if (window.innerWidth > 768) return;
 
     setTimeout(() => {
-        showToast('💡 Swipe right to complete, left to delete', 'info', 5000);
+        showToast('💡 Swipe right to complete, left to delete custom goals', 'info', 6000);
         sessionStorage.setItem('swipe-hint-shown', 'true');
-    }, 2000);
+    }, 3000);
 }
 
 async function handleGoalFormSubmit(e) {

@@ -957,7 +957,9 @@ input, select, textarea {
 
     /* Swipe feedback */
     .goal-card {
-        transition: background-color 0.1s ease-out;
+        transition: background-color 0.15s ease-out;
+        -webkit-user-select: none;
+        user-select: none;
     }
 
     /* Mobile stats layout */
