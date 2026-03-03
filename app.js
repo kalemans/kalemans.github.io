@@ -413,7 +413,7 @@ function renderCoupleGoals(data) {
 
 function createGoalCard(task, completed, data) {
     const card = document.createElement('div');
-    card.className = `goal-card ${completed ? 'completed' : ''}`;
+    card.className = `goal-card ${completed ? 'completed' : ''} goal-card-${task.type}`;
 
     const isCustom = task.id.startsWith('custom-');
 
