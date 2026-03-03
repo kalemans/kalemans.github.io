@@ -350,7 +350,7 @@ input, select, textarea {
     align-items: center;
 }
 
-.sync-button,
+.refresh-button,
 .logout-button {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -366,12 +366,12 @@ input, select, textarea {
     transition: all var(--transition-fast);
 }
 
-.sync-button:hover,
+.refresh-button:hover,
 .logout-button:hover {
     background: rgba(255, 255, 255, 0.3);
 }
 
-.sync-button:active,
+.refresh-button:active,
 .logout-button:active {
     transform: scale(0.95);
 }
@@ -380,23 +380,14 @@ input, select, textarea {
     font-size: 1.5rem;
 }
 
-.sync-icon {
+.refresh-icon {
     font-size: 1.5rem;
     display: inline-block;
     transition: transform var(--transition-medium);
 }
 
-.sync-button.syncing .sync-icon {
-    animation: spin 1s linear infinite;
-}
-
-.sync-button.sync-success {
-    background: rgba(70, 130, 180, 0.4);
-}
-
-.sync-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.refresh-button:active .refresh-icon {
+    animation: spin 0.5s ease-in-out;
 }
 
 /* ===================================
@@ -2144,7 +2135,7 @@ select:focus-visible {
 @media print {
     .app-header,
     .tab-navigation,
-    .sync-button,
+    .refresh-button,
     .add-goal-button,
     .goal-actions,
     .modal,

@@ -26,7 +26,7 @@ const mainApp = document.getElementById('main-app');
 const loadingScreen = document.getElementById('loading-screen');
 const tokenInput = document.getElementById('github-token');
 const authButton = document.getElementById('auth-button');
-const syncButton = document.getElementById('sync-button');
+const refreshButton = document.getElementById('refresh-button');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
 
@@ -119,7 +119,7 @@ async function init() {
     setupModal();
     setupMobileFeatures();
     setupFilters();
-    syncButton.addEventListener('click', handleManualSync);
+    refreshButton.addEventListener('click', handleHardRefresh);
 }
 
 function showAuthScreen() {
@@ -205,11 +205,6 @@ async function loadGoalsData() {
 async function saveGoalsData(data) {
     debugLog('📤 Saving data to Firebase...');
 
-    // Show syncing indicator
-    const syncIcon = syncButton.querySelector('.sync-icon');
-    syncButton.classList.add('syncing');
-    syncButton.disabled = true;
-
     try {
         const docRef = db.collection('goals').doc('main');
 
@@ -220,35 +215,18 @@ async function saveGoalsData(data) {
         // Also cache locally
         localStorage.setItem('goals_cache', JSON.stringify(data));
 
-        // Brief success indicator
-        syncButton.classList.remove('syncing');
-        syncButton.classList.add('sync-success');
-        setTimeout(() => {
-            syncButton.classList.remove('sync-success');
-        }, 600);
-
-        syncButton.disabled = false;
         return true;
     } catch (error) {
         debugLog('✗ Firebase save error', { error: error.message });
         showToast('Error saving data', 'error');
-        syncButton.classList.remove('syncing');
-        syncButton.disabled = false;
         return false;
     }
 }
 
-async function handleManualSync() {
-    debugLog('🔄 Manual sync triggered');
-    try {
-        const data = await loadGoalsData();
-        currentData = data;
-        renderGoals(currentData);
-        showToast('Synced! ✓', 'success');
-    } catch (error) {
-        debugLog('✗ Sync error', { error: error.message });
-        showToast('Sync failed', 'error');
-    }
+function handleHardRefresh() {
+    debugLog('🔄 Hard refresh triggered - clearing cache');
+    // Hard refresh with cache bypass
+    window.location.reload(true);
 }
 
 function getDefaultData() {
@@ -1359,7 +1337,7 @@ function setupPullToRefresh() {
 
         if (distance > 0 && distance < threshold * 2.5) {
             const progress = Math.min(distance / threshold, 1);
-            syncButton.style.transform = `rotate(${progress * 360}deg)`;
+            refreshButton.style.transform = `rotate(${progress * 360}deg)`;
         }
     }, { passive: true });
 
@@ -1369,11 +1347,11 @@ function setupPullToRefresh() {
         const endY = e.changedTouches[0].pageY;
         const distance = endY - startY;
 
-        syncButton.style.transform = '';
+        refreshButton.style.transform = '';
 
         if (distance > threshold) {
-            debugLog('🔄 Pull-to-refresh triggered');
-            await handleManualSync();
+            debugLog('🔄 Pull-to-refresh triggered - hard refresh');
+            handleHardRefresh();
         }
 
         pulling = false;
