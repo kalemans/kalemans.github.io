@@ -105,6 +105,7 @@ async function init() {
     // Set up event listeners
     setupTabs();
     setupModal();
+    setupMobileFeatures();
     syncButton.addEventListener('click', handleManualSync);
 }
 
@@ -124,6 +125,9 @@ async function loadApp() {
         currentData = data;
         renderGoals(currentData);
         debugLog('✓ App loaded successfully');
+
+        // Show swipe hint on mobile
+        showSwipeHint();
     } catch (error) {
         debugLog('✗ Error loading app', { error: error.message });
         showToast('Error loading data', 'error');
@@ -245,6 +249,11 @@ function renderGoals(data) {
     renderPersonalGoals(data);
     renderCoupleGoals(data);
     renderStats(data);
+
+    // Re-setup swipe gestures after rendering
+    if (typeof setupSwipeGestures === 'function') {
+        setupSwipeGestures();
+    }
 }
 
 function renderPersonalGoals(data) {
@@ -537,11 +546,11 @@ function getTodayString() {
     return today.toISOString().split('T')[0];
 }
 
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', duration = 3000) {
     toastMessage.textContent = message;
     toast.className = `toast ${type}`;
     toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 3000);
+    setTimeout(() => toast.classList.add('hidden'), duration);
 }
 
 // ===================================
@@ -722,8 +731,167 @@ async function deleteGoal(goalId, goalName) {
     showToast(`${goalName} deleted`, 'success');
 }
 
+// ===================================
+// MOBILE FEATURES
+// ===================================
+
+function setupMobileFeatures() {
+    setupPullToRefresh();
+    setupSwipeGestures();
+}
+
+function setupPullToRefresh() {
+    let startY = 0;
+    let pulling = false;
+    const threshold = 60;
+
+    const tabContent = document.querySelector('.tab-content');
+
+    tabContent.addEventListener('touchstart', (e) => {
+        // Only allow pull-to-refresh when scrolled to the top
+        if (tabContent.scrollTop === 0) {
+            startY = e.touches[0].pageY;
+            pulling = true;
+        }
+    }, { passive: true });
+
+    tabContent.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+
+        const currentY = e.touches[0].pageY;
+        const distance = currentY - startY;
+
+        if (distance > 0 && distance < threshold * 2.5) {
+            const progress = Math.min(distance / threshold, 1);
+            syncButton.style.transform = `rotate(${progress * 360}deg)`;
+        }
+    }, { passive: true });
+
+    tabContent.addEventListener('touchend', async (e) => {
+        if (!pulling) return;
+
+        const endY = e.changedTouches[0].pageY;
+        const distance = endY - startY;
+
+        syncButton.style.transform = '';
+
+        if (distance > threshold) {
+            debugLog('🔄 Pull-to-refresh triggered');
+            await handleManualSync();
+        }
+
+        pulling = false;
+        startY = 0;
+    }, { passive: true });
+}
+
+function setupSwipeGestures() {
+    const goals = document.querySelectorAll('.goals-list');
+
+    goals.forEach(goalsList => {
+        let startX = 0;
+        let startY = 0;
+        let currentCard = null;
+        let swiping = false;
+
+        goalsList.addEventListener('touchstart', (e) => {
+            const card = e.target.closest('.goal-card');
+            if (!card) return;
+
+            // Don't interfere with button clicks
+            if (e.target.closest('.goal-action-btn')) return;
+
+            currentCard = card;
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+            swiping = false;
+        }, { passive: true });
+
+        goalsList.addEventListener('touchmove', (e) => {
+            if (!currentCard) return;
+
+            const currentX = e.touches[0].pageX;
+            const currentY = e.touches[0].pageY;
+            const diffX = currentX - startX;
+            const diffY = currentY - startY;
+
+            // Detect horizontal swipe
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 20) {
+                swiping = true;
+
+                // Add visual feedback
+                const opacity = Math.min(Math.abs(diffX) / 100, 0.3);
+                if (diffX > 0) {
+                    currentCard.style.background = `rgba(70, 130, 180, ${opacity})`;
+                } else {
+                    currentCard.style.background = `rgba(255, 99, 71, ${opacity})`;
+                }
+            }
+        }, { passive: true });
+
+        goalsList.addEventListener('touchend', (e) => {
+            if (!currentCard) return;
+
+            // Reset background
+            currentCard.style.background = '';
+
+            if (!swiping) {
+                currentCard = null;
+                return;
+            }
+
+            const endX = e.changedTouches[0].pageX;
+            const diffX = endX - startX;
+
+            // Swipe left to delete (custom goals only)
+            if (diffX < -100) {
+                const taskId = currentCard.querySelector('.star').dataset.id;
+                if (taskId && taskId.startsWith('custom-')) {
+                    const task = currentData.customTasks.find(t => t.id === taskId);
+                    if (task) {
+                        confirmDeleteGoal(task);
+                    }
+                } else {
+                    showToast('Swipe left only works on custom goals', 'info');
+                }
+            }
+
+            // Swipe right to complete/uncomplete
+            if (diffX > 100) {
+                const taskId = currentCard.querySelector('.star').dataset.id;
+                if (taskId) {
+                    toggleGoalCompletion(taskId, currentData);
+                }
+            }
+
+            currentCard = null;
+            startX = 0;
+            startY = 0;
+            swiping = false;
+        });
+    });
+}
+
+function showSwipeHint() {
+    // Show hint only once per session
+    if (sessionStorage.getItem('swipe-hint-shown')) return;
+
+    // Only show on mobile
+    if (window.innerWidth > 768) return;
+
+    setTimeout(() => {
+        showToast('💡 Swipe right to complete, left to delete', 'info', 5000);
+        sessionStorage.setItem('swipe-hint-shown', 'true');
+    }, 2000);
+}
+
 async function handleGoalFormSubmit(e) {
     e.preventDefault();
+
+    // Blur active input to dismiss mobile keyboard
+    if (document.activeElement) {
+        document.activeElement.blur();
+    }
 
     const goalType = document.getElementById('goal-type').value;
     const goalName = document.getElementById('goal-name').value.trim();
