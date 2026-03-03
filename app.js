@@ -8,6 +8,18 @@ const APP_VERSION = '4.0.0';
 let currentData = null;
 let db = null;
 
+// Filter state
+let filters = {
+    personal: {
+        category: 'all',
+        frequency: 'all'
+    },
+    couple: {
+        category: 'all',
+        frequency: 'all'
+    }
+};
+
 // DOM Elements
 const authScreen = document.getElementById('auth-screen');
 const mainApp = document.getElementById('main-app');
@@ -106,6 +118,7 @@ async function init() {
     setupTabs();
     setupModal();
     setupMobileFeatures();
+    setupFilters();
     syncButton.addEventListener('click', handleManualSync);
 }
 
@@ -317,16 +330,33 @@ function renderPersonalGoals(data) {
     container.innerHTML = '';
 
     const today = getTodayString();
-    const tasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+    let tasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+
+    // Update category filters
+    updateCategoryFilters('personal', tasks);
+
+    // Apply filters
+    tasks = applyFilters(tasks, filters.personal);
 
     if (tasks.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">🎯</div>
-                <div class="empty-state-text">No personal goals yet</div>
-                <p class="empty-state-hint">Click "+ Add Goal" above to create your first personal goal!</p>
-            </div>
-        `;
+        const allTasks = [...data.predefinedTasks.personal, ...data.customTasks.filter(t => t.type === 'personal')];
+        if (allTasks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎯</div>
+                    <div class="empty-state-text">No personal goals yet</div>
+                    <p class="empty-state-hint">Click "+ Add Goal" above to create your first personal goal!</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <div class="empty-state-text">No goals match your filters</div>
+                    <p class="empty-state-hint">Try selecting different category or frequency filters</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -343,16 +373,33 @@ function renderCoupleGoals(data) {
     container.innerHTML = '';
 
     const today = getTodayString();
-    const tasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+    let tasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+
+    // Update category filters
+    updateCategoryFilters('couple', tasks);
+
+    // Apply filters
+    tasks = applyFilters(tasks, filters.couple);
 
     if (tasks.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">💑</div>
-                <div class="empty-state-text">No couple goals yet</div>
-                <p class="empty-state-hint">Click "+ Add Goal" above to create your first couple goal!</p>
-            </div>
-        `;
+        const allTasks = [...data.predefinedTasks.couple, ...data.customTasks.filter(t => t.type === 'couple')];
+        if (allTasks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💑</div>
+                    <div class="empty-state-text">No couple goals yet</div>
+                    <p class="empty-state-hint">Click "+ Add Goal" above to create your first couple goal!</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <div class="empty-state-text">No goals match your filters</div>
+                    <p class="empty-state-hint">Try selecting different category or frequency filters</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -915,6 +962,110 @@ async function deleteGoal(goalId, goalName) {
     renderGoals(currentData);
 
     showToast(`${goalName} deleted`, 'success');
+}
+
+// ===================================
+// FILTERS
+// ===================================
+
+function setupFilters() {
+    setupFilterButtons('personal');
+    setupFilterButtons('couple');
+}
+
+function setupFilterButtons(type) {
+    const categoryContainer = document.getElementById(`${type}-category-filters`);
+    const frequencyContainer = document.getElementById(`${type}-frequency-filters`);
+
+    if (categoryContainer) {
+        categoryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                // Update active state
+                categoryContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+
+                // Update filter state
+                filters[type].category = e.target.dataset.filter;
+
+                // Re-render goals
+                renderGoals(currentData);
+            }
+        });
+    }
+
+    if (frequencyContainer) {
+        frequencyContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                // Update active state
+                frequencyContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+
+                // Update filter state
+                filters[type].frequency = e.target.dataset.filter;
+
+                // Re-render goals
+                renderGoals(currentData);
+            }
+        });
+    }
+}
+
+function updateCategoryFilters(type, tasks) {
+    const container = document.getElementById(`${type}-category-filters`);
+    if (!container) return;
+
+    // Get unique categories
+    const categories = new Set();
+    tasks.forEach(task => {
+        if (task.category) {
+            categories.add(task.category);
+        }
+    });
+
+    // Sort categories alphabetically
+    const sortedCategories = Array.from(categories).sort();
+
+    // Build filter buttons HTML
+    let html = '<button class="filter-btn active" data-filter="all">All</button>';
+    sortedCategories.forEach(category => {
+        const isActive = filters[type].category === category ? 'active' : '';
+        html += `<button class="filter-btn ${isActive}" data-filter="${category}">${category}</button>`;
+    });
+
+    container.innerHTML = html;
+
+    // Restore active state
+    if (filters[type].category !== 'all') {
+        const activeBtn = container.querySelector(`[data-filter="${filters[type].category}"]`);
+        if (activeBtn) {
+            container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            activeBtn.classList.add('active');
+        } else {
+            // Category no longer exists, reset to all
+            filters[type].category = 'all';
+            container.querySelector('[data-filter="all"]').classList.add('active');
+        }
+    }
+}
+
+function applyFilters(tasks, filterState) {
+    let filtered = tasks;
+
+    // Apply category filter
+    if (filterState.category !== 'all') {
+        filtered = filtered.filter(task => task.category === filterState.category);
+    }
+
+    // Apply frequency filter
+    if (filterState.frequency !== 'all') {
+        filtered = filtered.filter(task => task.frequency === filterState.frequency);
+    }
+
+    return filtered;
 }
 
 // ===================================
