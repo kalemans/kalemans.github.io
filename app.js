@@ -2,9 +2,9 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.2.0';
+const APP_VERSION = '4.2.1';
 
-console.log('🚀 APP.JS LOADED - VERSION 4.2.0 - WIREFRAME FOR BOTH TABS WITH COLOR PALETTES');
+console.log('🚀 APP.JS LOADED - VERSION 4.2.1 - VISUAL IMPROVEMENTS');
 
 // State Management
 let currentData = null;

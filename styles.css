@@ -410,7 +410,7 @@ input, select, textarea {
     display: flex;
     border-bottom: 2px solid var(--light-gray);
     position: sticky;
-    top: 60px;
+    top: 0;
     z-index: 99;
 }
 
@@ -491,9 +491,9 @@ input, select, textarea {
     display: block;
 }
 
-/* Global tab background for coherence */
+/* Global tab background - same as cards */
 .tab-pane {
-    background: var(--wireframe-bg);
+    background: #FFFFFF;
     min-height: 100vh;
 }
 
@@ -1698,19 +1698,18 @@ select:focus-visible {
 
 /* Couple Tab Wireframe Background */
 #couple-tab.couple-tab-wireframe {
-    background: var(--wireframe-bg);
-    min-height: 100vh;
+    /* Background inherited from .tab-pane */
 }
 
 /* Sticky Header */
 .couple-sticky-header {
     position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(250, 212, 212, 0.9);
+    top: 48px;
+    z-index: 98;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    padding: 56px 24px 24px 24px;
+    padding: 24px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1962,7 +1961,7 @@ select:focus-visible {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding-top: 120px;
+    padding-top: 80px;
 }
 
 .filter-modal.hidden {
@@ -2078,7 +2077,7 @@ select:focus-visible {
 /* Responsive Adjustments */
 @media (max-width: 480px) {
     .couple-sticky-header {
-        padding: 48px 16px 16px 16px;
+        padding: 16px 16px 16px 16px;
     }
 
     .couple-tab-title {
@@ -2123,17 +2122,16 @@ select:focus-visible {
    =================================== */
 
 #personal-tab.personal-tab-wireframe {
-    background: var(--wireframe-personal-bg);
-    min-height: 100vh;
+    /* Background inherited from .tab-pane */
 }
 
 /* Sticky Header */
 .personal-sticky-header {
     position: sticky;
-    top: 124px;
-    background: rgba(212, 241, 255, 0.9);
+    top: 48px;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
-    padding: 56px 24px 24px;
+    padding: 24px 24px 24px;
     z-index: 98;
     display: flex;
     justify-content: space-between;
@@ -2266,9 +2264,7 @@ select:focus-visible {
 /* Responsive */
 @media (max-width: 480px) {
     .personal-sticky-header {
-        padding-top: 40px;
-        padding-left: 16px;
-        padding-right: 16px;
+        padding: 16px 16px 16px;
     }
 
     .personal-tab-title {
