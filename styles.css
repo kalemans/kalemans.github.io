@@ -1709,10 +1709,11 @@ select:focus-visible {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    padding: 24px 24px 24px 24px;
+    padding: 16px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0;
 }
 
 .couple-tab-title {
@@ -2131,11 +2132,12 @@ select:focus-visible {
     top: 48px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
-    padding: 24px 24px 24px;
+    padding: 16px 24px;
     z-index: 98;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0;
 }
 
 .personal-tab-title {
@@ -2175,6 +2177,7 @@ select:focus-visible {
 #personal-tab .weekly-overview-card {
     background: var(--wireframe-personal-card);
     border: 1px solid var(--wireframe-personal-border);
+    margin-top: 16px;
 }
 
 #personal-tab .weekly-overview-title {

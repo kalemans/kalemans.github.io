@@ -2,9 +2,9 @@ import { PREDEFINED_TASKS } from './config.js';
 import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
-const APP_VERSION = '4.2.1';
+const APP_VERSION = '4.2.2';
 
-console.log('🚀 APP.JS LOADED - VERSION 4.2.1 - VISUAL IMPROVEMENTS');
+console.log('🚀 APP.JS LOADED - VERSION 4.2.2 - CRITICAL FIXES');
 
 // State Management
 let currentData = null;
@@ -272,7 +272,7 @@ function renderGoals(data) {
     renderPersonalGoals(data);
     renderCoupleGoals(data);
     renderStats(data);
-    updateDailyProgress(data);
+    // Removed updateDailyProgress since we removed the header
 
     // Initialize Lucide icons after rendering
     if (window.lucide) {
