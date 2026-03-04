@@ -89,7 +89,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--cream);
+    background-color: #FFFFFF;
     color: var(--text-dark);
     line-height: 1.6;
     min-height: 100vh;
@@ -270,7 +270,7 @@ input, select, textarea {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--cream);
+    background-color: #FFFFFF;
 }
 
 /* ===================================
@@ -406,7 +406,7 @@ input, select, textarea {
    =================================== */
 
 .tab-navigation {
-    background: var(--warm-white);
+    background: #FFFFFF;
     display: flex;
     border-bottom: 2px solid var(--light-gray);
     position: sticky;
@@ -478,8 +478,9 @@ input, select, textarea {
 
 .tab-content {
     flex: 1;
-    padding: var(--spacing-lg) var(--spacing-md);
+    padding: 0;
     overflow-y: auto;
+    background-color: #FFFFFF;
 }
 
 .tab-pane {
@@ -1706,22 +1707,16 @@ select:focus-visible {
     position: sticky;
     top: 48px;
     z-index: 98;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    padding: 16px 24px;
+    background: transparent;
+    padding: 8px 16px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 0;
 }
 
 .couple-tab-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--wireframe-accent);
-    margin: 0;
+    display: none; /* Hidden - tab already shows "Couple" */
 }
 
 .filter-trigger-btn {
@@ -2130,22 +2125,17 @@ select:focus-visible {
 .personal-sticky-header {
     position: sticky;
     top: 48px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(4px);
-    padding: 16px 24px;
+    background: transparent;
+    padding: 8px 16px;
     z-index: 98;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 0;
 }
 
 .personal-tab-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--wireframe-personal-accent);
-    margin: 0;
+    display: none; /* Hidden - tab already shows "Personal" */
 }
 
 .personal-sticky-header .filter-trigger-btn {

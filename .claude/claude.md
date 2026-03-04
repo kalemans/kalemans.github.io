@@ -17,8 +17,8 @@ Create a sticky header for the tab title with a background of #fad4d4ff at 90% o
 A 220px tall featured card. Structure: Header (Weekly Overview) with title and date, a data visualization area, and a status footer. Data Viz: Five vertical bars of varying heights (based on the ratio of number of goals completed vs. total goals on that day), using #38000a for the active bar (showing today's data) and #fad4d4ff for inactive bars. 
 
 ## Goal Cards
-
-A list of cards with minimal vertical spacing between them. Each card contains: the goal name, and a bottom row of monospaced secondary texts showing the category and the frequency, both within a rounded  #fad4d4ff background. On the right place the gold star. Gold star should be empty for non-complete tasks. For completed tasks, gold star shoule be filled with gradient from top #ffcc00ff to bottom #f4e091ff. Include a hidden-by-default grip icon (lucide:grip-vertical) that appears on hover at the right side.
+(Same border, main text and background color as the primary stats card.)
+A list of cards with minimal vertical spacing between them. Each card contains: the goal name in  #38000a, backgroun in white and a bottom row of monospaced secondary texts showing the category and the frequency, both within a rounded #fad4d4ff background. On the right place the gold star. Gold star should be empty for non-complete tasks. For completed tasks, gold star shoule be filled with gradient from top #ffcc00ff to bottom #f4e091ff. Include a hidden-by-default grip icon (lucide:grip-vertical) that appears on hover at the right side.
 
 ## Modular Action Footer
 
