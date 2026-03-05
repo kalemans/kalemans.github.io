@@ -53,17 +53,18 @@ html {
     --wireframe-inactive: #fad4d4ff;
     --wireframe-gold-start: #ffcc00ff;
     --wireframe-gold-end: rgb(247, 237, 194);
-    --wireframe-filter-border: #D1D5DB;
+    --wireframe-filter-border: #9b1313;
 
     /* Personal Tab Wireframe Colors */
-    --wireframe-personal-bg: #d4f1ff;
+    --wireframe-personal-bg: #C4DFE6;
     --wireframe-personal-card: #FFFFFF;
-    --wireframe-personal-border: #4272ff;
-    --wireframe-personal-text-primary: #4272ff;
-    --wireframe-personal-text-secondary: #ff7e42;
-    --wireframe-personal-accent: #ffb343;
-    --wireframe-personal-inactive: #ffb343;
-    --wireframe-personal-active: #ff7e42;
+    --wireframe-personal-border: #003B46;
+    --wireframe-personal-text-primary: #003B46;
+    --wireframe-personal-text-secondary: #07575B;
+    --wireframe-personal-accent: #66A5AD;
+    --wireframe-personal-inactive: #C4DFE6;
+    --wireframe-personal-active: #003B46;
+    --wireframe-personal-filter-border: #07575B;
 
     /* Spacing */
     --spacing-xs: 0.25rem;
@@ -1848,11 +1849,11 @@ select:focus-visible {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
     border-radius: 6px;
-    padding: 16px;
+    padding: 8px 16px;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 2px;
     transition: all 0.2s ease;
 }
 
@@ -1884,10 +1885,11 @@ select:focus-visible {
 .wireframe-goal-tag {
     background: var(--wireframe-inactive);
     border-radius: 12px;
-    padding: 4px 12px;
+    padding: 2px 12px;
     font-family: 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 10px;
     color: var(--wireframe-text-secondary);
+    font-weight: 600;
 }
 
 .wireframe-goal-actions {
@@ -2185,7 +2187,6 @@ select:focus-visible {
 #personal-tab .weekly-overview-card {
     background: var(--wireframe-personal-card);
     border: 1px solid var(--wireframe-personal-border);
-    margin-top: 12px;
 }
 
 #personal-tab .weekly-overview-title {
@@ -2231,8 +2232,8 @@ select:focus-visible {
 }
 
 #personal-tab .add-goal-wireframe {
-    border: 2px dashed var(--wireframe-filter-border);
-    color: var(--wireframe-personal-text-primary);
+    border: 2px dashed var(--wireframe-personal-filter-border);
+    color: var(--wireframe-personal-filter-primary);
 }
 
 #personal-tab .add-goal-wireframe:hover {
