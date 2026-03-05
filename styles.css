@@ -1863,7 +1863,7 @@ select:focus-visible {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
     border-radius: 6px;
-    padding: 6px 16px;
+    padding: 4px 16px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -1878,9 +1878,9 @@ select:focus-visible {
 .wireframe-goal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
-    min-height: 48px;
+    padding-right: 48px;
 }
 
 .wireframe-goal-name {
@@ -1908,6 +1908,10 @@ select:focus-visible {
 }
 
 .wireframe-goal-actions {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     gap: 8px;
 }
