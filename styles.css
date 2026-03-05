@@ -96,7 +96,7 @@ body {
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease; 
 }
 
 button {
@@ -408,7 +408,7 @@ input, select, textarea {
    =================================== */
 
 .tab-navigation {
-    background: transparent;
+    background: rgba(67, 66, 66, 0.5);
     display: flex;
     border-bottom: 2px solid var(--light-gray);
     position: sticky;
@@ -1717,12 +1717,25 @@ select:focus-visible {
     margin-bottom: 0;
 }
 
+.dashboard-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .couple-tab-title {
     font-family: 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 600;
     color: var(--wireframe-border);
     margin: 0;
+}
+
+.dashboard-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #686767;
 }
 
 .filter-trigger-btn {
@@ -1787,7 +1800,7 @@ select:focus-visible {
     align-items: flex-end;
     justify-content: space-between;
     gap: 8px;
-    padding: 16px 0;
+    padding: 8px 0;
 }
 
 .weekly-bar-wrapper {
@@ -1865,7 +1878,7 @@ select:focus-visible {
 .wireframe-goal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
 }
 
@@ -1897,6 +1910,7 @@ select:focus-visible {
     display: flex;
     align-items: center;
     gap: 8px;
+    align-self: center;
 }
 
 .wireframe-goal-star {

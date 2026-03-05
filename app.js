@@ -118,6 +118,7 @@ async function init() {
 
     // Set up event listeners
     setupTabs();
+    updateDashboardDate();
     setupModal();
     setupMobileFeatures();
     setupFilters();
@@ -287,6 +288,18 @@ function updateBodyBackground(tab) {
     } else {
         body.style.backgroundColor = '#FFFFFF'; // Stats tab white background
     }
+}
+
+function updateDashboardDate() {
+    const today = new Date();
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    const formattedDate = today.toLocaleDateString('en-US', options);
+
+    const personalDateEl = document.getElementById('personal-dashboard-date');
+    const coupleDateEl = document.getElementById('couple-dashboard-date');
+
+    if (personalDateEl) personalDateEl.textContent = formattedDate;
+    if (coupleDateEl) coupleDateEl.textContent = formattedDate;
 }
 
 function renderGoals(data) {
