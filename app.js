@@ -826,8 +826,8 @@ function renderWeeklyOverview(data) {
         days.push(date);
     }
 
-    // Get couple tasks
-    const coupleTasks = getAllTasksWithType(data, 'couple');
+    // Get couple tasks (only Daily frequency for weekly overview)
+    const coupleTasks = getAllTasksWithType(data, 'couple').filter(task => task.frequency === 'Daily');
     const totalTasks = coupleTasks.length;
 
     const todayStr = today.toISOString().split('T')[0];
@@ -882,8 +882,8 @@ function renderWeeklyOverviewPersonal(data) {
         days.push(date);
     }
 
-    // Get personal tasks
-    const personalTasks = getAllTasksWithType(data, 'personal');
+    // Get personal tasks (only Daily frequency for weekly overview)
+    const personalTasks = getAllTasksWithType(data, 'personal').filter(task => task.frequency === 'Daily');
     const totalTasks = personalTasks.length;
 
     const todayStr = today.toISOString().split('T')[0];
