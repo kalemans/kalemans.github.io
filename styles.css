@@ -42,9 +42,13 @@ html {
     --text-dark: #2C2416;
     --text-medium: #5C4D3E;
 
+    --navigation-bar-bottom: #000000;
+    --navigation-bar-bg: #1f1e1e;
+
     --tab-text-inactive: #6f6f6f;
     --tab-text-hover: #bbbaba;
     --tab-text-active: #ffffff;
+    --tab-button-active: #E5DDD5;
 
     /* Wireframe Design Colors - Couple Tab */
     /* Couple Tab Wireframe Colors */
@@ -412,9 +416,9 @@ input, select, textarea {
    =================================== */
 
 .tab-navigation {
-    background: rgba(67, 66, 66, 1);
+    background: var(--navigation-bar-bg);
     display: flex;
-    border-bottom: 2px solid var(--light-gray);
+    border-bottom: 2px solid var(--navigation-bar-bottom);
     position: sticky;
     top: 0;
     z-index: 99;
@@ -447,8 +451,9 @@ input, select, textarea {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--light-brown), var(--burnt-orange));
-    border-radius: 3px 3px 0 0;
+    background-color: var(--tab-button-active);
+    /* background: linear-gradient(90deg, var(--light-brown), var(--burnt-orange)); */
+    /* border-radius: 3px 3px 0 0; */
 }
 
 /* Personal tab active color */
@@ -1873,6 +1878,7 @@ select:focus-visible {
     flex-direction: column;
     gap: 0px;
     transition: all 0.2s ease;
+    overflow: hidden;
 }
 
 .wireframe-goal-card:hover {
@@ -1930,6 +1936,74 @@ select:focus-visible {
 
 .wireframe-goal-star:hover {
     transform: scale(1.1);
+}
+
+/* Swipe-to-Reveal Actions */
+.card-swipe-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-right: 16px;
+    pointer-events: none;
+}
+
+.card-content {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    background: var(--wireframe-card);
+    z-index: 1;
+}
+
+.card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border: 1px solid var(--wireframe-border);
+    border-radius: 6px;
+    background: var(--wireframe-card);
+    color: var(--wireframe-text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+.card-action-btn svg,
+.card-action-btn i {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.card-action-btn.edit-btn:hover {
+    background: var(--wireframe-inactive);
+    border-color: var(--wireframe-accent);
+    color: var(--wireframe-accent);
+}
+
+.card-action-btn.delete-btn:hover {
+    background: #ffe5e5;
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.card-action-btn:active {
+    transform: scale(0.95);
 }
 
 /* Add Goal Wireframe Button */

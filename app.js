@@ -280,11 +280,14 @@ function setupTabs() {
 
 function updateBodyBackground(tab) {
     const body = document.body;
+    const root = document.documentElement;
 
     if (tab === 'personal') {
-        body.style.backgroundColor = '#C4DFE6'; // Personal tab teal background
+        const personalBg = getComputedStyle(root).getPropertyValue('--wireframe-personal-bg').trim(); 
+        body.style.backgroundColor = personalBg;
     } else if (tab === 'couple') {
-        body.style.backgroundColor = '#fad4d4ff'; // Couple tab pink background
+        const coupleBg = getComputedStyle(root).getPropertyValue('--wireframe-bg').trim();
+        body.style.backgroundColor = coupleBg;
     } else {
         body.style.backgroundColor = '#FFFFFF'; // Stats tab white background
     }
@@ -465,20 +468,32 @@ function createGoalCard(task, completed, data) {
     card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
     card.innerHTML = `
-        <div class="wireframe-goal-header">
-            <div class="wireframe-goal-name">${task.name}</div>
-            <div class="wireframe-goal-actions">
-                <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="40" height="40" viewBox="0 0 24 24" data-id="${task.id}">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                          fill="${completed ? 'url(#gold-gradient)' : 'none'}"
-                          stroke="var(--wireframe-border)"
-                          stroke-width="1"/>
-                </svg>
-            </div>
+        <div class="card-swipe-actions">
+            <button class="card-action-btn edit-btn" data-action="edit">
+                <i data-lucide="edit-2"></i>
+                <span>Edit</span>
+            </button>
+            <button class="card-action-btn delete-btn" data-action="delete">
+                <i data-lucide="trash-2"></i>
+                <span>Delete</span>
+            </button>
         </div>
-        <div class="wireframe-goal-meta">
-            <span class="wireframe-goal-tag">${task.category}</span>
-            <span class="wireframe-goal-tag">${task.frequency}</span>
+        <div class="card-content">
+            <div class="wireframe-goal-header">
+                <div class="wireframe-goal-name">${task.name}</div>
+                <div class="wireframe-goal-actions">
+                    <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="40" height="40" viewBox="0 0 24 24" data-id="${task.id}">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                              fill="${completed ? 'url(#gold-gradient)' : 'none'}"
+                              stroke="var(--wireframe-border)"
+                              stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="wireframe-goal-meta">
+                <span class="wireframe-goal-tag">${task.category}</span>
+                <span class="wireframe-goal-tag">${task.frequency}</span>
+            </div>
         </div>
     `;
 
@@ -487,99 +502,129 @@ function createGoalCard(task, completed, data) {
     const starBtn = card.querySelector('.wireframe-goal-star');
     starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
+    // Add action button listeners
+    const editBtn = card.querySelector('.edit-btn');
+    const deleteBtn = card.querySelector('.delete-btn');
+
+    editBtn.addEventListener('click', () => {
+        openEditModal(task);
+        closeCardActions(card);
+    });
+
+    deleteBtn.addEventListener('click', () => {
+        confirmDeleteGoal(task);
+        closeCardActions(card);
+    });
+
     // Add swipe gestures to card
-    addSwipeToCard(card, task, isCustom);
+    addSwipeToReveal(card);
 
     return card;
 }
 
-function addSwipeToCard(card, task, isCustom) {
+function addSwipeToReveal(card) {
+    const cardContent = card.querySelector('.card-content');
     let startX = 0;
     let startY = 0;
+    let currentX = 0;
     let isSwiping = false;
-    let swipeDirection = null;
+    const actionsWidth = 160; // Width of the actions buttons
 
     card.addEventListener('touchstart', (e) => {
         // Don't interfere with button clicks
-        if (e.target.closest('.goal-action-btn')) {
+        if (e.target.closest('.card-action-btn') || e.target.closest('.wireframe-goal-star')) {
             return;
         }
 
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        currentX = getTranslateX(cardContent);
         isSwiping = false;
-        swipeDirection = null;
-    }, { passive: true });
+    }, { passive: false });
 
     card.addEventListener('touchmove', (e) => {
-        if (!startX || e.target.closest('.goal-action-btn')) {
-            return;
-        }
+        if (!startX) return;
 
-        const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        const diffX = currentX - startX;
-        const diffY = currentY - startY;
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const diffX = touchX - startX;
+        const diffY = touchY - startY;
 
         // Determine if this is a horizontal swipe
         if (!isSwiping && Math.abs(diffX) > 10) {
             if (Math.abs(diffX) > Math.abs(diffY)) {
                 isSwiping = true;
-                swipeDirection = diffX > 0 ? 'right' : 'left';
+                e.preventDefault();
             }
         }
 
         if (isSwiping) {
-            // Visual feedback - use different colors based on task type
-            const opacity = Math.min(Math.abs(diffX) / 150, 0.3);
-            if (swipeDirection === 'right') {
-                if (task.type === 'personal') {
-                    card.style.backgroundColor = `rgba(66, 234, 255, ${opacity})`;
-                } else {
-                    card.style.backgroundColor = `rgba(255, 168, 150, ${opacity})`;
-                }
-            } else if (swipeDirection === 'left' && isCustom) {
-                if (task.type === 'personal') {
-                    card.style.backgroundColor = `rgba(255, 126, 66, ${opacity})`;
-                } else {
-                    card.style.backgroundColor = `rgba(155, 19, 19, ${opacity})`;
-                }
-            }
+            e.preventDefault();
+            let newX = currentX + diffX;
+
+            // Constrain: can slide left (negative) to reveal actions, or return to 0
+            newX = Math.max(-actionsWidth, Math.min(0, newX));
+
+            cardContent.style.transform = `translateX(${newX}px)`;
+            cardContent.style.transition = 'none';
         }
-    }, { passive: true });
+    }, { passive: false });
 
     card.addEventListener('touchend', (e) => {
-        if (!startX) {
-            return;
-        }
+        if (!startX) return;
 
         const endX = e.changedTouches[0].clientX;
         const diffX = endX - startX;
+        const translateX = getTranslateX(cardContent);
 
-        // Trigger action if swiped far enough
-        if (isSwiping) {
-            if (diffX > 80 && swipeDirection === 'right') {
-                // Swipe right to complete
-                toggleGoalCompletion(task.id, currentData);
-            } else if (diffX < -80 && swipeDirection === 'left' && isCustom) {
-                // Swipe left to delete (custom goals only)
-                confirmDeleteGoal(task);
-            } else if (diffX < -80 && swipeDirection === 'left' && !isCustom) {
-                showToast('Can only delete custom goals', 'info', 2000);
+        cardContent.style.transition = 'transform 0.3s ease';
+
+        // Determine final position based on swipe distance and direction
+        if (diffX < -50 && translateX > -actionsWidth) {
+            // Swiped left - reveal actions
+            cardContent.style.transform = `translateX(-${actionsWidth}px)`;
+            card.classList.add('actions-revealed');
+        } else if (diffX > 50 && translateX < 0) {
+            // Swiped right - close actions
+            cardContent.style.transform = 'translateX(0)';
+            card.classList.remove('actions-revealed');
+        } else {
+            // Snap to nearest position
+            if (Math.abs(translateX) > actionsWidth / 2) {
+                cardContent.style.transform = `translateX(-${actionsWidth}px)`;
+                card.classList.add('actions-revealed');
+            } else {
+                cardContent.style.transform = 'translateX(0)';
+                card.classList.remove('actions-revealed');
             }
         }
-
-        // Reset visual feedback
-        setTimeout(() => {
-            card.style.backgroundColor = '';
-        }, 100);
 
         // Reset
         startX = 0;
         startY = 0;
         isSwiping = false;
-        swipeDirection = null;
     }, { passive: true });
+}
+
+function getTranslateX(element) {
+    const style = window.getComputedStyle(element);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    return matrix.m41;
+}
+
+function closeCardActions(card) {
+    const cardContent = card.querySelector('.card-content');
+    if (cardContent) {
+        cardContent.style.transition = 'transform 0.3s ease';
+        cardContent.style.transform = 'translateX(0)';
+        card.classList.remove('actions-revealed');
+    }
+}
+
+function openEditModal(task) {
+    // Open the modal in edit mode with task data
+    editingTaskId = task.id;
+    openModal(task.type, true, task);
 }
 
 async function toggleGoalCompletion(taskId, data) {
