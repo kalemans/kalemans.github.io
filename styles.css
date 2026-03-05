@@ -1863,11 +1863,11 @@ select:focus-visible {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
     border-radius: 6px;
-    padding: 8px 16px;
+    padding: 6px 16px;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0px;
     transition: all 0.2s ease;
 }
 
@@ -1878,8 +1878,9 @@ select:focus-visible {
 .wireframe-goal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
+    min-height: 48px;
 }
 
 .wireframe-goal-name {
@@ -1909,7 +1910,6 @@ select:focus-visible {
 .wireframe-goal-actions {
     display: flex;
     gap: 8px;
-    align-self: center;
 }
 
 .wireframe-goal-star {
