@@ -408,7 +408,7 @@ input, select, textarea {
    =================================== */
 
 .tab-navigation {
-    background: rgba(67, 66, 66, 0.5);
+    background: rgba(67, 66, 66, 1);
     display: flex;
     border-bottom: 2px solid var(--light-gray);
     position: sticky;
@@ -1733,7 +1733,7 @@ select:focus-visible {
 
 .dashboard-date {
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 400;
     color: #686767;
 }
@@ -1816,7 +1816,7 @@ select:focus-visible {
 .weekly-bar {
     width: 100%;
     background: var(--wireframe-inactive);
-    border-radius: 2px;
+    border-radius: 4px;
     transition: all 0.3s ease;
     min-height: 8px;
     cursor: pointer;
@@ -1879,7 +1879,7 @@ select:focus-visible {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 12px;
+    gap: 6px;
 }
 
 .wireframe-goal-name {
@@ -1908,7 +1908,6 @@ select:focus-visible {
 
 .wireframe-goal-actions {
     display: flex;
-    align-items: center;
     gap: 8px;
     align-self: center;
 }
@@ -1923,28 +1922,6 @@ select:focus-visible {
 
 .wireframe-goal-star:hover {
     transform: scale(1.1);
-}
-
-.wireframe-grip-icon {
-    color: var(--wireframe-border);
-    cursor: grab;
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-}
-
-.wireframe-grip-icon.hidden {
-    display: none;
-}
-
-.wireframe-goal-card:hover .wireframe-grip-icon.hidden {
-    display: block;
-}
-
-@media (hover: none) {
-    .wireframe-grip-icon.hidden {
-        display: block;
-    }
 }
 
 /* Add Goal Wireframe Button */
@@ -2244,10 +2221,6 @@ select:focus-visible {
 
 #personal-tab .wireframe-goal-star path {
     stroke: var(--wireframe-personal-border) !important;
-}
-
-#personal-tab .wireframe-grip-icon {
-    color: var(--wireframe-personal-border);
 }
 
 #personal-tab .add-goal-wireframe {

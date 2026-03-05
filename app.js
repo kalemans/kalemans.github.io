@@ -370,6 +370,9 @@ function renderPersonalGoals(data) {
     // Apply filters
     tasks = applyFilters(tasks, filters.personal);
 
+    // Sort alphabetically by goal name
+    tasks.sort((a, b) => a.name.localeCompare(b.name));
+
     if (tasks.length === 0) {
         const allTasks = getAllTasksWithType(data, 'personal');
         if (allTasks.length === 0) {
@@ -415,6 +418,9 @@ function renderCoupleGoals(data) {
 
     // Apply filters
     tasks = applyFilters(tasks, filters.couple);
+
+    // Sort alphabetically by goal name
+    tasks.sort((a, b) => a.name.localeCompare(b.name));
 
     console.log(`📋 Rendering ${tasks.length} couple tasks:`, tasks.map(t => ({name: t.name, type: t.type, id: t.id})));
 
@@ -462,9 +468,6 @@ function createGoalCard(task, completed, data) {
         <div class="wireframe-goal-header">
             <div class="wireframe-goal-name">${task.name}</div>
             <div class="wireframe-goal-actions">
-                <div class="wireframe-grip-icon hidden">
-                    <i data-lucide="grip-vertical"></i>
-                </div>
                 <svg class="wireframe-goal-star ${completed ? 'completed' : ''}" width="40" height="40" viewBox="0 0 24 24" data-id="${task.id}">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                           fill="${completed ? 'url(#gold-gradient)' : 'none'}"
