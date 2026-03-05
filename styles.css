@@ -1754,7 +1754,7 @@ select:focus-visible {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
     border-radius: 6px;
-    margin: 12px 16px 16px 16px;
+    margin: 4px 16px 16px 16px;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -1865,7 +1865,7 @@ select:focus-visible {
 .wireframe-goal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
 }
 
@@ -1900,8 +1900,8 @@ select:focus-visible {
 }
 
 .wireframe-goal-star {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
     flex-shrink: 0;
     transition: transform 0.2s ease;
