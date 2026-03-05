@@ -2228,8 +2228,8 @@ select:focus-visible {
     color: var(--wireframe-personal-text-secondary);
 }
 
-#personal-tab .wireframe-goal-star {
-    stroke: var(--wireframe-personal-border);
+#personal-tab .wireframe-goal-star path {
+    stroke: var(--wireframe-personal-border) !important;
 }
 
 #personal-tab .wireframe-grip-icon {
