@@ -1751,7 +1751,7 @@ select:focus-visible {
     height: 220px;
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
-    border-radius: 2px;
+    border-radius: 6px;
     margin: 12px 16px 16px 16px;
     padding: 16px;
     display: flex;
@@ -1837,7 +1837,7 @@ select:focus-visible {
 .wireframe-goal-card {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
-    border-radius: 2px;
+    border-radius: 6px;
     padding: 16px;
     position: relative;
     display: flex;
