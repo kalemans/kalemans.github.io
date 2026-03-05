@@ -288,7 +288,6 @@ function updateBodyBackground(tab) {
         body.style.backgroundColor = '#FFFFFF'; // Stats tab white background
     }
 }
-}
 
 function renderGoals(data) {
     renderPersonalGoals(data);
