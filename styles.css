@@ -1249,7 +1249,6 @@ input, select, textarea {
 
 /* Heatmap Container */
 .heatmap-container {
-    overflow-x: auto;
     overflow-y: hidden;
     padding: var(--spacing-md) 0;
 }
@@ -1331,6 +1330,8 @@ input, select, textarea {
 
 .heatmap-legend-label {
     margin-right: 4px;
+    color: var(--stats-text-primary);
+    font-weight: 500;
 }
 
 .heatmap-legend-scale {
