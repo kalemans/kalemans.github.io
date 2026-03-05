@@ -735,22 +735,26 @@ function renderCoupleStats(data) {
 function renderWeeklyOverview(data) {
     const container = document.getElementById('couple-weekly-chart');
     const weekRangeEl = document.getElementById('couple-week-range');
-    const statusEl = document.getElementById('couple-weekly-status');
 
-    if (!container || !weekRangeEl || !statusEl) return;
+    if (!container || !weekRangeEl) return;
 
-    // Get the last 5 days (including today)
-    const days = [];
+    // Get current week (Monday to Sunday)
     const today = new Date();
-    for (let i = 4; i >= 0; i--) {
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else calculate offset to Monday
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
         const date = new Date(today);
-        date.setDate(date.getDate() - i);
+        date.setDate(date.getDate() + mondayOffset + i);
         days.push(date);
     }
 
     // Get couple tasks
     const coupleTasks = getAllTasksWithType(data, 'couple');
     const totalTasks = coupleTasks.length;
+
+    const todayStr = today.toISOString().split('T')[0];
 
     // Calculate completions for each day
     const dailyStats = days.map(date => {
@@ -759,18 +763,20 @@ function renderWeeklyOverview(data) {
             data.completions[dateStr]?.[task.id]?.completed
         ).length;
         const percentage = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
-        return { date, dateStr, completed, percentage };
+        const isToday = dateStr === todayStr;
+        return { date, dateStr, completed, percentage, isToday };
     });
 
     // Render bars
-    container.innerHTML = dailyStats.map((stat, index) => {
-        const isToday = index === 4;
+    container.innerHTML = dailyStats.map(stat => {
         const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
-        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3; // Minimum 3% height for visibility
+        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3;
+        const percentageLabel = Math.round(stat.percentage);
 
         return `
             <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
-                <div class="weekly-bar ${isToday ? 'active' : ''}" style="height: ${height}%"></div>
+                <div class="weekly-bar-percentage">${percentageLabel}%</div>
+                <div class="weekly-bar ${stat.isToday ? 'active' : ''}" style="height: ${height}%"></div>
                 <div class="weekly-bar-label">${dayName}</div>
             </div>
         `;
@@ -778,33 +784,33 @@ function renderWeeklyOverview(data) {
 
     // Set week range
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const lastDay = days[4].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
-
-    // Set status message
-    const todayCompleted = dailyStats[4].completed;
-    statusEl.textContent = `Today: ${todayCompleted}/${totalTasks} goals completed`;
 }
 
 function renderWeeklyOverviewPersonal(data) {
     const container = document.getElementById('personal-weekly-chart');
     const weekRangeEl = document.getElementById('personal-week-range');
-    const statusEl = document.getElementById('personal-weekly-status');
 
-    if (!container || !weekRangeEl || !statusEl) return;
+    if (!container || !weekRangeEl) return;
 
-    // Get the last 5 days (including today)
-    const days = [];
+    // Get current week (Monday to Sunday)
     const today = new Date();
-    for (let i = 4; i >= 0; i--) {
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else calculate offset to Monday
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
         const date = new Date(today);
-        date.setDate(date.getDate() - i);
+        date.setDate(date.getDate() + mondayOffset + i);
         days.push(date);
     }
 
     // Get personal tasks
     const personalTasks = getAllTasksWithType(data, 'personal');
     const totalTasks = personalTasks.length;
+
+    const todayStr = today.toISOString().split('T')[0];
 
     // Calculate completions for each day
     const dailyStats = days.map(date => {
@@ -813,18 +819,20 @@ function renderWeeklyOverviewPersonal(data) {
             data.completions[dateStr]?.[task.id]?.completed
         ).length;
         const percentage = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
-        return { date, dateStr, completed, percentage };
+        const isToday = dateStr === todayStr;
+        return { date, dateStr, completed, percentage, isToday };
     });
 
     // Render bars
-    container.innerHTML = dailyStats.map((stat, index) => {
-        const isToday = index === 4;
+    container.innerHTML = dailyStats.map(stat => {
         const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
-        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3; // Minimum 3% height for visibility
+        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3;
+        const percentageLabel = Math.round(stat.percentage);
 
         return `
             <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
-                <div class="weekly-bar ${isToday ? 'active' : ''}" style="height: ${height}%"></div>
+                <div class="weekly-bar-percentage">${percentageLabel}%</div>
+                <div class="weekly-bar ${stat.isToday ? 'active' : ''}" style="height: ${height}%"></div>
                 <div class="weekly-bar-label">${dayName}</div>
             </div>
         `;
@@ -832,12 +840,8 @@ function renderWeeklyOverviewPersonal(data) {
 
     // Set week range
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const lastDay = days[4].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
-
-    // Set status message
-    const todayCompleted = dailyStats[4].completed;
-    statusEl.textContent = `Today: ${todayCompleted}/${totalTasks} goals completed`;
 }
 
 function renderOverallStats(data) {

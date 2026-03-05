@@ -52,7 +52,7 @@ html {
     --wireframe-accent: #cd1c18;
     --wireframe-inactive: #fad4d4ff;
     --wireframe-gold-start: #ffcc00ff;
-    --wireframe-gold-end: #f4e091ff;
+    --wireframe-gold-end: rgb(247, 237, 194);
     --wireframe-filter-border: #D1D5DB;
 
     /* Personal Tab Wireframe Colors */
@@ -1820,6 +1820,14 @@ select:focus-visible {
     letter-spacing: 0.05em;
 }
 
+.weekly-bar-percentage {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--wireframe-text-primary);
+    margin-bottom: 4px;
+}
+
 .weekly-overview-footer {
     margin-top: 12px;
     font-family: 'Inter', sans-serif;
@@ -2196,8 +2204,8 @@ select:focus-visible {
     background: var(--wireframe-personal-active);
 }
 
-#personal-tab .weekly-overview-footer {
-    color: var(--wireframe-personal-text-secondary);
+#personal-tab .weekly-bar-percentage {
+    color: var(--wireframe-personal-text-primary);
 }
 
 #personal-tab .wireframe-goal-card {
