@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1772700930">
+    <link rel="stylesheet" href="styles.css?v=1772703255">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -171,30 +171,88 @@
 
             <!-- Stats Tab -->
             <div id="stats-tab" class="tab-pane">
-                <h2>Statistics</h2>
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <h3>Personal Progress</h3>
-                        <div id="personal-stats" class="stats-content">
-                            <!-- Stats will be dynamically added here -->
+                <div class="stats-layout">
+                    <!-- Summary Cards Row -->
+                    <div class="stats-summary-row">
+                        <div class="summary-card" id="summary-total">
+                            <div class="summary-label">Total Completed</div>
+                            <div class="summary-value">0</div>
+                            <div class="summary-sublabel">all time</div>
+                        </div>
+                        <div class="summary-card" id="summary-daily">
+                            <div class="summary-label">Daily Goals</div>
+                            <div class="summary-value">0</div>
+                            <div class="summary-sublabel">completed</div>
+                        </div>
+                        <div class="summary-card" id="summary-weekly">
+                            <div class="summary-label">Weekly Goals</div>
+                            <div class="summary-value">0</div>
+                            <div class="summary-sublabel">completed</div>
+                        </div>
+                        <div class="summary-card" id="summary-anytime">
+                            <div class="summary-label">Anytime Goals</div>
+                            <div class="summary-value">0</div>
+                            <div class="summary-sublabel">completed</div>
+                        </div>
+                        <div class="summary-card highlight" id="summary-streak">
+                            <div class="summary-label">Current Streak</div>
+                            <div class="summary-value">🔥 0</div>
+                            <div class="summary-sublabel">days</div>
+                        </div>
+                        <div class="summary-card" id="summary-rate">
+                            <div class="summary-label">This Week</div>
+                            <div class="summary-value">0%</div>
+                            <div class="summary-sublabel">completion</div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Couple Progress</h3>
-                        <div id="couple-stats" class="stats-content">
-                            <!-- Stats will be dynamically added here -->
+
+                    <!-- Chart Grid -->
+                    <div class="stats-chart-grid">
+                        <!-- 30-Day Trend Chart -->
+                        <div class="chart-card chart-wide">
+                            <h3 class="chart-title">30-Day Completion Trend</h3>
+                            <canvas id="trend-chart"></canvas>
+                        </div>
+
+                        <!-- Best Day of Week Chart -->
+                        <div class="chart-card">
+                            <h3 class="chart-title">Best Day of Week (Daily Goals)</h3>
+                            <canvas id="day-chart"></canvas>
+                        </div>
+
+                        <!-- Category Breakdown Chart -->
+                        <div class="chart-card">
+                            <h3 class="chart-title">Category Breakdown</h3>
+                            <canvas id="category-chart"></canvas>
+                        </div>
+
+                        <!-- Personal vs Couple Chart -->
+                        <div class="chart-card">
+                            <h3 class="chart-title">Personal vs Couple Progress</h3>
+                            <canvas id="comparison-chart"></canvas>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Overall Progress</h3>
-                        <div id="overall-stats" class="stats-content">
-                            <!-- Stats will be dynamically added here -->
+
+                    <!-- Calendar Heatmap -->
+                    <div class="chart-card chart-full">
+                        <h3 class="chart-title">Activity Calendar (Last 12 Weeks)</h3>
+                        <div id="heatmap-chart" class="heatmap-container">
+                            <!-- Heatmap will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Achievement Badges -->
+                    <div class="chart-card chart-full">
+                        <h3 class="chart-title">Achievements</h3>
+                        <div id="achievements-grid" class="achievements-container">
+                            <!-- Badges will be generated here -->
                         </div>
                     </div>
                 </div>
+
                 <div class="app-footer">
                     <p>Made with love for our anniversary 💝</p>
-                    <p class="version">v4.4.4</p>
+                    <p class="version">v4.5.0</p>
                 </div>
             </div>
         </main>
@@ -267,6 +325,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+    <!-- Chart.js for stats visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <!-- Confetti library for celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
@@ -280,6 +341,6 @@
         </defs>
     </svg>
 
-    <script type="module" src="app.js?v=1772701909"></script>
+    <script type="module" src="app.js?v=1772703255"></script>
 </body>
 </html>

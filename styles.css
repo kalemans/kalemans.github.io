@@ -74,6 +74,44 @@ html {
     --wireframe-personal-active: #003B46;
     --wireframe-personal-filter-border: #07575B;
 
+    /* Stats Tab Colors */
+    --stats-bg: #f8f9fa;
+    --stats-card-bg: #FFFFFF;
+    --stats-border: #e1e4e8;
+    --stats-text-primary: #24292e;
+    --stats-text-secondary: #586069;
+    --stats-text-muted: #6a737d;
+
+    /* Chart Colors - Daily (Pink/Red tones) */
+    --chart-daily: #cd1c18;
+    --chart-daily-light: #fad4d4ff;
+    --chart-daily-bg: rgba(205, 28, 24, 0.1);
+
+    /* Chart Colors - Weekly (Blue tones) */
+    --chart-weekly: #003B46;
+    --chart-weekly-light: #C4DFE6;
+    --chart-weekly-bg: rgba(0, 59, 70, 0.1);
+
+    /* Chart Colors - Anytime (Gray tones) */
+    --chart-anytime: #6a737d;
+    --chart-anytime-light: #d1d5da;
+    --chart-anytime-bg: rgba(106, 115, 125, 0.1);
+
+    /* Chart Colors - Personal */
+    --chart-personal: #66A5AD;
+    --chart-personal-light: #C4DFE6;
+    --chart-personal-bg: rgba(102, 165, 173, 0.1);
+
+    /* Chart Colors - Couple */
+    --chart-couple: #cd1c18;
+    --chart-couple-light: #fad4d4ff;
+    --chart-couple-bg: rgba(205, 28, 24, 0.1);
+
+    /* Achievement Badge Colors */
+    --badge-gold: #fbbf24;
+    --badge-silver: #9ca3af;
+    --badge-bronze: #d97706;
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -1106,133 +1144,291 @@ input, select, textarea {
    STATS TAB
    =================================== */
 
-#stats-tab h2 {
-    font-size: 1.5rem;
-    color: var(--primary-brown);
-    margin-bottom: var(--spacing-lg);
-    font-weight: 700;
+#stats-tab {
+    background: var(--stats-bg);
+    min-height: 100vh;
+    padding: 0;
 }
 
-.stat-card h3 {
-    font-size: 1.125rem;
-    color: var(--primary-brown);
-    margin-bottom: var(--spacing-md);
-    font-weight: 600;
-}
-
-/* Personal stats card */
-.stat-card-personal h3 {
-    color: #ff7e42;
-}
-
-/* Couple stats card */
-.stat-card-couple h3 {
-    color: #cd1c18;
-}
-
-.stats-container {
+.stats-layout {
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
 }
 
-.stat-card {
-    background: var(--warm-white);
-    border-radius: var(--border-radius);
+/* Summary Cards Row */
+.stats-summary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: var(--spacing-md);
+}
+
+.summary-card {
+    background: var(--stats-card-bg);
+    border: 1px solid var(--stats-border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.summary-card.highlight {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe0de 100%);
+    border-color: var(--chart-daily);
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    color: var(--stats-text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--stats-text-primary);
+    margin-bottom: 4px;
+}
+
+.summary-sublabel {
+    font-size: 0.688rem;
+    color: var(--stats-text-muted);
+}
+
+/* Chart Grid */
+.stats-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.chart-card {
+    background: var(--stats-card-bg);
+    border: 1px solid var(--stats-border);
+    border-radius: 8px;
     padding: var(--spacing-lg);
-    box-shadow: var(--shadow-sm);
     animation: fadeIn 0.4s ease-out;
 }
 
-/* Personal stats card styling */
-.stat-card-personal {
-    background: linear-gradient(135deg, #fff9f0 0%, #e0f7ff 100%);
-    border: 2px solid #ffb343;
-    box-shadow: 0 4px 12px rgba(66, 234, 255, 0.15);
+.chart-card.chart-wide {
+    grid-column: 1 / -1;
 }
 
-/* Couple stats card styling */
-.stat-card-couple {
-    background: linear-gradient(135deg, #fff5f5 0%, #ffe0de 100%);
-    border: 2px solid #cd1c18;
-    box-shadow: 0 4px 12px rgba(205, 28, 24, 0.15);
+.chart-card.chart-full {
+    grid-column: 1 / -1;
 }
 
-.stat-card h3 {
-    font-size: 1.125rem;
-    color: var(--primary-brown);
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--stats-text-primary);
     margin-bottom: var(--spacing-md);
-    font-weight: 600;
+    border-bottom: 2px solid var(--stats-border);
+    padding-bottom: 8px;
 }
 
-.stats-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+/* Canvas Sizing */
+.chart-card canvas {
+    max-height: 300px;
+    width: 100% !important;
 }
 
-.stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid var(--light-gray);
+.chart-wide canvas {
+    max-height: 250px;
 }
 
-.stat-item:last-child {
-    border-bottom: none;
+/* Heatmap Container */
+.heatmap-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--spacing-md) 0;
 }
 
-.stat-label {
-    font-size: 0.938rem;
-    color: var(--text-medium);
+.heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    grid-auto-flow: column;
+    gap: 3px;
+    min-width: max-content;
 }
 
-.stat-value {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--light-brown);
-    transition: transform 0.2s ease;
-}
-
-.stat-item:hover .stat-value {
-    transform: scale(1.05);
-}
-
-/* Personal stats values */
-#personal-stats .stat-value {
-    background: linear-gradient(135deg, #ff7e42, #ffb343);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 800;
-}
-
-/* Couple stats values */
-#couple-stats .stat-value {
-    background: linear-gradient(135deg, #cd1c18, #ffa896);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 800;
-}
-
-.stat-circle {
-    width: 120px;
-    height: 120px;
-    margin: var(--spacing-md) auto;
+.heatmap-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--stats-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
     position: relative;
 }
 
-.stat-percentage {
+.heatmap-cell:hover {
+    transform: scale(1.3);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.heatmap-cell[data-level="0"] {
+    background: var(--stats-border);
+}
+
+.heatmap-cell[data-level="1"] {
+    background: var(--chart-daily-light);
+}
+
+.heatmap-cell[data-level="2"] {
+    background: rgba(205, 28, 24, 0.4);
+}
+
+.heatmap-cell[data-level="3"] {
+    background: rgba(205, 28, 24, 0.7);
+}
+
+.heatmap-cell[data-level="4"] {
+    background: var(--chart-daily);
+}
+
+.heatmap-tooltip {
     position: absolute;
-    inset: 0;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--stats-text-primary);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-bottom: 4px;
+    z-index: 100;
+}
+
+.heatmap-cell:hover .heatmap-tooltip {
+    opacity: 1;
+}
+
+.heatmap-legend {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-brown);
+    gap: 8px;
+    margin-top: var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--stats-text-secondary);
+}
+
+.heatmap-legend-label {
+    margin-right: 4px;
+}
+
+.heatmap-legend-scale {
+    display: flex;
+    gap: 3px;
+}
+
+.heatmap-legend-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Achievements Container */
+.achievements-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.achievement-badge {
+    background: var(--stats-card-bg);
+    border: 2px solid var(--stats-border);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.achievement-badge:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-badge.earned {
+    border-color: var(--badge-gold);
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.achievement-badge.locked {
+    opacity: 0.5;
+    filter: grayscale(80%);
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.achievement-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--stats-text-primary);
+    margin-bottom: 4px;
+}
+
+.achievement-description {
+    font-size: 0.75rem;
+    color: var(--stats-text-secondary);
+}
+
+.achievement-progress {
+    margin-top: 8px;
+    height: 4px;
+    background: var(--stats-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.achievement-progress-bar {
+    height: 100%;
+    background: var(--badge-gold);
+    transition: width 0.3s ease;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .stats-summary-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .stats-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card.chart-wide,
+    .chart-card {
+        grid-column: 1;
+    }
+
+    .summary-value {
+        font-size: 1.5rem;
+    }
+
+    .achievements-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* ===================================

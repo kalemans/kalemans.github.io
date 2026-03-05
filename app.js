@@ -719,93 +719,608 @@ function checkAllGoalsCompleted(data, today) {
 }
 
 function renderStats(data) {
-    renderPersonalStats(data);
-    renderCoupleStats(data);
-    renderOverallStats(data);
+    renderSummaryCards(data);
+    renderTrendChart(data);
+    renderDayOfWeekChart(data);
+    renderCategoryChart(data);
+    renderComparisonChart(data);
+    renderHeatmap(data);
+    renderAchievements(data);
 }
 
-function renderPersonalStats(data) {
-    const container = document.getElementById('personal-stats');
-    const stats = calculateStats(data, 'personal');
+// ===================================
+// SUMMARY CARDS
+// ===================================
 
-    // Add personal class to parent stat card
-    const statCard = container.closest('.stat-card');
-    if (statCard) {
-        statCard.classList.add('stat-card-personal');
+function renderSummaryCards(data) {
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+
+    // Calculate totals by frequency
+    const dailyTasks = allTasks.filter(t => t.frequency === 'Daily');
+
+    // Calculate total completions
+    let totalCompletions = 0;
+    let dailyCompletions = 0;
+    let weeklyCompletions = 0;
+    let anytimeCompletions = 0;
+
+    Object.values(data.completions || {}).forEach(dayCompletions => {
+        Object.entries(dayCompletions).forEach(([taskId, comp]) => {
+            if (comp.completed) {
+                totalCompletions++;
+                const task = allTasks.find(t => t.id === taskId);
+                if (task) {
+                    if (task.frequency === 'Daily') dailyCompletions++;
+                    else if (task.frequency === 'Weekly') weeklyCompletions++;
+                    else if (task.frequency === 'Anytime') anytimeCompletions++;
+                }
+            }
+        });
+    });
+
+    // Calculate current streak (Daily goals only)
+    let maxStreak = 0;
+    dailyTasks.forEach(task => {
+        if (data.streaks && data.streaks[task.id]) {
+            maxStreak = Math.max(maxStreak, data.streaks[task.id].current || 0);
+        }
+    });
+
+    // Calculate this week completion rate
+    const today = new Date();
+    const currentDay = today.getDay();
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + mondayOffset + i);
+        weekDays.push(date.toISOString().split('T')[0]);
     }
 
-    const today = getTodayString();
+    let weekCompletions = 0;
+    let weekTotal = dailyTasks.length * weekDays.length;
+    weekDays.forEach(dateStr => {
+        dailyTasks.forEach(task => {
+            if (data.completions[dateStr]?.[task.id]?.completed) {
+                weekCompletions++;
+            }
+        });
+    });
+    const weekRate = weekTotal > 0 ? Math.round((weekCompletions / weekTotal) * 100) : 0;
+
+    // Update summary cards
+    document.querySelector('#summary-total .summary-value').textContent = totalCompletions;
+    document.querySelector('#summary-daily .summary-value').textContent = dailyCompletions;
+    document.querySelector('#summary-weekly .summary-value').textContent = weeklyCompletions;
+    document.querySelector('#summary-anytime .summary-value').textContent = anytimeCompletions;
+    document.querySelector('#summary-streak .summary-value').textContent = `🔥 ${maxStreak}`;
+    document.querySelector('#summary-rate .summary-value').textContent = `${weekRate}%`;
+}
+
+// ===================================
+// 30-DAY TREND CHART
+// ===================================
+
+let trendChartInstance = null;
+
+function renderTrendChart(data) {
+    const canvas = document.getElementById('trend-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    // Destroy existing chart
+    if (trendChartInstance) {
+        trendChartInstance.destroy();
+    }
+
+    // Get last 30 days
+    const dates = [];
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toISOString().split('T')[0]);
+    }
+
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+
+    const dailyTasks = allTasks.filter(t => t.frequency === 'Daily');
+    const weeklyTasks = allTasks.filter(t => t.frequency === 'Weekly');
+    const anytimeTasks = allTasks.filter(t => t.frequency === 'Anytime');
+
+    // Calculate completions for each day
+    const dailyData = dates.map(date => {
+        return dailyTasks.filter(task =>
+            data.completions[date]?.[task.id]?.completed
+        ).length;
+    });
+
+    const weeklyData = dates.map(date => {
+        return weeklyTasks.filter(task =>
+            data.completions[date]?.[task.id]?.completed
+        ).length;
+    });
+
+    const anytimeData = dates.map(date => {
+        return anytimeTasks.filter(task =>
+            data.completions[date]?.[task.id]?.completed
+        ).length;
+    });
+
+    // Format labels (show every 5 days)
+    const labels = dates.map((date, i) => {
+        const d = new Date(date);
+        return i % 5 === 0 ? `${d.getMonth() + 1}/${d.getDate()}` : '';
+    });
+
+    trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Daily Goals',
+                    data: dailyData,
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily').trim(),
+                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily-bg').trim(),
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Weekly Goals',
+                    data: weeklyData,
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly').trim(),
+                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly-bg').trim(),
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Anytime Goals',
+                    data: anytimeData,
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-anytime').trim(),
+                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-anytime-bg').trim(),
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ===================================
+// BEST DAY OF WEEK CHART
+// ===================================
+
+let dayChartInstance = null;
+
+function renderDayOfWeekChart(data) {
+    const canvas = document.getElementById('day-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (dayChartInstance) {
+        dayChartInstance.destroy();
+    }
+
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+    const dailyTasks = allTasks.filter(t => t.frequency === 'Daily');
+
+    // Calculate completions by day of week
+    const dayStats = {
+        Mon: { completed: 0, total: 0 },
+        Tue: { completed: 0, total: 0 },
+        Wed: { completed: 0, total: 0 },
+        Thu: { completed: 0, total: 0 },
+        Fri: { completed: 0, total: 0 },
+        Sat: { completed: 0, total: 0 },
+        Sun: { completed: 0, total: 0 }
+    };
+
+    Object.entries(data.completions || {}).forEach(([dateStr, dayCompletions]) => {
+        const date = new Date(dateStr + 'T00:00:00');
+        const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
+
+        dailyTasks.forEach(task => {
+            dayStats[dayName].total++;
+            if (dayCompletions[task.id]?.completed) {
+                dayStats[dayName].completed++;
+            }
+        });
+    });
+
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const percentages = labels.map(day => {
+        const stats = dayStats[day];
+        return stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    });
+
+    dayChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: percentages,
+                backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily').trim(),
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily').trim(),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ===================================
+// CATEGORY BREAKDOWN CHART
+// ===================================
+
+let categoryChartInstance = null;
+
+function renderCategoryChart(data) {
+    const canvas = document.getElementById('category-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+    }
+
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+
+    // Count completions by category
+    const categoryStats = {};
+    Object.values(data.completions || {}).forEach(dayCompletions => {
+        Object.entries(dayCompletions).forEach(([taskId, comp]) => {
+            if (comp.completed) {
+                const task = allTasks.find(t => t.id === taskId);
+                if (task) {
+                    categoryStats[task.category] = (categoryStats[task.category] || 0) + 1;
+                }
+            }
+        });
+    });
+
+    const labels = Object.keys(categoryStats);
+    const values = Object.values(categoryStats);
+
+    // Generate colors for categories
+    const colors = labels.map((_, i) => {
+        const hue = (i * 137.5) % 360; // Golden angle for even distribution
+        return `hsl(${hue}, 60%, 55%)`;
+    });
+
+    categoryChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// ===================================
+// PERSONAL VS COUPLE COMPARISON CHART
+// ===================================
+
+let comparisonChartInstance = null;
+
+function renderComparisonChart(data) {
+    const canvas = document.getElementById('comparison-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (comparisonChartInstance) {
+        comparisonChartInstance.destroy();
+    }
+
     const personalTasks = getAllTasksWithType(data, 'personal');
-    const completedToday = personalTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
-    const completionPercentage = personalTasks.length > 0 ? Math.round((completedToday / personalTasks.length) * 100) : 0;
+    const coupleTasks = getAllTasksWithType(data, 'couple');
 
-    container.innerHTML = `
-        <div class="stat-item">
-            <span class="stat-label">Today's Progress</span>
-            <span class="stat-value">${completedToday}/${personalTasks.length}</span>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Total Completions</span>
-            <span class="stat-value">${stats.totalCompletions}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Active Days</span>
-            <span class="stat-value">${stats.activeDays}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Current Streak</span>
-            <span class="stat-value">${stats.currentStreak} days 🔥</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Longest Streak</span>
-            <span class="stat-value">${stats.longestStreak} days ⭐</span>
-        </div>
-    `;
+    // Count completions
+    let personalCompletions = 0;
+    let coupleCompletions = 0;
+
+    Object.values(data.completions || {}).forEach(dayCompletions => {
+        Object.entries(dayCompletions).forEach(([taskId, comp]) => {
+            if (comp.completed) {
+                if (personalTasks.find(t => t.id === taskId)) {
+                    personalCompletions++;
+                } else if (coupleTasks.find(t => t.id === taskId)) {
+                    coupleCompletions++;
+                }
+            }
+        });
+    });
+
+    comparisonChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Personal', 'Couple'],
+            datasets: [{
+                label: 'Total Completions',
+                data: [personalCompletions, coupleCompletions],
+                backgroundColor: [
+                    getComputedStyle(document.documentElement).getPropertyValue('--chart-personal').trim(),
+                    getComputedStyle(document.documentElement).getPropertyValue('--chart-couple').trim()
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 10
+                    }
+                }
+            }
+        }
+    });
 }
 
-function renderCoupleStats(data) {
-    const container = document.getElementById('couple-stats');
-    const stats = calculateStats(data, 'couple');
+// ===================================
+// CALENDAR HEATMAP
+// ===================================
 
-    // Add couple class to parent stat card
-    const statCard = container.closest('.stat-card');
-    if (statCard) {
-        statCard.classList.add('stat-card-couple');
+function renderHeatmap(data) {
+    const container = document.getElementById('heatmap-chart');
+    if (!container) return;
+
+    // Get last 12 weeks (84 days)
+    const dates = [];
+    for (let i = 83; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toISOString().split('T')[0]);
     }
 
-    const today = getTodayString();
-    const coupleTasks = getAllTasksWithType(data, 'couple');
-    const completedToday = coupleTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
-    const completionPercentage = coupleTasks.length > 0 ? Math.round((completedToday / coupleTasks.length) * 100) : 0;
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
 
-    container.innerHTML = `
-        <div class="stat-item">
-            <span class="stat-label">Today's Progress</span>
-            <span class="stat-value">${completedToday}/${coupleTasks.length}</span>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Total Completions</span>
-            <span class="stat-value">${stats.totalCompletions}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Active Days</span>
-            <span class="stat-value">${stats.activeDays}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Current Streak</span>
-            <span class="stat-value">${stats.currentStreak} days 🔥</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Longest Streak</span>
-            <span class="stat-value">${stats.longestStreak} days ⭐</span>
+    // Calculate completions for each day
+    const maxCompletions = allTasks.length;
+    const dateData = dates.map(dateStr => {
+        const completions = allTasks.filter(task =>
+            data.completions[dateStr]?.[task.id]?.completed
+        ).length;
+        const level = maxCompletions > 0 ? Math.min(4, Math.ceil((completions / maxCompletions) * 4)) : 0;
+        return { date: dateStr, completions, level };
+    });
+
+    // Organize by weeks (Sunday to Saturday)
+    const firstDate = new Date(dates[0] + 'T00:00:00');
+    const firstDay = firstDate.getDay(); // 0 = Sunday
+
+    // Create grid HTML
+    let html = '<div class="heatmap-grid">';
+
+    // Add empty cells to align first week
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="heatmap-cell" style="opacity: 0;"></div>';
+    }
+
+    // Add all date cells
+    dateData.forEach(({ date, completions, level }) => {
+        const d = new Date(date + 'T00:00:00');
+        const dateLabel = `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        html += `
+            <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
+                <div class="heatmap-tooltip">${dateLabel}: ${completions}</div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+
+    // Add legend
+    html += `
+        <div class="heatmap-legend">
+            <span class="heatmap-legend-label">Less</span>
+            <div class="heatmap-legend-scale">
+                <div class="heatmap-legend-box" data-level="0"></div>
+                <div class="heatmap-legend-box" data-level="1"></div>
+                <div class="heatmap-legend-box" data-level="2"></div>
+                <div class="heatmap-legend-box" data-level="3"></div>
+                <div class="heatmap-legend-box" data-level="4"></div>
+            </div>
+            <span class="heatmap-legend-label">More</span>
         </div>
     `;
+
+    container.innerHTML = html;
+}
+
+// ===================================
+// ACHIEVEMENT BADGES
+// ===================================
+
+function renderAchievements(data) {
+    const container = document.getElementById('achievements-grid');
+    if (!container) return;
+
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+    const dailyTasks = allTasks.filter(t => t.frequency === 'Daily');
+
+    // Calculate achievement data
+    let totalCompletions = 0;
+    const daysActive = new Set();
+    let maxStreak = 0;
+    let perfectDays = 0;
+
+    Object.entries(data.completions || {}).forEach(([dateStr, dayCompletions]) => {
+        let dayCount = 0;
+        Object.entries(dayCompletions).forEach(([_, comp]) => {
+            if (comp.completed) {
+                totalCompletions++;
+                daysActive.add(dateStr);
+                dayCount++;
+            }
+        });
+        if (dayCount === allTasks.length && allTasks.length > 0) {
+            perfectDays++;
+        }
+    });
+
+    dailyTasks.forEach(task => {
+        if (data.streaks && data.streaks[task.id]) {
+            maxStreak = Math.max(maxStreak, data.streaks[task.id].current || 0);
+        }
+    });
+
+    // Define achievements
+    const achievements = [
+        {
+            id: 'first-goal',
+            icon: '🎯',
+            title: 'First Step',
+            description: 'Complete your first goal',
+            threshold: 1,
+            current: totalCompletions,
+            earned: totalCompletions >= 1
+        },
+        {
+            id: 'week-streak',
+            icon: '🔥',
+            title: '7-Day Streak',
+            description: 'Complete daily goals for 7 days',
+            threshold: 7,
+            current: maxStreak,
+            earned: maxStreak >= 7
+        },
+        {
+            id: 'month-streak',
+            icon: '⭐',
+            title: '30-Day Streak',
+            description: 'Complete daily goals for 30 days',
+            threshold: 30,
+            current: maxStreak,
+            earned: maxStreak >= 30
+        },
+        {
+            id: 'century',
+            icon: '💯',
+            title: 'Century',
+            description: 'Complete 100 total goals',
+            threshold: 100,
+            current: totalCompletions,
+            earned: totalCompletions >= 100
+        },
+        {
+            id: 'perfect-day',
+            icon: '✨',
+            title: 'Perfect Day',
+            description: 'Complete all goals in one day',
+            threshold: 1,
+            current: perfectDays,
+            earned: perfectDays >= 1
+        },
+        {
+            id: 'dedicated',
+            icon: '🏆',
+            title: 'Dedicated',
+            description: 'Active for 30 different days',
+            threshold: 30,
+            current: daysActive.size,
+            earned: daysActive.size >= 30
+        }
+    ];
+
+    const html = achievements.map(achievement => {
+        const progress = Math.min(100, (achievement.current / achievement.threshold) * 100);
+        return `
+            <div class="achievement-badge ${achievement.earned ? 'earned' : 'locked'}">
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-title">${achievement.title}</div>
+                <div class="achievement-description">${achievement.description}</div>
+                ${!achievement.earned ? `
+                    <div class="achievement-progress">
+                        <div class="achievement-progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = html;
 }
 
 function renderWeeklyOverview(data) {
@@ -918,44 +1433,6 @@ function renderWeeklyOverviewPersonal(data) {
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
-}
-
-function renderOverallStats(data) {
-    const container = document.getElementById('overall-stats');
-    const personalStats = calculateStats(data, 'personal');
-    const coupleStats = calculateStats(data, 'couple');
-    const totalCompletions = personalStats.totalCompletions + coupleStats.totalCompletions;
-    const totalDays = Math.max(personalStats.activeDays, coupleStats.activeDays);
-
-    const today = getTodayString();
-    const allTasks = [
-        ...getAllTasksWithType(data, 'personal'),
-        ...getAllTasksWithType(data, 'couple')
-    ];
-    const completedToday = allTasks.filter(t => data.completions[today]?.[t.id]?.completed).length;
-    const completionPercentage = allTasks.length > 0 ? Math.round((completedToday / allTasks.length) * 100) : 0;
-
-    container.innerHTML = `
-        <div class="stat-item">
-            <span class="stat-label">Today's Overall Progress</span>
-            <span class="stat-value">${completedToday}/${allTasks.length}</span>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${completionPercentage}%"></div>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Total Completions</span>
-            <span class="stat-value">${totalCompletions}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Days Active</span>
-            <span class="stat-value">${totalDays}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Average Per Day</span>
-            <span class="stat-value">${totalDays > 0 ? Math.round(totalCompletions / totalDays) : 0}</span>
-        </div>
-    `;
 }
 
 function calculateStats(data, type) {
