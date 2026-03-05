@@ -32,7 +32,7 @@ html {
 
     /* Gold for Stars */
     --gold: #FBBF24;
-    --gold-light: #FCD34D;
+    --gold-light: #f7f7f7;
 
     /* Neutrals */
     --cream: #FFF8F0;
@@ -42,9 +42,13 @@ html {
     --text-dark: #2C2416;
     --text-medium: #5C4D3E;
 
+    --tab-text-inactive: #6f6f6f;
+    --tab-text-hover: #bbbaba;
+    --tab-text-active: #ffffff;
+
     /* Wireframe Design Colors - Couple Tab */
     /* Couple Tab Wireframe Colors */
-    --wireframe-bg: #fad4d4ff;
+    --wireframe-bg: rgb(250, 232, 232);
     --wireframe-card: #FFFFFF;
     --wireframe-border: #38000a;
     --wireframe-text-primary: #38000a;
@@ -56,7 +60,7 @@ html {
     --wireframe-filter-border: #9b1313;
 
     /* Personal Tab Wireframe Colors */
-    --wireframe-personal-bg: #C4DFE6;
+    --wireframe-personal-bg: #d5e2e5;
     --wireframe-personal-card: #FFFFFF;
     --wireframe-personal-border: #003B46;
     --wireframe-personal-text-primary: #003B46;
@@ -420,7 +424,7 @@ input, select, textarea {
     flex: 1;
     padding: var(--spacing-md);
     background: transparent;
-    color: var(--text-medium);
+    color: var(--tab-text-inactive);
     font-weight: 600;
     font-size: 0.938rem;
     position: relative;
@@ -429,11 +433,11 @@ input, select, textarea {
 }
 
 .tab-button:hover {
-    color: var(--primary-brown);
+    color: var(--tab-text-hover);
 }
 
 .tab-button.active {
-    color: var(--light-brown);
+    color: var(--tab-text-active);
 }
 
 .tab-button.active::after {
@@ -448,31 +452,31 @@ input, select, textarea {
 }
 
 /* Personal tab active color */
-.tab-button[data-tab="personal"].active {
+/* .tab-button[data-tab="personal"].active {
     color: #ff7e42;
 }
 
 .tab-button[data-tab="personal"].active::after {
     background: linear-gradient(90deg, #ffb343, #ff7e42);
-}
+} */
 
 /* Couple tab active color */
-.tab-button[data-tab="couple"].active {
+/* .tab-button[data-tab="couple"].active {
     color: #cd1c18;
 }
 
 .tab-button[data-tab="couple"].active::after {
     background: linear-gradient(90deg, #cd1c18, #9b1313);
-}
+} */
 
 /* Stats tab active color */
-.tab-button[data-tab="stats"].active {
+/* .tab-button[data-tab="stats"].active {
     color: var(--light-brown);
 }
 
 .tab-button[data-tab="stats"].active::after {
     background: linear-gradient(90deg, var(--light-brown), var(--burnt-orange));
-}
+} */
 
 /* ===================================
    TAB CONTENT
@@ -2098,7 +2102,7 @@ select:focus-visible {
     }
 
     .weekly-overview-card {
-        margin: 56px 16px 16px 16px;
+        margin: 4px 16px 16px 16px;
     }
 
     .weekly-bar-chart {
