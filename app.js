@@ -257,6 +257,9 @@ function setupTabs() {
             button.classList.add('active');
             document.getElementById(`${tab}-tab`).classList.add('active');
 
+            // Change body background to match tab
+            updateBodyBackground(tab);
+
             // Smooth scroll to top when switching tabs
             if (tabContent) {
                 tabContent.scrollTo({
@@ -266,6 +269,25 @@ function setupTabs() {
             }
         });
     });
+
+    // Set initial background based on active tab
+    const activeTab = document.querySelector('.tab-button.active');
+    if (activeTab) {
+        updateBodyBackground(activeTab.dataset.tab);
+    }
+}
+
+function updateBodyBackground(tab) {
+    const body = document.body;
+
+    if (tab === 'personal') {
+        body.style.backgroundColor = '#C4DFE6'; // Personal tab teal background
+    } else if (tab === 'couple') {
+        body.style.backgroundColor = '#fad4d4ff'; // Couple tab pink background
+    } else {
+        body.style.backgroundColor = '#FFFFFF'; // Stats tab white background
+    }
+}
 }
 
 function renderGoals(data) {

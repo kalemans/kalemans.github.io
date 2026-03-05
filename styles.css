@@ -96,6 +96,7 @@ body {
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    transition: background-color 0.3s ease;
 }
 
 button {
@@ -271,7 +272,7 @@ input, select, textarea {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #FFFFFF;
+    background-color: transparent;
 }
 
 /* ===================================
@@ -407,7 +408,7 @@ input, select, textarea {
    =================================== */
 
 .tab-navigation {
-    background: #FFFFFF;
+    background: transparent;
     display: flex;
     border-bottom: 2px solid var(--light-gray);
     position: sticky;
@@ -481,7 +482,7 @@ input, select, textarea {
     flex: 1;
     padding: 0;
     overflow-y: auto;
-    background-color: #FFFFFF;
+    background-color: transparent;
 }
 
 .tab-pane {
@@ -495,13 +496,13 @@ input, select, textarea {
 
 /* Global tab background - same as cards */
 .tab-pane {
-    background: #FFFFFF;
+    background: transparent;
     min-height: 100vh;
 }
 
-/* Couple tab background - pinkish wireframe color */
+/* Couple tab background - handled by JavaScript on body */
 #couple-tab {
-    background: #fad4d4ff;
+    background: transparent;
 }
 
 @keyframes fadeIn {
@@ -1720,7 +1721,7 @@ select:focus-visible {
     font-family: 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 600;
-    color: #38000a;
+    color: var(--wireframe-border);
     margin: 0;
 }
 
@@ -2134,7 +2135,7 @@ select:focus-visible {
    =================================== */
 
 #personal-tab.personal-tab-wireframe {
-    background: var(--wireframe-personal-bg);
+    background: transparent;
 }
 
 /* Sticky Header */
@@ -2154,7 +2155,7 @@ select:focus-visible {
     font-family: 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 600;
-    color: #4272ff;
+    color: var(--wireframe-personal-border);
     margin: 0;
 }
 
@@ -2203,6 +2204,10 @@ select:focus-visible {
 
 #personal-tab .weekly-bar.active {
     background: var(--wireframe-personal-active);
+}
+
+#personal-tab .weekly-bar-label {
+    color: var(--wireframe-personal-text-secondary);
 }
 
 #personal-tab .weekly-bar-percentage {
