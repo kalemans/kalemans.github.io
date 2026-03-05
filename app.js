@@ -621,12 +621,6 @@ function closeCardActions(card) {
     }
 }
 
-function openEditModal(task) {
-    // Open the modal in edit mode with task data
-    editingTaskId = task.id;
-    openModal(task.type, true, task);
-}
-
 async function toggleGoalCompletion(taskId, data) {
     const today = getTodayString();
 
