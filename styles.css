@@ -1752,7 +1752,7 @@ select:focus-visible {
     background: var(--wireframe-card);
     border: 1px solid var(--wireframe-border);
     border-radius: 2px;
-    margin: 56px 16px 16px 16px;
+    margin: 12px 16px 16px 16px;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -1801,7 +1801,7 @@ select:focus-visible {
     background: var(--wireframe-inactive);
     border-radius: 2px;
     transition: all 0.3s ease;
-    min-height: 20px;
+    min-height: 8px;
     cursor: pointer;
 }
 
@@ -2175,7 +2175,7 @@ select:focus-visible {
 #personal-tab .weekly-overview-card {
     background: var(--wireframe-personal-card);
     border: 1px solid var(--wireframe-personal-border);
-    margin-top: 56px;
+    margin-top: 12px;
 }
 
 #personal-tab .weekly-overview-title {

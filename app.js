@@ -766,7 +766,7 @@ function renderWeeklyOverview(data) {
     container.innerHTML = dailyStats.map((stat, index) => {
         const isToday = index === 4;
         const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
-        const height = Math.max(stat.percentage, 10); // Minimum 10% height for visibility
+        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3; // Minimum 3% height for visibility
 
         return `
             <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
@@ -820,7 +820,7 @@ function renderWeeklyOverviewPersonal(data) {
     container.innerHTML = dailyStats.map((stat, index) => {
         const isToday = index === 4;
         const dayName = stat.date.toLocaleDateString('en-US', { weekday: 'short' });
-        const height = Math.max(stat.percentage, 10); // Minimum 10% height for visibility
+        const height = stat.percentage > 0 ? Math.max(stat.percentage, 3) : 3; // Minimum 3% height for visibility
 
         return `
             <div class="weekly-bar-wrapper" title="${dayName}: ${stat.completed}/${totalTasks} goals">
