@@ -1705,18 +1705,22 @@ select:focus-visible {
 /* Sticky Header */
 .couple-sticky-header {
     position: sticky;
-    top: 48px;
+    top: 12px;
     z-index: 98;
     background: transparent;
     padding: 16px 16px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 0;
 }
 
 .couple-tab-title {
-    display: none; /* Hidden - tab already shows "Couple" */
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #38000a;
+    margin: 0;
 }
 
 .filter-trigger-btn {
@@ -2124,18 +2128,22 @@ select:focus-visible {
 /* Sticky Header */
 .personal-sticky-header {
     position: sticky;
-    top: 48px;
+    top: 12px;
     background: transparent;
     padding: 16px 16px;
     z-index: 98;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 0;
 }
 
 .personal-tab-title {
-    display: none; /* Hidden - tab already shows "Personal" */
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #4272ff;
+    margin: 0;
 }
 
 .personal-sticky-header .filter-trigger-btn {
