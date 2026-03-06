@@ -647,28 +647,14 @@ async function toggleGoalCompletion(taskId, data) {
 
         // Celebrate with confetti!
         if (typeof confetti !== 'undefined') {
-            // Get the task to determine colors
-            const allTasks = [
-                ...currentData.predefinedTasks.personal,
-                ...currentData.predefinedTasks.couple,
-                ...currentData.customTasks
-            ];
-            const task = allTasks.find(t => t.id === taskId);
-
-            let colors;
-            if (task && task.type === 'personal') {
-                colors = ['#ffb343', '#42eaff', '#4272ff', '#ff7e42'];
-            } else if (task && task.type === 'couple') {
-                colors = ['#cd1c18', '#ffa896', '#9b1313', '#ff6b6b'];
-            } else {
-                colors = ['#FBBF24', '#FF8C00', '#D2691E', '#8B4513'];
-            }
+            // Rainbow colors for all celebrations
+            const rainbowColors = ['#FF1744', '#FF9100', '#FFD600', '#00E676', '#2979FF', '#651FFF', '#E91E63'];
 
             confetti({
                 particleCount: 100,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: colors
+                colors: rainbowColors
             });
         }
 
@@ -697,14 +683,15 @@ function checkAllGoalsCompleted(data, today) {
     );
 
     if (allCompleted && allTasks.length > 0) {
-        // Epic celebration with both color palettes!
+        // Epic celebration with rainbow colors!
         setTimeout(() => {
             if (typeof confetti !== 'undefined') {
+                const rainbowColors = ['#FF1744', '#FF9100', '#FFD600', '#00E676', '#2979FF', '#651FFF', '#E91E63'];
                 confetti({
                     particleCount: 200,
                     spread: 120,
                     origin: { y: 0.5 },
-                    colors: ['#ffb343', '#42eaff', '#4272ff', '#ff7e42', '#cd1c18', '#ffa896', '#9b1313'],
+                    colors: rainbowColors,
                     startVelocity: 45,
                     gravity: 0.8
                 });
