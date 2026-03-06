@@ -858,9 +858,9 @@ function renderTrendChart(data) {
     // Format labels (show first day of each month)
     const labels = dates.map((date, i) => {
         const d = new Date(date);
-        // Show label on first of month or first data point
-        if (i === 0 || d.getDate() === 1) {
-            return `${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getDate()}`;
+        // Show label on first of month
+        if (d.getDate() === 1) {
+            return `${d.toLocaleDateString('en-US', { month: 'short' })}`;
         }
         return '';
     });
@@ -911,21 +911,43 @@ function renderTrendChart(data) {
             plugins: {
                 legend: {
                     display: true,
-                    position: 'top'
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 10,
+                        font: {
+                            size: 11
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        font: {
+                            size: 11
+                        }
                     }
                 },
                 x: {
                     ticks: {
                         maxRotation: 0,
-                        autoSkip: false
+                        autoSkip: false,
+                        font: {
+                            size: 10
+                        }
+                    },
+                    grid: {
+                        display: false
                     }
+                }
+            },
+            elements: {
+                point: {
+                    hitRadius: 10,
+                    hoverRadius: 6
                 }
             }
         }

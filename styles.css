@@ -1220,6 +1220,28 @@ input, select, textarea {
     animation: fadeIn 0.4s ease-out;
     overflow-x: auto;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Show scrollbar hint on desktop */
+@media (min-width: 768px) {
+    .chart-card::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .chart-card::-webkit-scrollbar-track {
+        background: var(--stats-border);
+        border-radius: 4px;
+    }
+
+    .chart-card::-webkit-scrollbar-thumb {
+        background: var(--stats-text-muted);
+        border-radius: 4px;
+    }
+
+    .chart-card::-webkit-scrollbar-thumb:hover {
+        background: var(--stats-text-secondary);
+    }
 }
 
 .chart-card.chart-wide {
@@ -1285,8 +1307,34 @@ input, select, textarea {
 
 .chart-wide canvas {
     max-height: 250px;
-    min-width: 2000px !important;
-    width: 2000px !important;
+}
+
+/* Desktop: wider chart for better year visibility */
+@media (min-width: 768px) {
+    .chart-wide canvas {
+        min-width: 1800px !important;
+        width: 1800px !important;
+    }
+}
+
+/* Mobile: smaller width but still scrollable */
+@media (max-width: 767px) {
+    .chart-wide canvas {
+        min-width: 1200px !important;
+        width: 1200px !important;
+    }
+
+    .chart-card {
+        padding: var(--spacing-md);
+    }
+
+    .chart-card canvas {
+        max-height: 220px;
+    }
+
+    .chart-wide canvas {
+        max-height: 200px;
+    }
 }
 
 /* Heatmap Container */
@@ -1544,6 +1592,11 @@ input, select, textarea {
 
     .achievements-container {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-title {
+        font-size: 0.875rem;
+        padding-bottom: 6px;
     }
 }
 
