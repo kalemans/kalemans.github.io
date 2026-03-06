@@ -465,6 +465,7 @@ function createGoalCard(task, completed, data) {
     card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
     card.innerHTML = `
+        ${isCustom ? `
         <div class="card-swipe-actions">
             <button class="card-action-btn edit-btn" data-action="edit">
                 <i data-lucide="edit-2"></i>
@@ -475,6 +476,7 @@ function createGoalCard(task, completed, data) {
                 <span>Delete</span>
             </button>
         </div>
+        ` : ''}
         <div class="card-content">
             <div class="wireframe-goal-header">
                 <div class="wireframe-goal-name">${task.name}</div>
@@ -499,22 +501,24 @@ function createGoalCard(task, completed, data) {
     const starBtn = card.querySelector('.wireframe-goal-star');
     starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
-    // Add action button listeners
-    const editBtn = card.querySelector('.edit-btn');
-    const deleteBtn = card.querySelector('.delete-btn');
+    // Add action button listeners only for custom goals
+    if (isCustom) {
+        const editBtn = card.querySelector('.edit-btn');
+        const deleteBtn = card.querySelector('.delete-btn');
 
-    editBtn.addEventListener('click', () => {
-        openEditModal(task);
-        closeCardActions(card);
-    });
+        editBtn.addEventListener('click', () => {
+            openEditModal(task);
+            closeCardActions(card);
+        });
 
-    deleteBtn.addEventListener('click', () => {
-        confirmDeleteGoal(task);
-        closeCardActions(card);
-    });
+        deleteBtn.addEventListener('click', () => {
+            confirmDeleteGoal(task);
+            closeCardActions(card);
+        });
 
-    // Add swipe gestures to card
-    addSwipeToReveal(card);
+        // Add swipe gestures to card
+        addSwipeToReveal(card);
+    }
 
     return card;
 }
