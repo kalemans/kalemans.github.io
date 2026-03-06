@@ -1296,6 +1296,11 @@ input, select, textarea {
     padding: 0;
 }
 
+/* Override chart-card overflow for heatmap since heatmap-container handles it */
+.chart-card:has(.heatmap-container) {
+    overflow-x: visible;
+}
+
 .heatmap-wrapper {
     display: flex;
     flex-direction: column;
