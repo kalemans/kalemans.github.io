@@ -726,7 +726,6 @@ function renderStats(data) {
         renderMonthOfYearChart(data);
     }
     renderCategoryChart(data);
-    renderComparisonChart(data);
     renderHeatmap(data);
     renderAchievements(data);
 }
@@ -1166,11 +1165,22 @@ function renderCategoryChart(data) {
     const labels = Object.keys(categoryStats);
     const values = Object.values(categoryStats);
 
-    // Generate colors for categories
-    const colors = labels.map((_, i) => {
-        const hue = (i * 137.5) % 360; // Golden angle for even distribution
-        return `hsl(${hue}, 60%, 55%)`;
-    });
+    // Use color palette matching the wireframe theme
+    const colorPalette = [
+        '#cd1c18',  // Couple accent (red)
+        '#003B46',  // Personal border (dark teal)
+        '#66A5AD',  // Personal accent (light teal)
+        '#9b1313',  // Couple secondary (dark red)
+        '#07575B',  // Personal secondary (teal)
+        '#ffa896',  // Couple light accent (light red/pink)
+        '#C4DFE6',  // Personal inactive (very light teal)
+        '#6a737d',  // Anytime gray
+        '#fad4d4ff', // Couple inactive (light pink)
+        '#38000a'   // Couple border (dark brown-red)
+    ];
+
+    // Cycle through colors if more categories than colors
+    const colors = labels.map((_, i) => colorPalette[i % colorPalette.length]);
 
     categoryChartInstance = new Chart(ctx, {
         type: 'doughnut',
