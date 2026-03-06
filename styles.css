@@ -1345,8 +1345,8 @@ input, select, textarea {
 
 .heatmap-months {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
+    grid-template-columns: repeat(52, 30px);
+    gap: 0;
     padding-left: 0;
     font-size: 0.75rem;
     font-weight: 500;

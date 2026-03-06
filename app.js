@@ -28,7 +28,6 @@ const mainApp = document.getElementById('main-app');
 const loadingScreen = document.getElementById('loading-screen');
 const tokenInput = document.getElementById('github-token');
 const authButton = document.getElementById('auth-button');
-const refreshButton = document.getElementById('refresh-button');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
 
@@ -123,7 +122,6 @@ async function init() {
     setupMobileFeatures();
     setupFilters();
     setupDayMonthToggle();
-    refreshButton.addEventListener('click', handleHardRefresh);
 }
 
 function showAuthScreen() {
@@ -2241,7 +2239,7 @@ function setupMobileFeatures() {
 function setupPullToRefresh() {
     let startY = 0;
     let pulling = false;
-    const threshold = 60;
+    const threshold = 80;
 
     const tabContent = document.querySelector('.tab-content');
 
@@ -2259,10 +2257,7 @@ function setupPullToRefresh() {
         const currentY = e.touches[0].pageY;
         const distance = currentY - startY;
 
-        if (distance > 0 && distance < threshold * 2.5) {
-            const progress = Math.min(distance / threshold, 1);
-            refreshButton.style.transform = `rotate(${progress * 360}deg)`;
-        }
+        // Visual feedback could be added here if needed
     }, { passive: true });
 
     tabContent.addEventListener('touchend', async (e) => {
@@ -2270,8 +2265,6 @@ function setupPullToRefresh() {
 
         const endY = e.changedTouches[0].pageY;
         const distance = endY - startY;
-
-        refreshButton.style.transform = '';
 
         if (distance > threshold) {
             debugLog('🔄 Pull-to-refresh triggered - hard refresh');
