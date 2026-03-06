@@ -819,6 +819,16 @@ function renderTrendChart(data) {
         trendChartInstance.destroy();
     }
 
+    // Set canvas dimensions based on screen size (fixed width for scrollable chart)
+    const isMobile = window.innerWidth < 768;
+    const chartWidth = isMobile ? 1200 : 1800;
+    const chartHeight = isMobile ? 180 : 220;
+
+    canvas.width = chartWidth;
+    canvas.height = chartHeight;
+    canvas.style.width = chartWidth + 'px';
+    canvas.style.height = chartHeight + 'px';
+
     // Get last 365 days (full year)
     const dates = [];
     for (let i = 364; i >= 0; i--) {
@@ -906,7 +916,7 @@ function renderTrendChart(data) {
             ]
         },
         options: {
-            responsive: true,
+            responsive: false,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
@@ -916,7 +926,7 @@ function renderTrendChart(data) {
                         boxWidth: 12,
                         padding: 10,
                         font: {
-                            size: 11
+                            size: isMobile ? 10 : 11
                         }
                     }
                 }
@@ -927,7 +937,7 @@ function renderTrendChart(data) {
                     ticks: {
                         stepSize: 1,
                         font: {
-                            size: 11
+                            size: isMobile ? 10 : 11
                         }
                     }
                 },
@@ -936,7 +946,7 @@ function renderTrendChart(data) {
                         maxRotation: 0,
                         autoSkip: false,
                         font: {
-                            size: 10
+                            size: isMobile ? 9 : 10
                         }
                     },
                     grid: {

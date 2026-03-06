@@ -1302,38 +1302,26 @@ input, select, textarea {
 /* Canvas Sizing */
 .chart-card canvas {
     max-height: 300px;
+}
+
+/* Non-trend charts should be responsive and fit container */
+.chart-card:not(.chart-wide) canvas {
     width: 100% !important;
 }
 
-.chart-wide canvas {
-    max-height: 250px;
+/* Trend chart canvas size is set in JavaScript for fixed-width scrollable chart */
+#trend-chart {
+    display: block;
 }
 
-/* Desktop: wider chart for better year visibility */
-@media (min-width: 768px) {
-    .chart-wide canvas {
-        min-width: 1800px !important;
-        width: 1800px !important;
-    }
-}
-
-/* Mobile: smaller width but still scrollable */
+/* Mobile adjustments */
 @media (max-width: 767px) {
-    .chart-wide canvas {
-        min-width: 1200px !important;
-        width: 1200px !important;
-    }
-
     .chart-card {
         padding: var(--spacing-md);
     }
 
     .chart-card canvas {
         max-height: 220px;
-    }
-
-    .chart-wide canvas {
-        max-height: 200px;
     }
 }
 
