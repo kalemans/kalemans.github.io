@@ -147,9 +147,6 @@ async function loadApp() {
             window.lucide.createIcons();
             debugLog('✓ Lucide icons initialized');
         }
-
-        // Show swipe hint on mobile
-        showSwipeHint();
     } catch (error) {
         debugLog('✗ Error loading app', { error: error.message });
         showToast('Error loading data', 'error');
@@ -2023,19 +2020,6 @@ function setupPullToRefresh() {
         pulling = false;
         startY = 0;
     }, { passive: true });
-}
-
-function showSwipeHint() {
-    // Show hint only once per session
-    if (sessionStorage.getItem('swipe-hint-shown')) return;
-
-    // Only show on mobile
-    if (window.innerWidth > 768) return;
-
-    setTimeout(() => {
-        showToast('💡 Swipe right to complete, left to delete custom goals', 'info', 6000);
-        sessionStorage.setItem('swipe-hint-shown', 'true');
-    }, 3000);
 }
 
 async function handleGoalFormSubmit(e) {
