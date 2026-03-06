@@ -1259,23 +1259,34 @@ function renderHeatmap(data) {
     ];
     const maxCompletions = allTasks.length;
 
-    // Get the most recent Sunday (end of current week)
+    // Find the Monday of the current week (or most recent Monday)
     const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const lastSunday = new Date(today);
-    lastSunday.setDate(today.getDate() - currentDay); // Go back to Sunday
-    lastSunday.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-    // Build 52 complete weeks (364 days), going backwards from last Sunday
+    // Calculate days to subtract to get to Monday
+    // If today is Sunday (0), go back 6 days to Monday
+    // If today is Monday (1), go back 0 days
+    // If today is Tuesday (2), go back 1 day to Monday, etc.
+    const daysToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+
+    const mostRecentMonday = new Date(today);
+    mostRecentMonday.setDate(today.getDate() - daysToMonday);
+
+    // Build 52 weeks going backwards from the most recent Monday
     const weeks = [];
+
     for (let weekNum = 0; weekNum < 52; weekNum++) {
         const week = [];
-        for (let dayNum = 0; dayNum < 7; dayNum++) {
-            // Monday = 0, Tuesday = 1, ..., Sunday = 6 in our array
-            // But in Date.getDay(): Sunday = 0, Monday = 1, ..., Saturday = 6
-            const daysBack = (51 - weekNum) * 7 + (6 - dayNum);
-            const date = new Date(lastSunday);
-            date.setDate(lastSunday.getDate() - daysBack);
+
+        // Calculate the Monday of this week (going backwards)
+        const weekStartDate = new Date(mostRecentMonday);
+        weekStartDate.setDate(mostRecentMonday.getDate() - (weekNum * 7));
+
+        // Build 7 consecutive days for this week (Monday through Sunday)
+        for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+            const date = new Date(weekStartDate);
+            date.setDate(weekStartDate.getDate() + dayOfWeek);
 
             const dateStr = date.toISOString().split('T')[0];
 
@@ -1284,20 +1295,34 @@ function renderHeatmap(data) {
                 data.completions[dateStr]?.[task.id]?.completed
             ).length;
 
-            // Calculate level (0-4)
+            // Calculate level (0-4) based on completion percentage
             let level = 0;
             if (completions > 0 && maxCompletions > 0) {
                 const percentage = completions / maxCompletions;
-                if (percentage <= 0.25) level = 1;
-                else if (percentage <= 0.5) level = 2;
-                else if (percentage <= 0.75) level = 3;
-                else level = 4;
+                if (percentage > 0 && percentage <= 0.25) {
+                    level = 1;
+                } else if (percentage > 0.25 && percentage <= 0.5) {
+                    level = 2;
+                } else if (percentage > 0.5 && percentage <= 0.75) {
+                    level = 3;
+                } else if (percentage > 0.75) {
+                    level = 4;
+                }
             }
 
-            week.push({ date: dateStr, completions, level, dateObj: new Date(date) });
+            week.push({
+                date: dateStr,
+                completions,
+                level,
+                dateObj: new Date(date)
+            });
         }
+
         weeks.push(week);
     }
+
+    // Reverse weeks array so oldest is first (left to right)
+    weeks.reverse();
 
     // Create month headers
     let monthHeaders = '<div class="heatmap-months">';
@@ -1329,10 +1354,10 @@ function renderHeatmap(data) {
         weeks.forEach(week => {
             const { date, completions, level, dateObj } = week[dayIdx];
             const dayOfMonth = dateObj.getDate();
-            const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             html += `
-                <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
+                <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions}/${maxCompletions} goals completed">
                     <span class="heatmap-day-number">${dayOfMonth}</span>
                 </div>
             `;
