@@ -1191,7 +1191,6 @@ function renderHeatmap(data) {
     // Add legend
     html += `
         <div class="heatmap-legend">
-            <span class="heatmap-legend-label">Less</span>
             <div class="heatmap-legend-scale">
                 <div class="heatmap-legend-box" data-level="0"></div>
                 <div class="heatmap-legend-box" data-level="1"></div>
@@ -1199,7 +1198,6 @@ function renderHeatmap(data) {
                 <div class="heatmap-legend-box" data-level="3"></div>
                 <div class="heatmap-legend-box" data-level="4"></div>
             </div>
-            <span class="heatmap-legend-label">More</span>
         </div>
     `;
 

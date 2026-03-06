@@ -1249,6 +1249,7 @@ input, select, textarea {
 
 /* Heatmap Container */
 .heatmap-container {
+    overflow-x: hidden;
     overflow-y: hidden;
     padding: var(--spacing-md) 0;
 }
