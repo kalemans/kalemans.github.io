@@ -1218,6 +1218,8 @@ input, select, textarea {
     border-radius: 8px;
     padding: var(--spacing-lg);
     animation: fadeIn 0.4s ease-out;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .chart-card.chart-wide {
@@ -1283,15 +1285,6 @@ input, select, textarea {
 
 .chart-wide canvas {
     max-height: 250px;
-}
-
-.chart-scroll-container {
-    overflow-x: auto;
-    overflow-y: hidden;
-    position: relative;
-}
-
-.chart-scroll-container canvas {
     min-width: 2000px !important;
     width: 2000px !important;
 }
