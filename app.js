@@ -1408,11 +1408,11 @@ function renderHeatmap(data) {
     html += '<div class="heatmap-content">';
     html += '<div class="heatmap-grid">';
 
-    // Rows for each day of week (Monday to Sunday)
+    // Output weeks (columns), each with 7 days (rows: Monday to Sunday)
     const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
-        weeks.forEach(week => {
+    weeks.forEach(week => {
+        for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
             const { date, completions, level, dateObj } = week[dayIdx];
             const dayOfMonth = dateObj.getDate();
             const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -1422,8 +1422,8 @@ function renderHeatmap(data) {
                     <span class="heatmap-day-number">${dayOfMonth}</span>
                 </div>
             `;
-        });
-    }
+        }
+    });
 
     html += '</div>'; // close heatmap-grid
 
