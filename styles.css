@@ -2513,18 +2513,74 @@ select:focus-visible {
     color: var(--wireframe-card);
 }
 
-/* Responsive Adjustments */
-@media (max-width: 480px) {
+/* Desktop Responsive - Couple Tab */
+@media (min-width: 768px) {
+    #couple-tab.couple-tab-wireframe {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
     .couple-sticky-header {
-        padding: 16px 16px 16px 16px;
+        padding: 24px 0;
+        margin-bottom: 8px;
+    }
+
+    .couple-tab-title {
+        font-size: 32px;
+    }
+
+    .dashboard-date {
+        font-size: 20px;
+    }
+
+    .weekly-overview-card {
+        margin: 0 0 24px 0;
+        padding: 24px;
+    }
+
+    .weekly-bar-chart {
+        gap: 12px;
+        padding: 16px 0;
+    }
+
+    .wireframe-goals-list {
+        padding: 0;
+    }
+
+    .add-goal-wireframe {
+        width: 100%;
+        margin: 32px 0;
+    }
+
+    .filter-trigger-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .filter-trigger-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Mobile Responsive - Couple Tab */
+@media (max-width: 768px) {
+    .couple-sticky-header {
+        padding: 16px 16px;
     }
 
     .couple-tab-title {
         font-size: 24px;
     }
 
+    .dashboard-date {
+        font-size: 16px;
+    }
+
     .weekly-overview-card {
         margin: 4px 16px 16px 16px;
+        padding: 16px;
     }
 
     .weekly-bar-chart {
@@ -2548,6 +2604,11 @@ select:focus-visible {
     .filter-modal-content {
         width: 95%;
         padding: 20px;
+    }
+
+    .filter-trigger-btn {
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -2696,14 +2757,102 @@ select:focus-visible {
     color: var(--wireframe-personal-card);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* Desktop Responsive - Personal Tab */
+@media (min-width: 768px) {
+    #personal-tab.personal-tab-wireframe {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
     .personal-sticky-header {
-        padding: 16px 16px 16px;
+        padding: 24px 0;
+        margin-bottom: 8px;
+    }
+
+    .personal-tab-title {
+        font-size: 32px;
+    }
+
+    #personal-tab .dashboard-date {
+        font-size: 20px;
+    }
+
+    #personal-tab .weekly-overview-card {
+        margin: 0 0 24px 0;
+        padding: 24px;
+    }
+
+    #personal-tab .weekly-bar-chart {
+        gap: 12px;
+        padding: 16px 0;
+    }
+
+    #personal-tab .wireframe-goals-list {
+        padding: 0;
+    }
+
+    #personal-tab .add-goal-wireframe {
+        width: 100%;
+        margin: 32px 0;
+    }
+
+    .personal-sticky-header .filter-trigger-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .personal-sticky-header .filter-trigger-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Mobile Responsive - Personal Tab */
+@media (max-width: 768px) {
+    .personal-sticky-header {
+        padding: 16px 16px;
     }
 
     .personal-tab-title {
         font-size: 24px;
+    }
+
+    #personal-tab .dashboard-date {
+        font-size: 16px;
+    }
+
+    #personal-tab .weekly-overview-card {
+        margin: 4px 16px 16px 16px;
+        padding: 16px;
+    }
+
+    #personal-tab .weekly-bar-chart {
+        gap: 4px;
+        padding: 12px 0;
+    }
+
+    #personal-tab .wireframe-goals-list {
+        padding: 0 16px;
+    }
+
+    #personal-tab .add-goal-wireframe {
+        width: calc(100% - 32px);
+        margin: 24px 16px;
+    }
+
+    #personal-filter-modal .filter-modal {
+        padding-top: 80px;
+    }
+
+    #personal-filter-modal .filter-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .personal-sticky-header .filter-trigger-btn {
+        width: 40px;
+        height: 40px;
     }
 }
 
