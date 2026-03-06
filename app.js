@@ -1537,6 +1537,10 @@ function openModal(goalType = 'personal', editMode = false) {
     const predefinedGoalsSelect = document.getElementById('predefined-goals');
     const submitBtn = document.querySelector('.btn-submit');
 
+    // Add class to modal based on goal type
+    modal.classList.remove('modal-personal', 'modal-couple');
+    modal.classList.add(`modal-${goalType}`);
+
     // Reset editing state if not in edit mode
     if (!editMode) {
         editingGoalId = null;

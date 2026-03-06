@@ -52,7 +52,7 @@ html {
 
     /* Wireframe Design Colors - Couple Tab */
     /* Couple Tab Wireframe Colors */
-    --wireframe-bg: rgb(250, 232, 232);
+    --wireframe-bg: rgb(250, 242, 242);
     --wireframe-card: #FFFFFF;
     --wireframe-border: #38000a;
     --wireframe-text-primary: #38000a;
@@ -64,7 +64,7 @@ html {
     --wireframe-filter-border: #9b1313;
 
     /* Personal Tab Wireframe Colors */
-    --wireframe-personal-bg: #d5e2e5;
+    --wireframe-personal-bg: #dee4e5;
     --wireframe-personal-card: #FFFFFF;
     --wireframe-personal-border: #003B46;
     --wireframe-personal-text-primary: #003B46;
@@ -2501,6 +2501,7 @@ select:focus-visible {
 
 #personal-tab .wireframe-goal-star path {
     stroke: var(--wireframe-personal-border) !important;
+    stroke-width: 1px;
 }
 
 #personal-tab .add-goal-wireframe {
@@ -2554,6 +2555,141 @@ select:focus-visible {
     .personal-tab-title {
         font-size: 24px;
     }
+}
+
+/* ===================================
+   MODAL STYLING FOR WIREFRAME TABS
+   =================================== */
+
+/* Couple Tab Modal */
+.modal-couple .modal-content {
+    background: var(--wireframe-card);
+    border: 1px solid var(--wireframe-border);
+}
+
+.modal-couple .modal-header {
+    border-bottom: 1px solid var(--wireframe-border);
+}
+
+.modal-couple .modal-header h2 {
+    color: var(--wireframe-text-primary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+}
+
+.modal-couple .modal-close {
+    background: transparent;
+    border: 1px solid var(--wireframe-border);
+    color: var(--wireframe-text-primary);
+}
+
+.modal-couple .modal-close:hover {
+    background: var(--wireframe-inactive);
+}
+
+.modal-couple .form-group label {
+    color: var(--wireframe-text-primary);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.modal-couple .form-group input,
+.modal-couple .form-group select {
+    border: 1px solid var(--wireframe-border);
+    background: var(--wireframe-card);
+    color: var(--wireframe-text-primary);
+}
+
+.modal-couple .form-group input:focus,
+.modal-couple .form-group select:focus {
+    border-color: var(--wireframe-accent);
+    outline: none;
+}
+
+.modal-couple .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--wireframe-border);
+    color: var(--wireframe-text-primary);
+}
+
+.modal-couple .btn-cancel:hover {
+    background: var(--wireframe-inactive);
+}
+
+.modal-couple .btn-submit {
+    background: var(--wireframe-accent);
+    border: 1px solid var(--wireframe-border);
+    color: white;
+}
+
+.modal-couple .btn-submit:hover {
+    background: var(--wireframe-text-secondary);
+}
+
+/* Personal Tab Modal */
+.modal-personal .modal-content {
+    background: var(--wireframe-personal-card);
+    border: 1px solid var(--wireframe-personal-border);
+}
+
+.modal-personal .modal-header {
+    border-bottom: 1px solid var(--wireframe-personal-border);
+}
+
+.modal-personal .modal-header h2 {
+    color: var(--wireframe-personal-text-primary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+}
+
+.modal-personal .modal-close {
+    background: transparent;
+    border: 1px solid var(--wireframe-personal-border);
+    color: var(--wireframe-personal-text-primary);
+}
+
+.modal-personal .modal-close:hover {
+    background: var(--wireframe-personal-inactive);
+}
+
+.modal-personal .form-group label {
+    color: var(--wireframe-personal-text-primary);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.modal-personal .form-group input,
+.modal-personal .form-group select {
+    border: 1px solid var(--wireframe-personal-border);
+    background: var(--wireframe-personal-card);
+    color: var(--wireframe-personal-text-primary);
+}
+
+.modal-personal .form-group input:focus,
+.modal-personal .form-group select:focus {
+    border-color: var(--wireframe-personal-accent);
+    outline: none;
+}
+
+.modal-personal .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--wireframe-personal-border);
+    color: var(--wireframe-personal-text-primary);
+}
+
+.modal-personal .btn-cancel:hover {
+    background: var(--wireframe-personal-inactive);
+}
+
+.modal-personal .btn-submit {
+    background: var(--wireframe-personal-accent);
+    border: 1px solid var(--wireframe-personal-border);
+    color: white;
+}
+
+.modal-personal .btn-submit:hover {
+    background: var(--wireframe-personal-active);
+    color: white;
 }
 
 /* ===================================
