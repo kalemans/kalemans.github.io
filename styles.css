@@ -2473,7 +2473,8 @@ select:focus-visible {
         font-size: 24px;
     }
 
-    .filter-trigger-btn {
+    .filter-trigger-btn,
+    .personal-sticky-header .filter-trigger-btn {
         width: 36px;
         height: 36px;
     }
