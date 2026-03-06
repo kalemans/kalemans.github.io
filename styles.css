@@ -1285,6 +1285,17 @@ input, select, textarea {
     max-height: 250px;
 }
 
+.chart-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+}
+
+.chart-scroll-container canvas {
+    min-width: 2000px !important;
+    width: 2000px !important;
+}
+
 /* Heatmap Container */
 .heatmap-container {
     overflow-x: auto;

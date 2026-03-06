@@ -804,7 +804,7 @@ function renderSummaryCards(data) {
 }
 
 // ===================================
-// 30-DAY TREND CHART
+// YEAR TREND CHART
 // ===================================
 
 let trendChartInstance = null;
@@ -820,9 +820,9 @@ function renderTrendChart(data) {
         trendChartInstance.destroy();
     }
 
-    // Get last 30 days
+    // Get last 365 days (full year)
     const dates = [];
-    for (let i = 29; i >= 0; i--) {
+    for (let i = 364; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         dates.push(date.toISOString().split('T')[0]);
@@ -856,10 +856,14 @@ function renderTrendChart(data) {
         ).length;
     });
 
-    // Format labels (show every 5 days)
+    // Format labels (show first day of each month)
     const labels = dates.map((date, i) => {
         const d = new Date(date);
-        return i % 5 === 0 ? `${d.getMonth() + 1}/${d.getDate()}` : '';
+        // Show label on first of month or first data point
+        if (i === 0 || d.getDate() === 1) {
+            return `${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getDate()}`;
+        }
+        return '';
     });
 
     trendChartInstance = new Chart(ctx, {
@@ -873,7 +877,10 @@ function renderTrendChart(data) {
                     borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily').trim(),
                     backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-daily-bg').trim(),
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    borderWidth: 1.5,
+                    pointRadius: 2,
+                    pointHoverRadius: 4
                 },
                 {
                     label: 'Weekly Goals',
@@ -881,7 +888,10 @@ function renderTrendChart(data) {
                     borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly').trim(),
                     backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly-bg').trim(),
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    borderWidth: 1.5,
+                    pointRadius: 2,
+                    pointHoverRadius: 4
                 },
                 {
                     label: 'Anytime Goals',
@@ -889,7 +899,10 @@ function renderTrendChart(data) {
                     borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-anytime').trim(),
                     backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-anytime-bg').trim(),
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    borderWidth: 1.5,
+                    pointRadius: 2,
+                    pointHoverRadius: 4
                 }
             ]
         },
@@ -907,6 +920,12 @@ function renderTrendChart(data) {
                     beginAtZero: true,
                     ticks: {
                         stepSize: 1
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 0,
+                        autoSkip: false
                     }
                 }
             }
