@@ -465,7 +465,6 @@ function createGoalCard(task, completed, data) {
     card.className = `wireframe-goal-card ${completed ? 'completed' : ''}`;
 
     card.innerHTML = `
-        ${isCustom ? `
         <div class="card-swipe-actions">
             <button class="card-action-btn edit-btn" data-action="edit">
                 <i data-lucide="edit-2"></i>
@@ -476,7 +475,6 @@ function createGoalCard(task, completed, data) {
                 <span>Delete</span>
             </button>
         </div>
-        ` : ''}
         <div class="card-content">
             <div class="wireframe-goal-header">
                 <div class="wireframe-goal-name">${task.name}</div>
@@ -501,24 +499,22 @@ function createGoalCard(task, completed, data) {
     const starBtn = card.querySelector('.wireframe-goal-star');
     starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
 
-    // Add action button listeners only for custom goals
-    if (isCustom) {
-        const editBtn = card.querySelector('.edit-btn');
-        const deleteBtn = card.querySelector('.delete-btn');
+    // Add action button listeners for all goals
+    const editBtn = card.querySelector('.edit-btn');
+    const deleteBtn = card.querySelector('.delete-btn');
 
-        editBtn.addEventListener('click', () => {
-            openEditModal(task);
-            closeCardActions(card);
-        });
+    editBtn.addEventListener('click', () => {
+        openEditModal(task);
+        closeCardActions(card);
+    });
 
-        deleteBtn.addEventListener('click', () => {
-            confirmDeleteGoal(task);
-            closeCardActions(card);
-        });
+    deleteBtn.addEventListener('click', () => {
+        confirmDeleteGoal(task);
+        closeCardActions(card);
+    });
 
-        // Add swipe gestures to card
-        addSwipeToReveal(card);
-    }
+    // Add swipe gestures to card
+    addSwipeToReveal(card);
 
     return card;
 }
@@ -1650,6 +1646,10 @@ async function deleteGoal(goalId, goalName) {
     // Remove from custom tasks
     currentData.customTasks = currentData.customTasks.filter(t => t.id !== goalId);
 
+    // Remove from predefined tasks if not found in custom
+    currentData.predefinedTasks.personal = currentData.predefinedTasks.personal.filter(t => t.id !== goalId);
+    currentData.predefinedTasks.couple = currentData.predefinedTasks.couple.filter(t => t.id !== goalId);
+
     // Remove completion history for this goal
     Object.keys(currentData.completions || {}).forEach(date => {
         if (currentData.completions[date][goalId]) {
@@ -2050,15 +2050,36 @@ async function handleGoalFormSubmit(e) {
 
     if (editingGoalId) {
         // EDIT MODE
+        // Check if it's a custom task
         const customTaskIndex = currentData.customTasks.findIndex(t => t.id === editingGoalId);
 
+        // Check if it's a predefined task
+        let predefinedTaskIndex = -1;
+        let predefinedType = null;
         if (customTaskIndex === -1) {
+            predefinedTaskIndex = currentData.predefinedTasks.personal.findIndex(t => t.id === editingGoalId);
+            if (predefinedTaskIndex !== -1) {
+                predefinedType = 'personal';
+            } else {
+                predefinedTaskIndex = currentData.predefinedTasks.couple.findIndex(t => t.id === editingGoalId);
+                if (predefinedTaskIndex !== -1) {
+                    predefinedType = 'couple';
+                }
+            }
+        }
+
+        if (customTaskIndex === -1 && predefinedTaskIndex === -1) {
             showToast('Goal not found', 'error');
             return;
         }
 
         // Check for duplicate names (excluding current goal)
-        const isDuplicate = currentData.customTasks.some(task =>
+        const allTasks = [
+            ...currentData.predefinedTasks.personal,
+            ...currentData.predefinedTasks.couple,
+            ...currentData.customTasks
+        ];
+        const isDuplicate = allTasks.some(task =>
             task.id !== editingGoalId &&
             task.name.toLowerCase() === goalName.toLowerCase() &&
             task.type === goalType
@@ -2069,16 +2090,27 @@ async function handleGoalFormSubmit(e) {
             return;
         }
 
-        // Update the goal
-        currentData.customTasks[customTaskIndex] = {
-            ...currentData.customTasks[customTaskIndex],
-            name: goalName,
-            category: goalCategory,
-            frequency: goalFrequency,
-            type: goalType
-        };
-
-        debugLog('✓ Updating custom goal', currentData.customTasks[customTaskIndex]);
+        if (customTaskIndex !== -1) {
+            // Update custom goal
+            currentData.customTasks[customTaskIndex] = {
+                ...currentData.customTasks[customTaskIndex],
+                name: goalName,
+                category: goalCategory,
+                frequency: goalFrequency,
+                type: goalType
+            };
+            debugLog('✓ Updating custom goal', currentData.customTasks[customTaskIndex]);
+        } else {
+            // Update predefined goal
+            currentData.predefinedTasks[predefinedType][predefinedTaskIndex] = {
+                ...currentData.predefinedTasks[predefinedType][predefinedTaskIndex],
+                name: goalName,
+                category: goalCategory,
+                frequency: goalFrequency,
+                type: goalType
+            };
+            debugLog('✓ Updating predefined goal', currentData.predefinedTasks[predefinedType][predefinedTaskIndex]);
+        }
 
         await saveGoalsData(currentData);
         renderGoals(currentData);
