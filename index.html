@@ -216,7 +216,12 @@
 
                         <!-- Best Day of Week Chart -->
                         <div class="chart-card">
-                            <h3 class="chart-title">Best Day of Week (Daily Goals)</h3>
+                            <div class="chart-header-with-toggle">
+                                <h3 class="chart-title" id="day-month-chart-title">Best Day of Week (Daily Goals)</h3>
+                                <button class="chart-toggle-btn" id="day-month-toggle" aria-label="Toggle chart view">
+                                    <i data-lucide="calendar"></i>
+                                </button>
+                            </div>
                             <canvas id="day-chart"></canvas>
                         </div>
 

@@ -122,6 +122,7 @@ async function init() {
     setupModal();
     setupMobileFeatures();
     setupFilters();
+    setupDayMonthToggle();
     refreshButton.addEventListener('click', handleHardRefresh);
 }
 
@@ -718,7 +719,12 @@ function checkAllGoalsCompleted(data, today) {
 function renderStats(data) {
     renderSummaryCards(data);
     renderTrendChart(data);
-    renderDayOfWeekChart(data);
+    // Render day or month chart based on current view
+    if (isDayView) {
+        renderDayOfWeekChart(data);
+    } else {
+        renderMonthOfYearChart(data);
+    }
     renderCategoryChart(data);
     renderComparisonChart(data);
     renderHeatmap(data);
@@ -913,6 +919,7 @@ function renderTrendChart(data) {
 // ===================================
 
 let dayChartInstance = null;
+let isDayView = true; // Track which view is active (day vs month)
 
 function renderDayOfWeekChart(data) {
     const canvas = document.getElementById('day-chart');
@@ -992,6 +999,115 @@ function renderDayOfWeekChart(data) {
             }
         }
     });
+}
+
+function renderMonthOfYearChart(data) {
+    const canvas = document.getElementById('day-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (dayChartInstance) {
+        dayChartInstance.destroy();
+    }
+
+    const allTasks = [
+        ...getAllTasksWithType(data, 'personal'),
+        ...getAllTasksWithType(data, 'couple')
+    ];
+
+    // Calculate completions by month
+    const monthStats = {
+        Jan: { completed: 0, total: 0 },
+        Feb: { completed: 0, total: 0 },
+        Mar: { completed: 0, total: 0 },
+        Apr: { completed: 0, total: 0 },
+        May: { completed: 0, total: 0 },
+        Jun: { completed: 0, total: 0 },
+        Jul: { completed: 0, total: 0 },
+        Aug: { completed: 0, total: 0 },
+        Sep: { completed: 0, total: 0 },
+        Oct: { completed: 0, total: 0 },
+        Nov: { completed: 0, total: 0 },
+        Dec: { completed: 0, total: 0 }
+    };
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    Object.entries(data.completions || {}).forEach(([dateStr, dayCompletions]) => {
+        const date = new Date(dateStr + 'T00:00:00');
+        const monthName = monthNames[date.getMonth()];
+
+        allTasks.forEach(task => {
+            monthStats[monthName].total++;
+            if (dayCompletions[task.id]?.completed) {
+                monthStats[monthName].completed++;
+            }
+        });
+    });
+
+    const percentages = monthNames.map(month => {
+        const stats = monthStats[month];
+        return stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    });
+
+    dayChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthNames,
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: percentages,
+                backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly').trim(),
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-weekly').trim(),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function toggleDayMonthChart() {
+    isDayView = !isDayView;
+    const titleEl = document.getElementById('day-month-chart-title');
+
+    if (isDayView) {
+        titleEl.textContent = 'Best Day of Week (Daily Goals)';
+        renderDayOfWeekChart(currentData);
+    } else {
+        titleEl.textContent = 'Best Month of Year (All Goals)';
+        renderMonthOfYearChart(currentData);
+    }
+}
+
+function setupDayMonthToggle() {
+    const toggleBtn = document.getElementById('day-month-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleDayMonthChart);
+        // Initialize Lucide icons for the toggle button
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
 }
 
 // ===================================
