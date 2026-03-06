@@ -1276,30 +1276,87 @@ function renderHeatmap(data) {
         return { date: dateStr, completions, level };
     });
 
-    // Organize by weeks (Sunday to Saturday)
+    // Organize data by weeks starting from Monday
+    const weeks = [];
+    let currentWeek = [];
+
+    // Find the first Monday
     const firstDate = new Date(dates[0] + 'T00:00:00');
-    const firstDay = firstDate.getDay(); // 0 = Sunday
-
-    // Create grid HTML
-    let html = '<div class="heatmap-grid">';
-
-    // Add empty cells to align first week
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div class="heatmap-cell" style="opacity: 0;"></div>';
+    let firstMonday = new Date(firstDate);
+    const dayOfWeek = firstDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+    if (daysUntilMonday > 0) {
+        firstMonday.setDate(firstDate.getDate() + daysUntilMonday);
     }
 
-    // Add all date cells
-    dateData.forEach(({ date, completions, level }) => {
-        const d = new Date(date + 'T00:00:00');
-        const dateLabel = `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-        html += `
-            <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
-                <div class="heatmap-tooltip">${dateLabel}: ${completions}</div>
-            </div>
-        `;
-    });
+    // Build weeks array (7 days per week, starting Monday)
+    const firstMondayStr = firstMonday.toISOString().split('T')[0];
+    const startIndex = dates.indexOf(firstMondayStr);
 
+    for (let i = startIndex; i < dates.length; i++) {
+        currentWeek.push(dateData[i]);
+        if (currentWeek.length === 7) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+    }
+
+    // Create month headers
+    let monthHeaders = '<div class="heatmap-months">';
+    let currentMonth = null;
+    let weekIndex = 0;
+
+    weeks.forEach((week, idx) => {
+        const firstDayOfWeek = new Date(week[0].date + 'T00:00:00');
+        const month = firstDayOfWeek.toLocaleDateString('en-US', { month: 'short' });
+        const monthNum = firstDayOfWeek.getMonth();
+
+        if (currentMonth !== monthNum) {
+            const year = firstDayOfWeek.getFullYear();
+            monthHeaders += `<div class="heatmap-month-label" style="grid-column: ${idx + 1};">${month} ${year}</div>`;
+            currentMonth = monthNum;
+        }
+    });
+    monthHeaders += '</div>';
+
+    // Create grid with day labels
+    let html = '<div class="heatmap-wrapper">';
+    html += monthHeaders;
+    html += '<div class="heatmap-content">';
+    html += '<div class="heatmap-grid">';
+
+    // Rows for each day of week (Monday to Sunday)
+    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+        weeks.forEach(week => {
+            if (week[dayIdx]) {
+                const { date, completions, level } = week[dayIdx];
+                const d = new Date(date + 'T00:00:00');
+                const dayOfMonth = d.getDate();
+                const dateLabel = `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+                html += `
+                    <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
+                        <span class="heatmap-day-number">${dayOfMonth}</span>
+                    </div>
+                `;
+            } else {
+                html += '<div class="heatmap-cell heatmap-cell-empty"></div>';
+            }
+        });
+    }
+
+    html += '</div>'; // close heatmap-grid
+
+    // Add day labels on the right
+    html += '<div class="heatmap-day-labels">';
+    dayLabels.forEach(day => {
+        html += `<div class="heatmap-day-label">${day}</div>`;
+    });
     html += '</div>';
+
+    html += '</div>'; // close heatmap-content
 
     // Add legend
     html += `
@@ -1313,6 +1370,8 @@ function renderHeatmap(data) {
             </div>
         </div>
     `;
+
+    html += '</div>'; // close heatmap-wrapper
 
     container.innerHTML = html;
 }
