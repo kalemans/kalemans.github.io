@@ -1253,66 +1253,63 @@ function renderHeatmap(data) {
     const container = document.getElementById('heatmap-chart');
     if (!container) return;
 
-    // Get last 12 weeks (84 days)
-    const dates = [];
-    for (let i = 83; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        dates.push(date.toISOString().split('T')[0]);
-    }
-
     const allTasks = [
         ...getAllTasksWithType(data, 'personal'),
         ...getAllTasksWithType(data, 'couple')
     ];
-
-    // Calculate completions for each day
     const maxCompletions = allTasks.length;
-    const dateData = dates.map(dateStr => {
-        const completions = allTasks.filter(task =>
-            data.completions[dateStr]?.[task.id]?.completed
-        ).length;
-        const level = maxCompletions > 0 ? Math.min(4, Math.ceil((completions / maxCompletions) * 4)) : 0;
-        return { date: dateStr, completions, level };
-    });
 
-    // Organize data by weeks starting from Monday
+    // Get the most recent Sunday (end of current week)
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const lastSunday = new Date(today);
+    lastSunday.setDate(today.getDate() - currentDay); // Go back to Sunday
+    lastSunday.setHours(0, 0, 0, 0);
+
+    // Build 52 complete weeks (364 days), going backwards from last Sunday
     const weeks = [];
-    let currentWeek = [];
+    for (let weekNum = 0; weekNum < 52; weekNum++) {
+        const week = [];
+        for (let dayNum = 0; dayNum < 7; dayNum++) {
+            // Monday = 0, Tuesday = 1, ..., Sunday = 6 in our array
+            // But in Date.getDay(): Sunday = 0, Monday = 1, ..., Saturday = 6
+            const daysBack = (51 - weekNum) * 7 + (6 - dayNum);
+            const date = new Date(lastSunday);
+            date.setDate(lastSunday.getDate() - daysBack);
 
-    // Find the first Monday
-    const firstDate = new Date(dates[0] + 'T00:00:00');
-    let firstMonday = new Date(firstDate);
-    const dayOfWeek = firstDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
-    if (daysUntilMonday > 0) {
-        firstMonday.setDate(firstDate.getDate() + daysUntilMonday);
-    }
+            const dateStr = date.toISOString().split('T')[0];
 
-    // Build weeks array (7 days per week, starting Monday)
-    const firstMondayStr = firstMonday.toISOString().split('T')[0];
-    const startIndex = dates.indexOf(firstMondayStr);
+            // Calculate completions for this day
+            const completions = allTasks.filter(task =>
+                data.completions[dateStr]?.[task.id]?.completed
+            ).length;
 
-    for (let i = startIndex; i < dates.length; i++) {
-        currentWeek.push(dateData[i]);
-        if (currentWeek.length === 7) {
-            weeks.push(currentWeek);
-            currentWeek = [];
+            // Calculate level (0-4)
+            let level = 0;
+            if (completions > 0 && maxCompletions > 0) {
+                const percentage = completions / maxCompletions;
+                if (percentage <= 0.25) level = 1;
+                else if (percentage <= 0.5) level = 2;
+                else if (percentage <= 0.75) level = 3;
+                else level = 4;
+            }
+
+            week.push({ date: dateStr, completions, level, dateObj: new Date(date) });
         }
+        weeks.push(week);
     }
 
     // Create month headers
     let monthHeaders = '<div class="heatmap-months">';
     let currentMonth = null;
-    let weekIndex = 0;
 
     weeks.forEach((week, idx) => {
-        const firstDayOfWeek = new Date(week[0].date + 'T00:00:00');
-        const month = firstDayOfWeek.toLocaleDateString('en-US', { month: 'short' });
+        const firstDayOfWeek = week[0].dateObj; // Monday
         const monthNum = firstDayOfWeek.getMonth();
+        const year = firstDayOfWeek.getFullYear();
 
         if (currentMonth !== monthNum) {
-            const year = firstDayOfWeek.getFullYear();
+            const month = firstDayOfWeek.toLocaleDateString('en-US', { month: 'short' });
             monthHeaders += `<div class="heatmap-month-label" style="grid-column: ${idx + 1};">${month} ${year}</div>`;
             currentMonth = monthNum;
         }
@@ -1330,20 +1327,15 @@ function renderHeatmap(data) {
 
     for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
         weeks.forEach(week => {
-            if (week[dayIdx]) {
-                const { date, completions, level } = week[dayIdx];
-                const d = new Date(date + 'T00:00:00');
-                const dayOfMonth = d.getDate();
-                const dateLabel = `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+            const { date, completions, level, dateObj } = week[dayIdx];
+            const dayOfMonth = dateObj.getDate();
+            const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-                html += `
-                    <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
-                        <span class="heatmap-day-number">${dayOfMonth}</span>
-                    </div>
-                `;
-            } else {
-                html += '<div class="heatmap-cell heatmap-cell-empty"></div>';
-            }
+            html += `
+                <div class="heatmap-cell" data-level="${level}" title="${dateLabel}: ${completions} completions">
+                    <span class="heatmap-day-number">${dayOfMonth}</span>
+                </div>
+            `;
         });
     }
 
