@@ -264,6 +264,11 @@ function setupTabs() {
                     behavior: 'smooth'
                 });
             }
+
+            // If switching to stats tab, scroll charts to show most recent data
+            if (tab === 'stats') {
+                scrollChartsToRight();
+            }
         });
     });
 
@@ -272,6 +277,25 @@ function setupTabs() {
     if (activeTab) {
         updateBodyBackground(activeTab.dataset.tab);
     }
+}
+
+function scrollChartsToRight() {
+    setTimeout(() => {
+        // Scroll Year Completion Trend chart to right
+        const trendChart = document.getElementById('trend-chart');
+        if (trendChart) {
+            const chartCard = trendChart.closest('.chart-card');
+            if (chartCard) {
+                chartCard.scrollLeft = chartCard.scrollWidth - chartCard.clientWidth;
+            }
+        }
+
+        // Scroll Activity Calendar heatmap to right
+        const heatmapContainer = document.getElementById('heatmap-chart');
+        if (heatmapContainer) {
+            heatmapContainer.scrollLeft = heatmapContainer.scrollWidth - heatmapContainer.clientWidth;
+        }
+    }, 200);
 }
 
 function updateBodyBackground(tab) {
@@ -950,10 +974,10 @@ function renderTrendChart(data) {
     // Scroll to the right (most recent data) after chart renders
     setTimeout(() => {
         const chartCard = canvas.closest('.chart-card');
-        if (chartCard) {
+        if (chartCard && chartCard.scrollWidth > chartCard.clientWidth) {
             chartCard.scrollLeft = chartCard.scrollWidth - chartCard.clientWidth;
         }
-    }, 100);
+    }, 300);
 }
 
 // ===================================
@@ -1447,8 +1471,10 @@ function renderHeatmap(data) {
 
     // Scroll to the right (most recent weeks) after heatmap renders
     setTimeout(() => {
-        container.scrollLeft = container.scrollWidth - container.clientWidth;
-    }, 100);
+        if (container && container.scrollWidth > container.clientWidth) {
+            container.scrollLeft = container.scrollWidth - container.clientWidth;
+        }
+    }, 300);
 }
 
 // ===================================
