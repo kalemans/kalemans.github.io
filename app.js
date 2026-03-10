@@ -1609,8 +1609,8 @@ function renderWeeklyOverview(data) {
         days.push(date);
     }
 
-    // Get couple tasks (all frequencies for weekly overview)
-    const coupleTasks = getAllTasksWithType(data, 'couple');
+    // Get couple tasks (only Daily frequency for weekly overview)
+    const coupleTasks = getAllTasksWithType(data, 'couple').filter(task => task.frequency === 'Daily');
     const totalTasks = coupleTasks.length;
 
     const todayStr = today.toISOString().split('T')[0];
