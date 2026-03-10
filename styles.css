@@ -2287,6 +2287,10 @@ select:focus-visible {
     transition: transform 0.2s ease;
 }
 
+.wireframe-goal-star path {
+    stroke-width: 1px;
+}
+
 .wireframe-goal-star:hover {
     transform: scale(1.1);
 }
@@ -2712,7 +2716,6 @@ select:focus-visible {
 
 #personal-tab .wireframe-goal-star path {
     stroke: var(--wireframe-personal-border) !important;
-    stroke-width: 1px;
 }
 
 #personal-tab .add-goal-wireframe {
