@@ -2301,7 +2301,7 @@ select:focus-visible {
 }
 
 .wireframe-goal-star path {
-    stroke-width: 1px;
+    stroke-width: 0.7px;
 }
 
 .wireframe-goal-star:hover {
