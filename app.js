@@ -282,12 +282,9 @@ function setupTabs() {
 function scrollChartsToRight() {
     setTimeout(() => {
         // Scroll Year Completion Trend chart to right
-        const trendChart = document.getElementById('trend-chart');
-        if (trendChart) {
-            const chartCard = trendChart.closest('.chart-card');
-            if (chartCard) {
-                chartCard.scrollLeft = chartCard.scrollWidth - chartCard.clientWidth;
-            }
+        const trendContainer = document.querySelector('.trend-chart-container');
+        if (trendContainer) {
+            trendContainer.scrollLeft = trendContainer.scrollWidth - trendContainer.clientWidth;
         }
 
         // Scroll Activity Calendar heatmap to right
@@ -973,9 +970,9 @@ function renderTrendChart(data) {
 
     // Scroll to the right (most recent data) after chart renders
     setTimeout(() => {
-        const chartCard = canvas.closest('.chart-card');
-        if (chartCard && chartCard.scrollWidth > chartCard.clientWidth) {
-            chartCard.scrollLeft = chartCard.scrollWidth - chartCard.clientWidth;
+        const trendContainer = canvas.closest('.trend-chart-container');
+        if (trendContainer && trendContainer.scrollWidth > trendContainer.clientWidth) {
+            trendContainer.scrollLeft = trendContainer.scrollWidth - trendContainer.clientWidth;
         }
     }, 300);
 }

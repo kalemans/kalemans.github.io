@@ -1337,6 +1337,19 @@ input, select, textarea {
     overflow-x: visible;
 }
 
+/* Trend Chart Container - Same approach as heatmap */
+.trend-chart-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+}
+
+/* Override chart-card overflow for trend chart since trend-chart-container handles it */
+.chart-card:has(.trend-chart-container) {
+    overflow-x: visible;
+}
+
 .heatmap-wrapper {
     display: flex;
     flex-direction: column;
