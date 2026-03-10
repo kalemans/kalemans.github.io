@@ -947,6 +947,14 @@ function renderTrendChart(data) {
             }
         }
     });
+
+    // Scroll to the right (most recent data) after chart renders
+    setTimeout(() => {
+        const chartCard = canvas.closest('.chart-card');
+        if (chartCard) {
+            chartCard.scrollLeft = chartCard.scrollWidth - chartCard.clientWidth;
+        }
+    }, 100);
 }
 
 // ===================================
@@ -1437,6 +1445,11 @@ function renderHeatmap(data) {
     html += '</div>'; // close heatmap-wrapper
 
     container.innerHTML = html;
+
+    // Scroll to the right (most recent weeks) after heatmap renders
+    setTimeout(() => {
+        container.scrollLeft = container.scrollWidth - container.clientWidth;
+    }, 100);
 }
 
 // ===================================
