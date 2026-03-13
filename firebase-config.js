@@ -20,3 +20,12 @@ export const firebaseConfig = {
 export const isFirebaseConfigured = () => {
     return firebaseConfig.apiKey !== "YOUR_API_KEY";
 };
+
+// Authentication Configuration
+// IMPORTANT: Change this password to something secure and private
+export const AUTH_CONFIG = {
+    // Simple password hash (SHA-256) - change "yourpassword" to your actual password
+    // To generate: https://emn178.github.io/online-tools/sha256.html
+    passwordHash: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", // Default: "password"
+    tokenExpiryDays: 90 // How long "remember me" lasts
+};

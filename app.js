@@ -1,5 +1,5 @@
 import { PREDEFINED_TASKS } from './config.js';
-import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+import { firebaseConfig, isFirebaseConfigured, AUTH_CONFIG } from './firebase-config.js';
 
 // Version
 const APP_VERSION = '4.2.2';
@@ -28,12 +28,84 @@ let filters = {
     }
 };
 
+// ===================================
+// AUTHENTICATION HELPERS
+// ===================================
+
+const AUTH_TOKEN_KEY = 'goals_auth_token';
+
+// Hash password using SHA-256
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Check if user is authenticated
+function isAuthenticated() {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) return false;
+
+    try {
+        const authData = JSON.parse(token);
+        const expiryDate = new Date(authData.expiry);
+        const now = new Date();
+
+        // Check if token is expired
+        if (now > expiryDate) {
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            return false;
+        }
+
+        return authData.authenticated === true;
+    } catch (e) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        return false;
+    }
+}
+
+// Store authentication token
+function storeAuthToken(rememberMe) {
+    const now = new Date();
+    const expiry = new Date(now);
+
+    if (rememberMe) {
+        expiry.setDate(expiry.getDate() + AUTH_CONFIG.tokenExpiryDays);
+    } else {
+        // Session only - expires in 24 hours
+        expiry.setHours(expiry.getHours() + 24);
+    }
+
+    const authData = {
+        authenticated: true,
+        expiry: expiry.toISOString(),
+        created: now.toISOString()
+    };
+
+    localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify(authData));
+}
+
+// Clear authentication
+function clearAuth() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+// Verify password
+async function verifyPassword(password) {
+    const hash = await hashPassword(password);
+    return hash === AUTH_CONFIG.passwordHash;
+}
+
 // DOM Elements
 const authScreen = document.getElementById('auth-screen');
 const mainApp = document.getElementById('main-app');
 const loadingScreen = document.getElementById('loading-screen');
-const tokenInput = document.getElementById('github-token');
+const passwordInput = document.getElementById('password-input');
+const rememberMeCheckbox = document.getElementById('remember-me-checkbox');
 const authButton = document.getElementById('auth-button');
+const authError = document.getElementById('auth-error');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
 
@@ -100,7 +172,6 @@ async function init() {
         authScreen.querySelector('.auth-container h1').textContent = 'Firebase Setup Required';
         authScreen.querySelector('.auth-subtitle').textContent = 'Please configure Firebase in firebase-config.js';
         authScreen.querySelector('.auth-form').style.display = 'none';
-        authScreen.querySelector('.auth-help').style.display = 'none';
         showAuthScreen();
         return;
     }
@@ -116,19 +187,27 @@ async function init() {
         return;
     }
 
-    // Permanently hide auth screen (no login needed with Firebase)
-    authScreen.remove();
-    showMainApp();
-    await loadApp();
+    // Set up authentication handlers
+    setupAuth();
 
-    // Set up event listeners
-    setupTabs();
-    updateDashboardDate();
-    setupModal();
-    setupMobileFeatures();
-    setupFilters();
-    setupDayMonthToggle();
-    setupDatePickers();
+    // Check if already authenticated
+    if (isAuthenticated()) {
+        debugLog('✓ User already authenticated');
+        showMainApp();
+        await loadApp();
+
+        // Set up event listeners
+        setupTabs();
+        updateDashboardDate();
+        setupModal();
+        setupMobileFeatures();
+        setupFilters();
+        setupDayMonthToggle();
+        setupDatePickers();
+    } else {
+        debugLog('⚠️ User not authenticated - showing login');
+        showAuthScreen();
+    }
 }
 
 function showAuthScreen() {
@@ -139,6 +218,88 @@ function showAuthScreen() {
 function showMainApp() {
     authScreen.classList.add('hidden');
     mainApp.classList.remove('hidden');
+}
+
+function setupAuth() {
+    // Login button handler
+    authButton.addEventListener('click', handleLogin);
+
+    // Allow Enter key to submit
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    });
+
+    // Logout button handler
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+}
+
+async function handleLogin() {
+    const password = passwordInput.value;
+    const rememberMe = rememberMeCheckbox.checked;
+
+    if (!password) {
+        showAuthError('Please enter a password');
+        return;
+    }
+
+    // Show loading state
+    authButton.disabled = true;
+    authButton.textContent = 'Logging in...';
+    authError.textContent = '';
+
+    try {
+        const isValid = await verifyPassword(password);
+
+        if (isValid) {
+            debugLog('✓ Login successful');
+            storeAuthToken(rememberMe);
+            passwordInput.value = '';
+
+            showMainApp();
+            await loadApp();
+
+            // Set up event listeners
+            setupTabs();
+            updateDashboardDate();
+            setupModal();
+            setupMobileFeatures();
+            setupFilters();
+            setupDayMonthToggle();
+            setupDatePickers();
+        } else {
+            debugLog('✗ Login failed - incorrect password');
+            showAuthError('Incorrect password');
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    } catch (error) {
+        debugLog('✗ Login error', { error: error.message });
+        showAuthError('An error occurred. Please try again.');
+    } finally {
+        authButton.disabled = false;
+        authButton.textContent = 'Login';
+    }
+}
+
+function handleLogout() {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (confirmed) {
+        debugLog('🚪 User logged out');
+        clearAuth();
+        location.reload();
+    }
+}
+
+function showAuthError(message) {
+    authError.textContent = message;
+    authError.style.color = '#ff4444';
+    authError.style.marginTop = '12px';
+    authError.style.fontSize = '14px';
 }
 
 async function loadApp() {

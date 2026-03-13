@@ -25,12 +25,16 @@
     <div id="auth-screen" class="auth-screen">
         <div class="auth-container">
             <h1>Anniversary Goals Tracker</h1>
-            <p class="auth-subtitle">Track your personal and couple goals</p>
+            <p class="auth-subtitle">Enter password to continue</p>
             <div class="auth-form">
-                <input type="password" id="github-token" placeholder="Enter GitHub Token" />
+                <input type="password" id="password-input" placeholder="Enter Password" autocomplete="current-password" />
+                <label class="remember-me-label">
+                    <input type="checkbox" id="remember-me-checkbox" checked />
+                    <span>Remember me for 90 days</span>
+                </label>
                 <button id="auth-button">Login</button>
             </div>
-            <p class="auth-help">Need a token? <a href="https://github.com/settings/tokens/new" target="_blank">Create one here</a></p>
+            <p class="auth-error" id="auth-error"></p>
         </div>
     </div>
 
@@ -284,6 +288,7 @@
                 <div class="app-footer">
                     <p>Made with love for our anniversary 💝</p>
                     <p class="version">v4.5.0</p>
+                    <button id="logout-button" class="logout-button">Logout</button>
                 </div>
             </div>
         </main>
