@@ -82,6 +82,15 @@ async function init() {
         return;
     }
 
+    // Initialize Google Identity Services error handling
+    window.addEventListener('load', () => {
+        if (window.google?.accounts?.id) {
+            debugLog('✓ Google Identity Services loaded');
+        } else {
+            debugLog('⚠️ Google Identity Services not loaded yet, waiting...');
+        }
+    });
+
     // Set up auth state listener
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -135,6 +144,27 @@ function showMainApp() {
 
 // Prevent multiple simultaneous sign-in attempts
 let isSigningIn = false;
+
+// Google Sign-In error handler
+window.handleGoogleError = function(error) {
+    debugLog('✗ Google Identity Services error', { error });
+
+    let errorMessage = 'Sign in failed. Please try again.';
+
+    if (error.type === 'popup_failed_to_open') {
+        errorMessage = 'Pop-up blocked. Please allow pop-ups and try again.';
+    } else if (error.type === 'popup_closed') {
+        errorMessage = 'Sign in cancelled.';
+    } else if (error.type === 'network_error') {
+        errorMessage = 'Network error. Check your connection and try again.';
+    } else {
+        // Generic error - might be Google's rate limiting
+        errorMessage = 'Sign in temporarily unavailable. Wait a moment and try again.';
+    }
+
+    showAuthError(errorMessage);
+    isSigningIn = false;
+};
 
 // Google Sign-In callback (called by Google Identity Services)
 // Must be globally accessible
@@ -216,8 +246,25 @@ async function handleLogout() {
     if (confirmed) {
         try {
             debugLog('🚪 User logging out');
+
+            // Sign out from Firebase
             await auth.signOut();
+
+            // Clean up Google Identity Services session
+            if (window.google?.accounts?.id) {
+                window.google.accounts.id.disableAutoSelect();
+                debugLog('✓ Google Identity Services session cleaned up');
+            }
+
+            // Reset sign-in flag
+            isSigningIn = false;
+
             debugLog('✓ User logged out successfully');
+
+            // Show brief message about waiting before signing in again
+            // This helps prevent Google's rate limiting
+            showToast('Logged out successfully', 'success');
+
             // onAuthStateChanged will handle showing login screen
         } catch (error) {
             debugLog('✗ Logout error', { error: error.message });
