@@ -1,5 +1,6 @@
 # Prompt (Always Follow)
 - Always define colors as variables at the top of the styles.css file, then use the variables within elements. Never hardcode color codes in elements without defining variables. 
+- Always do cachebusting.
 
 #  Design-Prompt
 ## Couple Goals Tab
