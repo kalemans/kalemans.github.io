@@ -51,7 +51,7 @@ function debugLog(message, data = null) {
         return;
     }
 
-    const timestamp = new Date().toLocaleTimeString();
+    const timestamp = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });
     const entry = document.createElement('div');
     entry.className = 'debug-entry';
 
@@ -816,14 +816,14 @@ function renderSummaryCards(data) {
     });
 
     // Calculate this week completion rate
-    const today = new Date();
+    const today = getPSTDate();
     const currentDay = today.getDay();
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
     const weekDays = [];
     for (let i = 0; i < 7; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + mondayOffset + i);
-        weekDays.push(date.toISOString().split('T')[0]);
+        weekDays.push(formatDateToPST(date));
     }
 
     let weekCompletions = 0;
@@ -875,10 +875,11 @@ function renderTrendChart(data) {
 
     // Get last 365 days (full year)
     const dates = [];
+    const today = getPSTDate();
     for (let i = 364; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        dates.push(date.toISOString().split('T')[0]);
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        dates.push(formatDateToPST(date));
     }
 
     const allTasks = [
@@ -1434,7 +1435,7 @@ function renderHeatmap(data) {
     const maxCompletions = allTasks.length;
 
     // Find the Monday of the current week (or most recent Monday)
-    const today = new Date();
+    const today = getPSTDate();
     today.setHours(0, 0, 0, 0);
     const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
@@ -1462,7 +1463,7 @@ function renderHeatmap(data) {
             const date = new Date(weekStartDate);
             date.setDate(weekStartDate.getDate() + dayOfWeek);
 
-            const dateStr = date.toISOString().split('T')[0];
+            const dateStr = formatDateToPST(date);
 
             // Calculate completions for this day
             const completions = allTasks.filter(task =>
@@ -1698,14 +1699,14 @@ function renderWeeklyOverview(data) {
     if (!container || !weekRangeEl) return;
 
     // Get current week (Monday to Sunday)
-    const today = new Date();
+    const today = getPSTDate();
     const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else calculate offset to Monday
 
     const days = [];
     for (let i = 0; i < 7; i++) {
         const date = new Date(today);
-        date.setDate(date.getDate() + mondayOffset + i);
+        date.setDate(today.getDate() + mondayOffset + i);
         days.push(date);
     }
 
@@ -1713,11 +1714,11 @@ function renderWeeklyOverview(data) {
     const coupleTasks = getAllTasksWithType(data, 'couple').filter(task => task.frequency === 'Daily');
     const totalTasks = coupleTasks.length;
 
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = formatDateToPST(today);
 
     // Calculate completions for each day
     const dailyStats = days.map(date => {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatDateToPST(date);
         const completed = coupleTasks.filter(task =>
             data.completions[dateStr]?.[task.id]?.completed
         ).length;
@@ -1754,14 +1755,14 @@ function renderWeeklyOverviewPersonal(data) {
     if (!container || !weekRangeEl) return;
 
     // Get current week (Monday to Sunday)
-    const today = new Date();
+    const today = getPSTDate();
     const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else calculate offset to Monday
 
     const days = [];
     for (let i = 0; i < 7; i++) {
         const date = new Date(today);
-        date.setDate(date.getDate() + mondayOffset + i);
+        date.setDate(today.getDate() + mondayOffset + i);
         days.push(date);
     }
 
@@ -1769,11 +1770,11 @@ function renderWeeklyOverviewPersonal(data) {
     const personalTasks = getAllTasksWithType(data, 'personal').filter(task => task.frequency === 'Daily');
     const totalTasks = personalTasks.length;
 
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = formatDateToPST(today);
 
     // Calculate completions for each day
     const dailyStats = days.map(date => {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatDateToPST(date);
         const completed = personalTasks.filter(task =>
             data.completions[dateStr]?.[task.id]?.completed
         ).length;
@@ -1840,9 +1841,28 @@ function calculateStats(data, type) {
     };
 }
 
+// ===================================
+// TIMEZONE HELPERS (PST/PDT)
+// ===================================
+
+// Get current date/time in PST/PDT timezone
+function getPSTDate() {
+    const now = new Date();
+    // Convert to PST/PDT (America/Los_Angeles automatically handles DST)
+    const pstString = now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+    return new Date(pstString);
+}
+
+// Format any date to YYYY-MM-DD in PST/PDT timezone
+function formatDateToPST(date) {
+    const year = date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', year: 'numeric' });
+    const month = date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: '2-digit' });
+    const day = date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', day: '2-digit' });
+    return `${year}-${month}-${day}`;
+}
+
 function getTodayString() {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+    return formatDateToPST(new Date());
 }
 
 // Helper function to get all tasks with type property
