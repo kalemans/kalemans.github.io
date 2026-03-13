@@ -3207,6 +3207,30 @@ select:focus-visible {
     font-family: monospace;
 }
 
+.app-footer .logout-button {
+    margin-top: 16px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--stats-border);
+    border-radius: 6px;
+    color: var(--stats-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.app-footer .logout-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--stats-text-primary);
+    color: var(--stats-text-primary);
+    transform: translateY(-1px);
+}
+
+.app-footer .logout-button:active {
+    transform: translateY(0);
+}
+
 /* ===================================
    PRINT STYLES
    =================================== */
