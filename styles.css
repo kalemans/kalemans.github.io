@@ -2326,23 +2326,29 @@ select:focus-visible {
     transition: background-color 0.2s ease;
     padding: 0;
     flex-shrink: 0;
+    transform: none !important;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .weekly-toggle-btn:hover {
     background: rgba(56, 0, 10, 0.05);
+    transform: none !important;
 }
 
 .weekly-toggle-btn:active {
-    transform: none;
+    transform: none !important;
 }
 
+.weekly-toggle-btn svg,
 .weekly-toggle-btn i {
     width: 16px;
     height: 16px;
-    color: var(--wireframe-border);
+    color: var(--wireframe-border) !important;
+    stroke: var(--wireframe-border) !important;
     transition: transform 0.3s ease;
 }
 
+.weekly-toggle-btn.expanded svg,
 .weekly-toggle-btn.expanded i {
     transform: rotate(180deg);
 }
@@ -2971,12 +2977,29 @@ select:focus-visible {
     background: rgba(66, 114, 255, 0.05);
 }
 
+#personal-tab .weekly-toggle-btn svg,
 #personal-tab .weekly-toggle-btn i {
-    color: var(--wireframe-personal-border);
+    color: var(--wireframe-personal-border) !important;
+    stroke: var(--wireframe-personal-border) !important;
 }
 
 #personal-tab .weekly-expanded-view {
     border-top-color: var(--wireframe-personal-border);
+}
+
+/* Couple tab weekly toggle - explicit color override */
+#couple-tab .weekly-toggle-btn {
+    border-color: var(--wireframe-border);
+}
+
+#couple-tab .weekly-toggle-btn:hover {
+    background: rgba(56, 0, 10, 0.05);
+}
+
+#couple-tab .weekly-toggle-btn svg,
+#couple-tab .weekly-toggle-btn i {
+    color: var(--wireframe-border) !important;
+    stroke: var(--wireframe-border) !important;
 }
 
 #personal-tab .weekly-expanded-subtitle {
