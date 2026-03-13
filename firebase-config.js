@@ -6,6 +6,14 @@
 // 4. Copy the config values below
 // 5. Enable Firestore Database in Firebase Console
 
+// ⚠️ IMPORTANT: The API key below is SAFE to be public in GitHub
+// Firebase API keys are not secret - they just identify your project.
+// Real security comes from:
+// - Firestore Security Rules (see FIREBASE_SECURITY_SETUP.md)
+// - Firebase Authentication (only logged-in users can access data)
+// - Authorized Domains (prevents API key use on other websites)
+//
+// Learn more: https://firebase.google.com/docs/projects/api-keys
 
 export const firebaseConfig = {
     apiKey: "AIzaSyBYrHYxTZGZkNbo-vXiQ7fR7PX6oEZaM90",

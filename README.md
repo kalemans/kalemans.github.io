@@ -2,6 +2,22 @@
 
 A personal goal tracking app for couples and individuals.
 
+## 🔒 IMPORTANT: Security Setup Required
+
+**Before using this app, you MUST configure Firebase security:**
+
+👉 **Read: [FIREBASE_SECURITY_SETUP.md](FIREBASE_SECURITY_SETUP.md)**
+
+This takes 5 minutes and protects your data. Without it, your goals data may be publicly accessible!
+
+**Quick checklist:**
+- [ ] Apply Firestore Security Rules
+- [ ] Configure Authorized Domains
+- [ ] Enable Firebase Authentication
+- [ ] Create user accounts
+
+---
+
 ## Features
 - ✅ Secure Firebase Authentication (no passwords in code!)
 - ✅ Edit previous days' data with date picker
@@ -13,7 +29,17 @@ A personal goal tracking app for couples and individuals.
 
 ## Setup
 
-### 1. Firebase Configuration
+### 1. Secure Your Firebase Project (REQUIRED)
+
+**📖 Follow the complete guide: [FIREBASE_SECURITY_SETUP.md](FIREBASE_SECURITY_SETUP.md)**
+
+Quick summary:
+1. Apply Firestore Security Rules (blocks unauthorized access)
+2. Configure Authorized Domains (prevents API key misuse)
+3. Enable Firebase Authentication
+4. Create user accounts
+
+### 2. Firebase Configuration
 Update `firebase-config.js` with your Firebase project credentials.
 
 ### 2. Enable Firebase Authentication
