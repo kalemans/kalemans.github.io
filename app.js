@@ -483,7 +483,7 @@ function updateTabDate(tabType) {
     const bannerEl = document.getElementById(`${tabType}-date-banner`);
     const bannerTextEl = document.getElementById(`${tabType}-banner-text`);
 
-    if (dateEl) dateEl.textContent = formattedDate;
+    if (dateEl) dateEl.textContent = `> ${formattedDate}`;
     if (datePickerEl) datePickerEl.value = viewedDate;
 
     // Show/hide banner if viewing past date
@@ -1891,7 +1891,7 @@ function renderWeeklyOverview(data) {
     // Set week range
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    weekRangeEl.textContent = `> ${firstDay} - ${lastDay}`;
+    weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
 }
 
 function renderWeeklyOverviewPersonal(data) {
@@ -1947,7 +1947,7 @@ function renderWeeklyOverviewPersonal(data) {
     // Set week range
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    weekRangeEl.textContent = `> ${firstDay} - ${lastDay}`;
+    weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
 }
 
 // ===================================
@@ -1982,7 +1982,7 @@ function toggleWeeklyView(type) {
         toggle.classList.add('expanded');
         barChart.style.display = 'none';
         expandedView.classList.remove('hidden');
-        weekRange.textContent = '> Last 8 Weeks';
+        weekRange.textContent = 'Last 8 Weeks';
 
         // Render expanded view
         renderExpandedWeeklyView(type);
