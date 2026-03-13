@@ -300,48 +300,40 @@ input, select, textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
-    padding: 0 12px;
-    background: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 2px;
+    gap: 12px;
+    padding: 0 24px;
+    background: white;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
     font-weight: 500;
     font-size: 14px;
     height: 40px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     font-family: 'Roboto', 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.25px;
 }
 
 .google-signin-btn:hover {
-    background: #357ae8;
-    box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.3);
+    background: #f8f9fa;
+    box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
 }
 
 .google-signin-btn:active {
-    background: #3367d6;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+    background: #f1f3f4;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
 .google-signin-btn:disabled {
-    background: #4285f4;
+    background: white;
     opacity: 0.6;
     cursor: not-allowed;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .google-icon {
     flex-shrink: 0;
-    background: white;
-    padding: 8px;
-    border-radius: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: -4px;
     width: 18px;
     height: 18px;
 }
