@@ -1,5 +1,5 @@
 import { PREDEFINED_TASKS } from './config.js';
-import { firebaseConfig, isFirebaseConfigured, AUTH_CONFIG } from './firebase-config.js';
+import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
 // Version
 const APP_VERSION = '4.2.2';
@@ -29,79 +29,16 @@ let filters = {
 };
 
 // ===================================
-// AUTHENTICATION HELPERS
+// AUTHENTICATION HELPERS (Firebase Auth)
 // ===================================
 
-const AUTH_TOKEN_KEY = 'goals_auth_token';
-
-// Hash password using SHA-256
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Check if user is authenticated
-function isAuthenticated() {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (!token) return false;
-
-    try {
-        const authData = JSON.parse(token);
-        const expiryDate = new Date(authData.expiry);
-        const now = new Date();
-
-        // Check if token is expired
-        if (now > expiryDate) {
-            localStorage.removeItem(AUTH_TOKEN_KEY);
-            return false;
-        }
-
-        return authData.authenticated === true;
-    } catch (e) {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        return false;
-    }
-}
-
-// Store authentication token
-function storeAuthToken(rememberMe) {
-    const now = new Date();
-    const expiry = new Date(now);
-
-    if (rememberMe) {
-        expiry.setDate(expiry.getDate() + AUTH_CONFIG.tokenExpiryDays);
-    } else {
-        // Session only - expires in 24 hours
-        expiry.setHours(expiry.getHours() + 24);
-    }
-
-    const authData = {
-        authenticated: true,
-        expiry: expiry.toISOString(),
-        created: now.toISOString()
-    };
-
-    localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify(authData));
-}
-
-// Clear authentication
-function clearAuth() {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-}
-
-// Verify password
-async function verifyPassword(password) {
-    const hash = await hashPassword(password);
-    return hash === AUTH_CONFIG.passwordHash;
-}
+let auth = null; // Firebase Auth instance
 
 // DOM Elements
 const authScreen = document.getElementById('auth-screen');
 const mainApp = document.getElementById('main-app');
 const loadingScreen = document.getElementById('loading-screen');
+const emailInput = document.getElementById('email-input');
 const passwordInput = document.getElementById('password-input');
 const rememberMeCheckbox = document.getElementById('remember-me-checkbox');
 const authButton = document.getElementById('auth-button');
@@ -179,6 +116,7 @@ async function init() {
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
+        auth = firebase.auth();
         debugLog('✓ Firebase initialized', { projectId: firebaseConfig.projectId });
     } catch (error) {
         debugLog('✗ Firebase initialization failed', { error: error.message });
@@ -190,24 +128,32 @@ async function init() {
     // Set up authentication handlers
     setupAuth();
 
-    // Check if already authenticated
-    if (isAuthenticated()) {
-        debugLog('✓ User already authenticated');
-        showMainApp();
-        await loadApp();
+    // Set up auth state listener
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            // User is signed in
+            debugLog('✓ User authenticated', { email: user.email });
+            showMainApp();
 
-        // Set up event listeners
-        setupTabs();
-        updateDashboardDate();
-        setupModal();
-        setupMobileFeatures();
-        setupFilters();
-        setupDayMonthToggle();
-        setupDatePickers();
-    } else {
-        debugLog('⚠️ User not authenticated - showing login');
-        showAuthScreen();
-    }
+            // Only load app once
+            if (!currentData) {
+                await loadApp();
+
+                // Set up event listeners
+                setupTabs();
+                updateDashboardDate();
+                setupModal();
+                setupMobileFeatures();
+                setupFilters();
+                setupDayMonthToggle();
+                setupDatePickers();
+            }
+        } else {
+            // User is signed out
+            debugLog('⚠️ User not authenticated - showing login');
+            showAuthScreen();
+        }
+    });
 }
 
 function showAuthScreen() {
@@ -225,6 +171,12 @@ function setupAuth() {
     authButton.addEventListener('click', handleLogin);
 
     // Allow Enter key to submit
+    emailInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    });
+
     passwordInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleLogin();
@@ -239,11 +191,12 @@ function setupAuth() {
 }
 
 async function handleLogin() {
+    const email = emailInput.value.trim();
     const password = passwordInput.value;
     const rememberMe = rememberMeCheckbox.checked;
 
-    if (!password) {
-        showAuthError('Please enter a password');
+    if (!email || !password) {
+        showAuthError('Please enter email and password');
         return;
     }
 
@@ -253,45 +206,62 @@ async function handleLogin() {
     authError.textContent = '';
 
     try {
-        const isValid = await verifyPassword(password);
+        // Set persistence based on "Remember Me"
+        const persistence = rememberMe
+            ? firebase.auth.Auth.Persistence.LOCAL  // Persists across browser sessions
+            : firebase.auth.Auth.Persistence.SESSION; // Cleared when browser closes
 
-        if (isValid) {
-            debugLog('✓ Login successful');
-            storeAuthToken(rememberMe);
-            passwordInput.value = '';
+        await auth.setPersistence(persistence);
 
-            showMainApp();
-            await loadApp();
+        // Sign in with email/password
+        await auth.signInWithEmailAndPassword(email, password);
 
-            // Set up event listeners
-            setupTabs();
-            updateDashboardDate();
-            setupModal();
-            setupMobileFeatures();
-            setupFilters();
-            setupDayMonthToggle();
-            setupDatePickers();
-        } else {
-            debugLog('✗ Login failed - incorrect password');
-            showAuthError('Incorrect password');
-            passwordInput.value = '';
-            passwordInput.focus();
-        }
+        debugLog('✓ Login successful', { email });
+
+        // Clear inputs
+        emailInput.value = '';
+        passwordInput.value = '';
+
+        // onAuthStateChanged will handle the rest
     } catch (error) {
-        debugLog('✗ Login error', { error: error.message });
-        showAuthError('An error occurred. Please try again.');
+        debugLog('✗ Login failed', { error: error.message });
+
+        // User-friendly error messages
+        let errorMessage = 'Login failed. Please try again.';
+
+        if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Invalid email address';
+        } else if (error.code === 'auth/user-not-found') {
+            errorMessage = 'No account found with this email';
+        } else if (error.code === 'auth/wrong-password') {
+            errorMessage = 'Incorrect password';
+        } else if (error.code === 'auth/invalid-credential') {
+            errorMessage = 'Invalid email or password';
+        } else if (error.code === 'auth/too-many-requests') {
+            errorMessage = 'Too many failed attempts. Try again later.';
+        }
+
+        showAuthError(errorMessage);
+        passwordInput.value = '';
+        passwordInput.focus();
     } finally {
         authButton.disabled = false;
         authButton.textContent = 'Login';
     }
 }
 
-function handleLogout() {
+async function handleLogout() {
     const confirmed = confirm('Are you sure you want to logout?');
     if (confirmed) {
-        debugLog('🚪 User logged out');
-        clearAuth();
-        location.reload();
+        try {
+            debugLog('🚪 User logging out');
+            await auth.signOut();
+            debugLog('✓ User logged out successfully');
+            // onAuthStateChanged will handle showing login screen
+        } catch (error) {
+            debugLog('✗ Logout error', { error: error.message });
+            showToast('Error logging out', 'error');
+        }
     }
 }
 
