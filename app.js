@@ -43,35 +43,13 @@ const authError = document.getElementById('auth-error');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
 
-// Debug panel elements
-let debugPanel = null;
-let debugContent = null;
-let debugToggle = null;
-
-// Debug logging function
+// Debug logging function (console only)
 function debugLog(message, data = null) {
-    console.log(message, data || '');
-
-    if (!debugContent) {
-        setTimeout(() => debugLog(message, data), 100);
-        return;
-    }
-
     const timestamp = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });
-    const entry = document.createElement('div');
-    entry.className = 'debug-entry';
-
-    let logText = `<span class="debug-timestamp">${timestamp}</span>${message}`;
     if (data) {
-        logText += `<br><pre style="margin: 0.25rem 0 0 0; font-size: 0.7rem; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>`;
-    }
-
-    entry.innerHTML = logText;
-    debugContent.appendChild(entry);
-    debugContent.scrollTop = debugContent.scrollHeight;
-
-    while (debugContent.children.length > 100) {
-        debugContent.removeChild(debugContent.firstChild);
+        console.log(`[${timestamp}] ${message}`, data);
+    } else {
+        console.log(`[${timestamp}] ${message}`);
     }
 }
 
@@ -80,23 +58,6 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
     loadingScreen.classList.add('hidden');
-
-    // Initialize debug panel
-    debugPanel = document.getElementById('debug-panel');
-    debugContent = document.getElementById('debug-content');
-    debugToggle = document.getElementById('debug-toggle');
-
-    document.getElementById('debug-close').addEventListener('click', () => {
-        debugPanel.classList.add('hidden');
-    });
-
-    debugToggle.addEventListener('click', () => {
-        debugPanel.classList.toggle('hidden');
-    });
-
-    document.getElementById('debug-clear').addEventListener('click', () => {
-        debugContent.innerHTML = '';
-    });
 
     debugLog(`🚀 App v${APP_VERSION} started with Firebase`);
 
