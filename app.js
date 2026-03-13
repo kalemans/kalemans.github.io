@@ -133,10 +133,22 @@ function showMainApp() {
     mainApp.classList.remove('hidden');
 }
 
+// Prevent multiple simultaneous sign-in attempts
+let isSigningIn = false;
+
 // Google Sign-In callback (called by Google Identity Services)
 // Must be globally accessible
 window.handleGoogleCredential = async function(response) {
-    debugLog('✓ Google credential received');
+    // Prevent multiple simultaneous attempts
+    if (isSigningIn) {
+        debugLog('⚠️ Sign-in already in progress, ignoring duplicate request');
+        return;
+    }
+
+    isSigningIn = true;
+    debugLog('✓ Google credential received', {
+        credentialLength: response.credential?.length
+    });
 
     // Clear any previous errors
     authError.textContent = '';
@@ -153,13 +165,18 @@ window.handleGoogleCredential = async function(response) {
 
         debugLog('✓ Google Sign-In successful', {
             email: result.user.email,
-            displayName: result.user.displayName
+            displayName: result.user.displayName,
+            uid: result.user.uid
         });
 
         // onAuthStateChanged will handle the rest
 
     } catch (error) {
-        debugLog('✗ Google Sign-In failed', { error: error.message, code: error.code });
+        debugLog('✗ Google Sign-In failed', {
+            error: error.message,
+            code: error.code,
+            stack: error.stack
+        });
 
         // User-friendly error messages
         let errorMessage = 'Sign in failed. Please try again.';
@@ -177,6 +194,12 @@ window.handleGoogleCredential = async function(response) {
         }
 
         showAuthError(errorMessage);
+        isSigningIn = false; // Reset on error
+    } finally {
+        // Reset after 2 seconds to allow retry
+        setTimeout(() => {
+            isSigningIn = false;
+        }, 2000);
     }
 };
 
