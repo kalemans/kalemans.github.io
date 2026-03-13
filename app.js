@@ -182,6 +182,11 @@ async function handleGoogleSignIn() {
         // Create Google auth provider
         const provider = new firebase.auth.GoogleAuthProvider();
 
+        // Force account picker to show every time
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
         // Sign in with popup
         const result = await auth.signInWithPopup(provider);
 
