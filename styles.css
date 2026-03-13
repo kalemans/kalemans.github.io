@@ -2323,13 +2323,17 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
     padding: 0;
     flex-shrink: 0;
 }
 
 .weekly-toggle-btn:hover {
     background: rgba(56, 0, 10, 0.05);
+}
+
+.weekly-toggle-btn:active {
+    transform: none;
 }
 
 .weekly-toggle-btn i {
