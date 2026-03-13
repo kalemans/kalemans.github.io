@@ -1771,6 +1771,8 @@ function setupModal() {
     const modalClose = document.querySelector('.modal-close');
     const goalForm = document.getElementById('goal-form');
     const addGoalButtons = document.querySelectorAll('.add-goal-button');
+    const categorySelect = document.getElementById('goal-category');
+    const newCategoryGroup = document.getElementById('new-category-group');
 
     // Open modal when clicking "Add Goal" buttons
     addGoalButtons.forEach(button => {
@@ -1797,6 +1799,18 @@ function setupModal() {
 
     // Cancel button
     document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+
+    // Listen for category selection changes
+    categorySelect.addEventListener('change', (e) => {
+        if (e.target.value === '__new__') {
+            newCategoryGroup.style.display = 'block';
+            document.getElementById('new-category').required = true;
+        } else {
+            newCategoryGroup.style.display = 'none';
+            document.getElementById('new-category').required = false;
+            document.getElementById('new-category').value = '';
+        }
+    });
 
     // Form submission
     goalForm.addEventListener('submit', handleGoalFormSubmit);
@@ -1839,11 +1853,16 @@ function openModal(goalType = 'personal', editMode = false) {
         populatePredefinedGoals(goalType);
     }
 
+    // Populate categories dropdown
+    populateCategories();
+
     // Listen for predefined goal selection
     predefinedGoalsSelect.addEventListener('change', (e) => {
         if (e.target.value) {
             const selectedGoal = JSON.parse(e.target.value);
             document.getElementById('goal-name').value = selectedGoal.name;
+
+            // Set category from predefined goal (will always exist in dropdown)
             document.getElementById('goal-category').value = selectedGoal.category;
             document.getElementById('goal-frequency').value = selectedGoal.frequency;
         } else {
@@ -1886,6 +1905,54 @@ function populatePredefinedGoals(goalType) {
     });
 }
 
+function populateCategories() {
+    const categorySelect = document.getElementById('goal-category');
+    const currentValue = categorySelect.value; // Save current selection
+
+    // Clear existing options except the first one
+    categorySelect.innerHTML = '<option value="">-- Select a category --</option>';
+
+    // Collect all unique categories from all tasks
+    const categories = new Set();
+
+    // Add categories from predefined tasks
+    Object.keys(PREDEFINED_TASKS).forEach(type => {
+        PREDEFINED_TASKS[type].forEach(task => {
+            if (task.category) {
+                categories.add(task.category);
+            }
+        });
+    });
+
+    // Add categories from custom tasks
+    if (currentData && currentData.customTasks) {
+        currentData.customTasks.forEach(task => {
+            if (task.category) {
+                categories.add(task.category);
+            }
+        });
+    }
+
+    // Sort categories alphabetically and add to dropdown
+    Array.from(categories).sort().forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+    });
+
+    // Add "New Category..." option
+    const newOption = document.createElement('option');
+    newOption.value = '__new__';
+    newOption.textContent = '+ New Category...';
+    categorySelect.appendChild(newOption);
+
+    // Restore previous selection if it exists
+    if (currentValue && Array.from(categorySelect.options).some(opt => opt.value === currentValue)) {
+        categorySelect.value = currentValue;
+    }
+}
+
 function closeModal() {
     const modal = document.getElementById('goal-modal');
     modal.classList.add('hidden');
@@ -1895,13 +1962,14 @@ function closeModal() {
 function openEditModal(task) {
     editingGoalId = task.id;
 
-    // Pre-fill form with task data
+    // Open modal first (this will populate categories)
+    openModal(task.type, true);
+
+    // Pre-fill form with task data after modal is opened
     document.getElementById('goal-type').value = task.type;
     document.getElementById('goal-name').value = task.name;
     document.getElementById('goal-category').value = task.category;
     document.getElementById('goal-frequency').value = task.frequency;
-
-    openModal(task.type, true);
 }
 
 function confirmDeleteGoal(task) {
@@ -2308,8 +2376,18 @@ async function handleGoalFormSubmit(e) {
 
     const goalType = document.getElementById('goal-type').value;
     const goalName = document.getElementById('goal-name').value.trim();
-    const goalCategory = document.getElementById('goal-category').value.trim();
+    let goalCategory = document.getElementById('goal-category').value.trim();
     const goalFrequency = document.getElementById('goal-frequency').value;
+
+    // Check if user selected "New Category" option
+    if (goalCategory === '__new__') {
+        const newCategory = document.getElementById('new-category').value.trim();
+        if (!newCategory) {
+            showToast('Please enter a new category name', 'error');
+            return;
+        }
+        goalCategory = newCategory;
+    }
 
     if (!goalName || !goalCategory) {
         showToast('Please fill in all fields', 'error');

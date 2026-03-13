@@ -281,7 +281,13 @@
                     </div>
                     <div class="form-group">
                         <label for="goal-category">Category</label>
-                        <input type="text" id="goal-category" placeholder="e.g., Wellness, Active" required />
+                        <select id="goal-category" required>
+                            <option value="">-- Select a category --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="new-category-group" style="display: none;">
+                        <label for="new-category">New Category Name</label>
+                        <input type="text" id="new-category" placeholder="Enter new category name" />
                     </div>
                     <div class="form-group">
                         <label for="goal-frequency">Frequency</label>
