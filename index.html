@@ -47,11 +47,26 @@
         <main class="tab-content">
             <!-- Personal Tab -->
             <div id="personal-tab" class="tab-pane active personal-tab-wireframe">
+                <!-- Date Navigation Banner (Hidden by default) -->
+                <div id="personal-date-banner" class="date-banner hidden">
+                    <div class="date-banner-content">
+                        <i data-lucide="calendar"></i>
+                        <span id="personal-banner-text">Viewing past date</span>
+                    </div>
+                    <button class="back-to-today-btn" id="personal-back-to-today">
+                        <i data-lucide="calendar-check"></i>
+                        Back to Today
+                    </button>
+                </div>
+
                 <!-- Sticky Header -->
                 <div class="personal-sticky-header">
                     <div class="dashboard-header-left">
                         <h2 class="personal-tab-title">Dashboard</h2>
-                        <div class="dashboard-date" id="personal-dashboard-date"></div>
+                        <div class="dashboard-date-container">
+                            <div class="dashboard-date" id="personal-dashboard-date"></div>
+                            <input type="date" id="personal-date-picker" class="date-picker-input" />
+                        </div>
                     </div>
                     <button class="filter-trigger-btn" id="personal-filter-btn" aria-label="Open filters">
                         <i data-lucide="sliders-horizontal"></i>
@@ -109,11 +124,26 @@
 
             <!-- Couple Tab -->
             <div id="couple-tab" class="tab-pane couple-tab-wireframe">
+                <!-- Date Navigation Banner (Hidden by default) -->
+                <div id="couple-date-banner" class="date-banner hidden">
+                    <div class="date-banner-content">
+                        <i data-lucide="calendar"></i>
+                        <span id="couple-banner-text">Viewing past date</span>
+                    </div>
+                    <button class="back-to-today-btn" id="couple-back-to-today">
+                        <i data-lucide="calendar-check"></i>
+                        Back to Today
+                    </button>
+                </div>
+
                 <!-- Sticky Header -->
                 <div class="couple-sticky-header">
                     <div class="dashboard-header-left">
                         <h2 class="couple-tab-title">Dashboard</h2>
-                        <div class="dashboard-date" id="couple-dashboard-date"></div>
+                        <div class="dashboard-date-container">
+                            <div class="dashboard-date" id="couple-dashboard-date"></div>
+                            <input type="date" id="couple-date-picker" class="date-picker-input" />
+                        </div>
                     </div>
                     <button class="filter-trigger-btn" id="couple-filter-btn" aria-label="Open filters">
                         <i data-lucide="sliders-horizontal"></i>

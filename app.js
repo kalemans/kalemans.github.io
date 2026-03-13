@@ -10,6 +10,12 @@ console.log('🚀 APP.JS LOADED - VERSION 4.2.2 - CRITICAL FIXES');
 let currentData = null;
 let db = null;
 
+// Date state - tracks the currently viewed date for each tab
+let viewedDates = {
+    personal: null,  // Will be initialized to today
+    couple: null     // Will be initialized to today
+};
+
 // Filter state
 let filters = {
     personal: {
@@ -122,6 +128,7 @@ async function init() {
     setupMobileFeatures();
     setupFilters();
     setupDayMonthToggle();
+    setupDatePickers();
 }
 
 function showAuthScreen() {
@@ -311,15 +318,40 @@ function updateBodyBackground(tab) {
 }
 
 function updateDashboardDate() {
-    const today = new Date();
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    const formattedDate = today.toLocaleDateString('en-US', options);
+    // Initialize viewed dates if not set
+    if (!viewedDates.personal) viewedDates.personal = getTodayString();
+    if (!viewedDates.couple) viewedDates.couple = getTodayString();
 
-    const personalDateEl = document.getElementById('personal-dashboard-date');
-    const coupleDateEl = document.getElementById('couple-dashboard-date');
+    updateTabDate('personal');
+    updateTabDate('couple');
+}
 
-    if (personalDateEl) personalDateEl.textContent = formattedDate;
-    if (coupleDateEl) coupleDateEl.textContent = formattedDate;
+function updateTabDate(tabType) {
+    const viewedDate = viewedDates[tabType];
+    const dateObj = new Date(viewedDate + 'T00:00:00');
+    const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedDate = dateObj.toLocaleDateString('en-US', options);
+
+    const dateEl = document.getElementById(`${tabType}-dashboard-date`);
+    const datePickerEl = document.getElementById(`${tabType}-date-picker`);
+    const bannerEl = document.getElementById(`${tabType}-date-banner`);
+    const bannerTextEl = document.getElementById(`${tabType}-banner-text`);
+
+    if (dateEl) dateEl.textContent = formattedDate;
+    if (datePickerEl) datePickerEl.value = viewedDate;
+
+    // Show/hide banner if viewing past date
+    const isToday = viewedDate === getTodayString();
+    if (bannerEl) {
+        if (isToday) {
+            bannerEl.classList.add('hidden');
+        } else {
+            bannerEl.classList.remove('hidden');
+            if (bannerTextEl) {
+                bannerTextEl.textContent = `Viewing ${formattedDate}`;
+            }
+        }
+    }
 }
 
 function renderGoals(data) {
@@ -381,7 +413,8 @@ function renderPersonalGoals(data) {
     // Render weekly overview
     renderWeeklyOverviewPersonal(data);
 
-    const today = getTodayString();
+    // Use the viewed date for this tab
+    const viewedDate = viewedDates.personal || getTodayString();
     let tasks = getAllTasksWithType(data, 'personal');
 
     // Update category filters for modal
@@ -416,7 +449,7 @@ function renderPersonalGoals(data) {
     }
 
     tasks.forEach((task, index) => {
-        const completed = data.completions[today]?.[task.id]?.completed || false;
+        const completed = data.completions[viewedDate]?.[task.id]?.completed || false;
         const card = createGoalCard(task, completed, data);
         card.style.animationDelay = `${index * 0.05}s`;
         container.appendChild(card);
@@ -430,7 +463,8 @@ function renderCoupleGoals(data) {
     // Render weekly overview
     renderWeeklyOverview(data);
 
-    const today = getTodayString();
+    // Use the viewed date for this tab
+    const viewedDate = viewedDates.couple || getTodayString();
     let tasks = getAllTasksWithType(data, 'couple');
 
     // Update category filters for modal
@@ -467,7 +501,7 @@ function renderCoupleGoals(data) {
     }
 
     tasks.forEach((task, index) => {
-        const completed = data.completions[today]?.[task.id]?.completed || false;
+        const completed = data.completions[viewedDate]?.[task.id]?.completed || false;
         const card = createGoalCard(task, completed, data);
         card.style.animationDelay = `${index * 0.05}s`;
         container.appendChild(card);
@@ -516,7 +550,7 @@ function createGoalCard(task, completed, data) {
     console.log(`✅ Wireframe HTML set for ${task.name}, className: ${card.className}`);
 
     const starBtn = card.querySelector('.wireframe-goal-star');
-    starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, data));
+    starBtn.addEventListener('click', () => toggleGoalCompletion(task.id, task.type, data));
 
     // Add action button listeners for all goals
     const editBtn = card.querySelector('.edit-btn');
@@ -637,52 +671,57 @@ function closeCardActions(card) {
     }
 }
 
-async function toggleGoalCompletion(taskId, data) {
-    const today = getTodayString();
+async function toggleGoalCompletion(taskId, taskType, data) {
+    // Use the viewed date for the task's tab type
+    const targetDate = viewedDates[taskType] || getTodayString();
 
-    if (!data.completions[today]) {
-        data.completions[today] = {};
+    if (!data.completions[targetDate]) {
+        data.completions[targetDate] = {};
     }
 
-    const isCurrentlyCompleted = data.completions[today][taskId]?.completed || false;
+    const isCurrentlyCompleted = data.completions[targetDate][taskId]?.completed || false;
     const nowCompleted = !isCurrentlyCompleted;
 
-    data.completions[today][taskId] = {
+    data.completions[targetDate][taskId] = {
         completed: nowCompleted,
         timestamp: new Date().toISOString()
     };
 
-    // Update streaks
-    if (!data.streaks) data.streaks = {};
-    if (!data.streaks[taskId]) {
-        data.streaks[taskId] = { current: 0, longest: 0 };
-    }
-
-    if (nowCompleted) {
-        // Increment streak
-        data.streaks[taskId].current += 1;
-        if (data.streaks[taskId].current > data.streaks[taskId].longest) {
-            data.streaks[taskId].longest = data.streaks[taskId].current;
+    // Only update streaks if editing today's date
+    const isToday = targetDate === getTodayString();
+    if (isToday) {
+        // Update streaks
+        if (!data.streaks) data.streaks = {};
+        if (!data.streaks[taskId]) {
+            data.streaks[taskId] = { current: 0, longest: 0 };
         }
 
-        // Celebrate with confetti!
-        if (typeof confetti !== 'undefined') {
-            // Rainbow colors for all celebrations
-            const rainbowColors = ['#FF1744', '#FF9100', '#FFD600', '#00E676', '#2979FF', '#651FFF', '#E91E63'];
+        if (nowCompleted) {
+            // Increment streak
+            data.streaks[taskId].current += 1;
+            if (data.streaks[taskId].current > data.streaks[taskId].longest) {
+                data.streaks[taskId].longest = data.streaks[taskId].current;
+            }
 
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: rainbowColors
-            });
+            // Celebrate with confetti!
+            if (typeof confetti !== 'undefined') {
+                // Rainbow colors for all celebrations
+                const rainbowColors = ['#FF1744', '#FF9100', '#FFD600', '#00E676', '#2979FF', '#651FFF', '#E91E63'];
+
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: rainbowColors
+                });
+            }
+
+            // Check if all goals are completed
+            checkAllGoalsCompleted(data, targetDate);
+        } else {
+            // Reset streak
+            data.streaks[taskId].current = 0;
         }
-
-        // Check if all goals are completed
-        checkAllGoalsCompleted(data, today);
-    } else {
-        // Reset streak
-        data.streaks[taskId].current = 0;
     }
 
     currentData = data;
@@ -1171,6 +1210,67 @@ function setupDayMonthToggle() {
             window.lucide.createIcons();
         }
     }
+}
+
+// ===================================
+// DATE PICKER SETUP
+// ===================================
+
+function setupDatePickers() {
+    // Personal tab date picker
+    const personalDatePicker = document.getElementById('personal-date-picker');
+    const personalBackToToday = document.getElementById('personal-back-to-today');
+
+    if (personalDatePicker) {
+        personalDatePicker.addEventListener('change', (e) => {
+            changeViewedDate('personal', e.target.value);
+        });
+    }
+
+    if (personalBackToToday) {
+        personalBackToToday.addEventListener('click', () => {
+            backToToday('personal');
+        });
+    }
+
+    // Couple tab date picker
+    const coupleDatePicker = document.getElementById('couple-date-picker');
+    const coupleBackToToday = document.getElementById('couple-back-to-today');
+
+    if (coupleDatePicker) {
+        coupleDatePicker.addEventListener('change', (e) => {
+            changeViewedDate('couple', e.target.value);
+        });
+    }
+
+    if (coupleBackToToday) {
+        coupleBackToToday.addEventListener('click', () => {
+            backToToday('couple');
+        });
+    }
+}
+
+function changeViewedDate(tabType, newDate) {
+    viewedDates[tabType] = newDate;
+    updateTabDate(tabType);
+
+    // Re-render the goals for this tab
+    if (currentData) {
+        if (tabType === 'personal') {
+            renderPersonalGoals(currentData);
+        } else if (tabType === 'couple') {
+            renderCoupleGoals(currentData);
+        }
+    }
+
+    // Initialize Lucide icons for the banner
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
+
+function backToToday(tabType) {
+    changeViewedDate(tabType, getTodayString());
 }
 
 // ===================================
