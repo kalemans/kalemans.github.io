@@ -28,6 +28,12 @@ let filters = {
     }
 };
 
+// Weekly view state (collapsed/expanded)
+let weeklyViewExpanded = {
+    personal: false,
+    couple: false
+};
+
 // ===================================
 // AUTHENTICATION HELPERS (Firebase Auth)
 // ===================================
@@ -113,6 +119,7 @@ async function init() {
             setupFilters();
             setupDayMonthToggle();
             setupDatePickers();
+            setupWeeklyToggles();
 
             // Set up logout button now that main app is visible
             setupLogoutButton();
@@ -1941,6 +1948,155 @@ function renderWeeklyOverviewPersonal(data) {
     const firstDay = days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const lastDay = days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     weekRangeEl.textContent = `${firstDay} - ${lastDay}`;
+}
+
+// ===================================
+// WEEKLY TOGGLE & MULTI-WEEK VIEW
+// ===================================
+
+function setupWeeklyToggles() {
+    const personalToggle = document.getElementById('personal-weekly-toggle');
+    const coupleToggle = document.getElementById('couple-weekly-toggle');
+
+    if (personalToggle) {
+        personalToggle.addEventListener('click', () => toggleWeeklyView('personal'));
+    }
+
+    if (coupleToggle) {
+        coupleToggle.addEventListener('click', () => toggleWeeklyView('couple'));
+    }
+}
+
+function toggleWeeklyView(type) {
+    weeklyViewExpanded[type] = !weeklyViewExpanded[type];
+
+    const card = document.getElementById(`${type}-weekly-card`);
+    const toggle = document.getElementById(`${type}-weekly-toggle`);
+    const barChart = document.getElementById(`${type}-weekly-chart`);
+    const expandedView = document.getElementById(`${type}-weekly-expanded`);
+    const weekRange = document.getElementById(`${type}-week-range`);
+
+    if (weeklyViewExpanded[type]) {
+        // Expand view
+        card.classList.add('expanded');
+        toggle.classList.add('expanded');
+        barChart.style.display = 'none';
+        expandedView.classList.remove('hidden');
+        weekRange.textContent = 'Last 8 Weeks';
+
+        // Render expanded view
+        renderExpandedWeeklyView(type);
+    } else {
+        // Collapse view
+        card.classList.remove('expanded');
+        toggle.classList.remove('expanded');
+        barChart.style.display = 'flex';
+        expandedView.classList.add('hidden');
+
+        // Restore week range (will be set by normal render)
+        if (type === 'personal') {
+            renderWeeklyOverviewPersonal(currentData);
+        } else {
+            renderWeeklyOverview(currentData);
+        }
+    }
+
+    // Reinitialize lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function renderExpandedWeeklyView(type) {
+    const expandedView = document.getElementById(`${type}-weekly-expanded`);
+    if (!expandedView || !currentData) return;
+
+    const weeklyStats = calculateMultiWeekStats(currentData, type, 8);
+
+    const html = `
+        <div class="weekly-expanded-subtitle">Past 8 Weeks Completion</div>
+        ${weeklyStats.map(week => `
+            <div class="weekly-expanded-row">
+                <div class="weekly-expanded-label">${week.label}</div>
+                <div class="weekly-expanded-bar-container">
+                    <div class="weekly-expanded-bar-fill" style="width: ${week.percentage}%"></div>
+                </div>
+                <div class="weekly-expanded-percentage">${Math.round(week.percentage)}%</div>
+            </div>
+        `).join('')}
+    `;
+
+    expandedView.innerHTML = html;
+}
+
+function calculateMultiWeekStats(data, type, numWeeks) {
+    const today = getPSTDate();
+    const weeks = [];
+
+    // Get tasks for this type (only Daily frequency)
+    const tasks = getAllTasksWithType(data, type).filter(task => task.frequency === 'Daily');
+    const totalTasks = tasks.length;
+
+    if (totalTasks === 0) {
+        // Return empty stats if no daily tasks
+        for (let i = numWeeks - 1; i >= 0; i--) {
+            weeks.push({
+                label: i === 0 ? 'This Week' : `${i + 1} weeks ago`,
+                percentage: 0,
+                completed: 0,
+                total: 0
+            });
+        }
+        return weeks;
+    }
+
+    // Calculate for each week
+    for (let weekOffset = numWeeks - 1; weekOffset >= 0; weekOffset--) {
+        const weekStart = new Date(today);
+        const currentDay = weekStart.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+
+        // Go to start of current week, then back by weekOffset weeks
+        weekStart.setDate(weekStart.getDate() + mondayOffset - (weekOffset * 7));
+
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + i);
+            weekDays.push(formatDateToPST(date));
+        }
+
+        // Calculate completion for this week
+        let totalCompleted = 0;
+        weekDays.forEach(dateStr => {
+            const completed = tasks.filter(task =>
+                data.completions[dateStr]?.[task.id]?.completed
+            ).length;
+            totalCompleted += completed;
+        });
+
+        const totalPossible = totalTasks * 7;
+        const percentage = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+
+        const startDate = new Date(weekStart);
+        const endDate = new Date(weekStart);
+        endDate.setDate(weekStart.getDate() + 6);
+
+        const label = weekOffset === 0
+            ? 'This Week'
+            : weekOffset === 1
+            ? 'Last Week'
+            : `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+        weeks.push({
+            label,
+            percentage,
+            completed: totalCompleted,
+            total: totalPossible
+        });
+    }
+
+    return weeks;
 }
 
 function calculateStats(data, type) {

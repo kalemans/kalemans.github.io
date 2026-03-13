@@ -2287,6 +2287,13 @@ select:focus-visible {
     padding: 16px;
     display: flex;
     flex-direction: column;
+    transition: height 0.3s ease;
+    overflow: hidden;
+}
+
+.weekly-overview-card.expanded {
+    height: auto;
+    min-height: 400px;
 }
 
 .weekly-overview-header {
@@ -2294,6 +2301,7 @@ select:focus-visible {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    gap: 12px;
 }
 
 .weekly-overview-title {
@@ -2302,6 +2310,37 @@ select:focus-visible {
     font-size: 16px;
     color: var(--wireframe-text-primary);
     margin: 0;
+    flex-shrink: 0;
+}
+
+.weekly-toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--wireframe-border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.weekly-toggle-btn:hover {
+    background: rgba(56, 0, 10, 0.05);
+}
+
+.weekly-toggle-btn i {
+    width: 16px;
+    height: 16px;
+    color: var(--wireframe-border);
+    transition: transform 0.3s ease;
+}
+
+.weekly-toggle-btn.expanded i {
+    transform: rotate(180deg);
 }
 
 .weekly-date-range {
@@ -2365,6 +2404,72 @@ select:focus-visible {
     font-size: 14px;
     color: var(--wireframe-text-secondary);
     text-align: center;
+}
+
+/* Weekly Expanded View */
+.weekly-expanded-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--wireframe-border);
+    margin-top: 16px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.weekly-expanded-view.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.weekly-expanded-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wireframe-text-primary);
+    margin-bottom: 8px;
+}
+
+.weekly-expanded-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.weekly-expanded-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--wireframe-text-secondary);
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.weekly-expanded-bar-container {
+    flex: 1;
+    height: 24px;
+    background: var(--wireframe-inactive);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.weekly-expanded-bar-fill {
+    height: 100%;
+    background: var(--wireframe-border);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.weekly-expanded-percentage {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wireframe-text-primary);
+    min-width: 50px;
+    text-align: right;
+    flex-shrink: 0;
 }
 
 /* Wireframe Goal Cards */
@@ -2851,6 +2956,42 @@ select:focus-visible {
 }
 
 #personal-tab .weekly-bar-percentage {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-tab .weekly-toggle-btn {
+    border-color: var(--wireframe-personal-border);
+}
+
+#personal-tab .weekly-toggle-btn:hover {
+    background: rgba(66, 114, 255, 0.05);
+}
+
+#personal-tab .weekly-toggle-btn i {
+    color: var(--wireframe-personal-border);
+}
+
+#personal-tab .weekly-expanded-view {
+    border-top-color: var(--wireframe-personal-border);
+}
+
+#personal-tab .weekly-expanded-subtitle {
+    color: var(--wireframe-personal-text-primary);
+}
+
+#personal-tab .weekly-expanded-label {
+    color: var(--wireframe-personal-text-secondary);
+}
+
+#personal-tab .weekly-expanded-bar-container {
+    background: var(--wireframe-personal-inactive);
+}
+
+#personal-tab .weekly-expanded-bar-fill {
+    background: var(--wireframe-personal-active);
+}
+
+#personal-tab .weekly-expanded-percentage {
     color: var(--wireframe-personal-text-primary);
 }
 

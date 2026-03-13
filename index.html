@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1773387690">
+    <link rel="stylesheet" href="styles.css?v=1773425085">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -101,13 +101,19 @@
                 </div>
 
                 <!-- Weekly Overview Stats Card -->
-                <div class="weekly-overview-card">
+                <div class="weekly-overview-card" id="personal-weekly-card">
                     <div class="weekly-overview-header">
                         <h3 class="weekly-overview-title">Weekly Overview</h3>
+                        <button class="weekly-toggle-btn" id="personal-weekly-toggle" aria-label="Toggle weekly view">
+                            <i data-lucide="chevron-down"></i>
+                        </button>
                         <span class="weekly-date-range" id="personal-week-range"></span>
                     </div>
                     <div class="weekly-bar-chart" id="personal-weekly-chart">
                         <!-- Bars will be generated dynamically -->
+                    </div>
+                    <div class="weekly-expanded-view hidden" id="personal-weekly-expanded">
+                        <!-- Multi-week view will be generated dynamically -->
                     </div>
                 </div>
 
@@ -178,13 +184,19 @@
                 </div>
 
                 <!-- Weekly Overview Stats Card -->
-                <div class="weekly-overview-card">
+                <div class="weekly-overview-card" id="couple-weekly-card">
                     <div class="weekly-overview-header">
                         <h3 class="weekly-overview-title">Weekly Overview</h3>
+                        <button class="weekly-toggle-btn" id="couple-weekly-toggle" aria-label="Toggle weekly view">
+                            <i data-lucide="chevron-down"></i>
+                        </button>
                         <span class="weekly-date-range" id="couple-week-range"></span>
                     </div>
                     <div class="weekly-bar-chart" id="couple-weekly-chart">
                         <!-- Bars will be generated dynamically -->
+                    </div>
+                    <div class="weekly-expanded-view hidden" id="couple-weekly-expanded">
+                        <!-- Multi-week view will be generated dynamically -->
                     </div>
                 </div>
 
@@ -396,6 +408,6 @@
         </defs>
     </svg>
 
-    <script type="module" src="app.js?v=1773389048"></script>
+    <script type="module" src="app.js?v=1773425085"></script>
 </body>
 </html>
