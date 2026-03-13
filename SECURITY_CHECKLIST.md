@@ -35,30 +35,27 @@ Complete these 4 steps to protect your data:
 
 ---
 
-## ✅ Step 3: Enable Firebase Authentication (1 min)
+## ✅ Step 3: Enable Google Sign-In (1 min)
 
 **Where:** Firebase Console → Authentication → Sign-in method
 
 **What to do:**
-1. Click **Email/Password**
+1. Click **Google**
 2. Toggle **Enable** to ON
-3. Click **Save**
+3. Enter your email as support email
+4. Click **Save**
 
-**Why:** Required for user login
+**Why:** Allows users to sign in with Google accounts
 
 ---
 
-## ✅ Step 4: Create User Accounts (2 min)
+## ✅ Step 4: Done! (0 min)
 
-**Where:** Firebase Console → Authentication → Users
+**No user accounts to create!**
 
-**What to do:**
-1. Click **Add user**
-2. Enter email and password for yourself
-3. Click **Add user** again
-4. Enter email and password for your partner
+Google Sign-In automatically creates user accounts when someone signs in for the first time.
 
-**Why:** Creates accounts for you and your partner to login
+**Why:** Google handles all account creation and management
 
 ---
 
@@ -66,11 +63,12 @@ Complete these 4 steps to protect your data:
 
 ### Test 1: Unauthenticated Access Blocked
 1. Open site in incognito window (NOT logged in)
-2. Should see login screen, not your data ✓
+2. Should see Google Sign-In button, not your data ✓
 
-### Test 2: Login Works
-1. Login with credentials you created
-2. Should see your goals data ✓
+### Test 2: Google Sign-In Works
+1. Click "Sign in with Google"
+2. Select your Google account in popup
+3. Should see your goals data ✓
 
 ### Test 3: Firestore Rules Active
 Open browser console (F12) while NOT logged in and run:
@@ -117,10 +115,13 @@ A: YES. Firebase API keys are designed to be public. Security comes from rules a
 A: NO. Not if you applied the security rules. Unauthenticated users are blocked.
 
 **Q: How long does this take?**
-A: ~10 minutes total for all 4 steps.
+A: ~5 minutes total (no user accounts to create with Google Sign-In!)
 
 **Q: Do I need to do this every time I deploy?**
 A: NO. You only need to do this once. Rules persist in Firebase.
+
+**Q: Do I need a Google account to use the app?**
+A: YES. Both you and your partner need Google accounts to sign in.
 
 ---
 

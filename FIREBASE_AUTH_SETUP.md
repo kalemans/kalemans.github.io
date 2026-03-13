@@ -2,15 +2,16 @@
 
 ## Overview
 
-Your app now uses **Firebase Authentication** instead of storing passwords in code. This means:
-- ✅ **No sensitive data in your public GitHub repo**
-- ✅ **All user credentials stored securely in Firebase**
-- ✅ **Industry-standard security**
-- ✅ **Each person (you + partner) has their own login**
+Your app uses **Google Sign-In** for authentication. This means:
+- ✅ **No passwords to remember or manage**
+- ✅ **One-click login with Google accounts**
+- ✅ **Sessions persist forever (never re-login)**
+- ✅ **Industry-standard security from Google**
+- ✅ **Each person uses their own Google account**
 
 ---
 
-## Step 1: Enable Firebase Authentication
+## Step 1: Enable Google Sign-In
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select your project: **kalemans-firebase**
@@ -18,41 +19,38 @@ Your app now uses **Firebase Authentication** instead of storing passwords in co
 4. If this is your first time:
    - Click **Get Started**
 5. Click the **Sign-in method** tab at the top
-6. Find **Email/Password** in the list
+6. Find **Google** in the list
 7. Click on it
 8. Toggle **Enable** to ON
-9. Click **Save**
+9. Enter **Project support email** (your email address)
+10. Click **Save**
 
 **Screenshot locations:**
 - Left sidebar: Authentication
 - Top tabs: Sign-in method
-- Providers list: Email/Password
+- Providers list: Google
 
 ---
 
-## Step 2: Create User Accounts
+## Step 2: No User Accounts to Create!
 
-Still in Firebase Console → Authentication → **Users** tab:
+**That's the beauty of Google Sign-In** - you don't need to create user accounts in Firebase!
 
-### Create Account for Yourself:
-1. Click **Add user** button (top right)
-2. Fill in the form:
-   - **Email**: `your-email@example.com`
-   - **Password**: `your-secure-password`
-   - **User ID**: (leave blank, auto-generated)
-3. Click **Add user**
+Anyone with a Google account can sign in. The first time they sign in, Firebase automatically creates their user account.
 
-### Create Account for Your Partner:
-1. Click **Add user** again
-2. Fill in the form:
-   - **Email**: `partner-email@example.com`
-   - **Password**: `partner-secure-password`
-3. Click **Add user**
+### Who Can Sign In:
+- ✅ You (using your Google account)
+- ✅ Your partner (using her Google account)
+- ❌ Random people (only if you share the URL, but data is still protected by Firestore rules)
 
-**Tips:**
-- Use real email addresses (they won't receive emails, it's just for login)
-- Choose memorable passwords - you'll use these to login
-- Passwords should be secure but memorable
+### First-Time Login:
+When someone clicks "Sign in with Google":
+1. Google popup appears
+2. They select their Google account
+3. Firebase creates their user account automatically
+4. They're logged in!
+
+**No manual account creation needed!**
 
 ---
 
@@ -60,60 +58,82 @@ Still in Firebase Console → Authentication → **Users** tab:
 
 1. Visit your site: https://kalemans.github.io
 2. You should see a login screen with:
-   - Email field
-   - Password field
-   - "Remember me" checkbox
-   - Login button
+   - **"Sign in with Google"** button
 
-3. Login with one of the accounts you created:
-   - Enter the email
-   - Enter the password
-   - Check "Remember me" (optional)
-   - Click Login
+3. Click the button:
+   - Google popup will appear
+   - Select your Google account
+   - Click "Allow" if prompted
+   - You're logged in!
 
 4. If successful, you should see the app!
 
 ---
 
-## Step 4: Share Credentials with Your Partner
+## Step 4: Share with Your Partner
 
-Send your partner their login credentials securely:
-- Email: `[the email you created for them]`
-- Password: `[the password you set]`
+Send your partner the website URL:
+- **URL**: https://kalemans.github.io
 
-**They can login from their phone or computer**
+**That's it!** She can login with her own Google account.
+
+### Partner's First Login:
+1. Opens the URL
+2. Clicks "Sign in with Google"
+3. Selects her Google account
+4. Done - logged in!
+
+### Partner's Subsequent Visits:
+1. Opens the URL
+2. **Automatically logged in** - goes straight to the app!
+
+**No re-authentication needed!**
 
 ---
 
-## How "Remember Me" Works
+## How Sessions Work with Google Sign-In
 
-- **Checked**: Stays logged in even after closing browser
-  - Session persists until they explicitly logout
-  - Works across browser restarts
+**Sessions persist FOREVER until manual logout:**
+- ✅ Stays logged in after closing browser
+- ✅ Stays logged in after restarting phone
+- ✅ Stays logged in after days/weeks/months
+- ✅ Works seamlessly across visits
 
-- **Unchecked**: Session expires when browser closes
-  - Must login again next time they open browser
+**Only logged out when:**
+- User clicks "Logout" button
+- User clears browser data/cache
+- User manually revokes access in Google account settings
 
 ---
 
 ## Common Issues & Solutions
 
-### "Invalid email or password"
-- Double-check the email/password in Firebase Console
-- Ensure no extra spaces
-- Password is case-sensitive
+### "Pop-up blocked" message
+- Browser is blocking the Google sign-in popup
+- Allow popups for your site
+- Click the icon in address bar to allow popups
+- Try signing in again
 
-### "Too many failed attempts"
-- Firebase temporarily blocks login after multiple failures
-- Wait 5-10 minutes and try again
+### "This domain is not authorized"
+- kalemans.github.io is not in Firebase authorized domains
+- Go to Firebase Console → Authentication → Settings → Authorized domains
+- Add kalemans.github.io
+- Try again
 
-### "User not found"
-- Make sure you created the user in Firebase Console
-- Check that you're using the exact email from Firebase
-
-### Login screen shows but nothing happens
+### Google popup appears but nothing happens
 - Check browser console for errors (F12)
-- Verify Firebase Auth is enabled in Console
+- Ensure Google provider is enabled in Firebase Console
+- Try refreshing the page
+
+### "Sign in cancelled" message
+- You closed the Google popup before completing sign-in
+- Click "Sign in with Google" again
+- Select your Google account and click "Allow"
+
+### Login works but shows error
+- Check Firestore security rules are applied
+- Verify authorized domains include kalemans.github.io
+- Check browser console for specific error
 
 ---
 

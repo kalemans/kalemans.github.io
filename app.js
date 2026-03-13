@@ -38,10 +38,7 @@ let auth = null; // Firebase Auth instance
 const authScreen = document.getElementById('auth-screen');
 const mainApp = document.getElementById('main-app');
 const loadingScreen = document.getElementById('loading-screen');
-const emailInput = document.getElementById('email-input');
-const passwordInput = document.getElementById('password-input');
-const rememberMeCheckbox = document.getElementById('remember-me-checkbox');
-const authButton = document.getElementById('auth-button');
+const googleSignInButton = document.getElementById('google-signin-button');
 const authError = document.getElementById('auth-error');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
@@ -167,21 +164,10 @@ function showMainApp() {
 }
 
 function setupAuth() {
-    // Login button handler
-    authButton.addEventListener('click', handleLogin);
-
-    // Allow Enter key to submit
-    emailInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleLogin();
-        }
-    });
-
-    passwordInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleLogin();
-        }
-    });
+    // Google Sign-In button handler
+    if (googleSignInButton) {
+        googleSignInButton.addEventListener('click', handleGoogleSignIn);
+    }
 
     // Logout button handler
     const logoutButton = document.getElementById('logout-button');
@@ -190,63 +176,58 @@ function setupAuth() {
     }
 }
 
-async function handleLogin() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    const rememberMe = rememberMeCheckbox.checked;
-
-    if (!email || !password) {
-        showAuthError('Please enter email and password');
-        return;
-    }
-
-    // Show loading state
-    authButton.disabled = true;
-    authButton.textContent = 'Logging in...';
+async function handleGoogleSignIn() {
+    // Clear any previous errors
     authError.textContent = '';
 
+    // Show loading state
+    googleSignInButton.disabled = true;
+    const originalText = googleSignInButton.innerHTML;
+    googleSignInButton.innerHTML = '<span style="opacity: 0.7;">Signing in...</span>';
+
     try {
-        // Set persistence based on "Remember Me"
-        const persistence = rememberMe
-            ? firebase.auth.Auth.Persistence.LOCAL  // Persists across browser sessions
-            : firebase.auth.Auth.Persistence.SESSION; // Cleared when browser closes
+        // Set persistence to LOCAL (stays logged in forever)
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        await auth.setPersistence(persistence);
+        // Create Google auth provider
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-        // Sign in with email/password
-        await auth.signInWithEmailAndPassword(email, password);
+        // Sign in with popup
+        const result = await auth.signInWithPopup(provider);
 
-        debugLog('✓ Login successful', { email });
-
-        // Clear inputs
-        emailInput.value = '';
-        passwordInput.value = '';
+        debugLog('✓ Google Sign-In successful', {
+            email: result.user.email,
+            displayName: result.user.displayName
+        });
 
         // onAuthStateChanged will handle the rest
+
     } catch (error) {
-        debugLog('✗ Login failed', { error: error.message });
+        debugLog('✗ Google Sign-In failed', { error: error.message, code: error.code });
 
         // User-friendly error messages
-        let errorMessage = 'Login failed. Please try again.';
+        let errorMessage = 'Sign in failed. Please try again.';
 
-        if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Invalid email address';
-        } else if (error.code === 'auth/user-not-found') {
-            errorMessage = 'No account found with this email';
-        } else if (error.code === 'auth/wrong-password') {
-            errorMessage = 'Incorrect password';
-        } else if (error.code === 'auth/invalid-credential') {
-            errorMessage = 'Invalid email or password';
-        } else if (error.code === 'auth/too-many-requests') {
-            errorMessage = 'Too many failed attempts. Try again later.';
+        if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = 'Sign in cancelled';
+        } else if (error.code === 'auth/popup-blocked') {
+            errorMessage = 'Pop-up blocked. Please allow pop-ups and try again.';
+        } else if (error.code === 'auth/unauthorized-domain') {
+            errorMessage = 'This domain is not authorized. Contact the administrator.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+            // User opened multiple popups, ignore this error
+            errorMessage = '';
+        } else if (error.code === 'auth/network-request-failed') {
+            errorMessage = 'Network error. Check your internet connection.';
         }
 
-        showAuthError(errorMessage);
-        passwordInput.value = '';
-        passwordInput.focus();
-    } finally {
-        authButton.disabled = false;
-        authButton.textContent = 'Login';
+        if (errorMessage) {
+            showAuthError(errorMessage);
+        }
+
+        // Restore button
+        googleSignInButton.disabled = false;
+        googleSignInButton.innerHTML = originalText;
     }
 }
 

@@ -42,44 +42,45 @@ Quick summary:
 ### 2. Firebase Configuration
 Update `firebase-config.js` with your Firebase project credentials.
 
-### 2. Enable Firebase Authentication
+### 2. Enable Google Sign-In
 
-**Important: All user credentials are stored securely in Firebase, NOT in your public code!**
+**No passwords to manage - users sign in with their Google accounts!**
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select your project
 3. Click **Authentication** in the left sidebar
 4. Click **Get Started** (if first time)
 5. Click **Sign-in method** tab
-6. Enable **Email/Password** provider
-7. Click **Save**
+6. Enable **Google** provider
+7. Enter support email
+8. Click **Save**
 
-### 3. Create User Accounts
+### 3. That's It!
 
-In Firebase Console → Authentication → Users tab:
+No user accounts to create manually. When someone signs in with Google:
+- Firebase automatically creates their account
+- They stay logged in forever (until they logout)
+- No password to remember or type
 
-1. Click **Add user**
-2. Enter email: `your-email@example.com`
-3. Enter password: `your-secure-password`
-4. Click **Add user**
-5. Repeat for your partner's account
+### 4. Share with Your Partner
 
-**Example:**
-- User 1: `you@example.com` / `password123`
-- User 2: `partner@example.com` / `password456`
+Just send her the URL: https://kalemans.github.io
 
-### 4. Login to the App
-
-Visit your site and login with the credentials you created in Firebase Console.
+She'll:
+1. Click "Sign in with Google"
+2. Select her Google account
+3. Start using the app immediately!
 
 ## Usage
-- Login with email/password (created in Firebase Console)
-- Check "Remember me" to stay logged in across browser sessions
+- Click "Sign in with Google" button
+- Select your Google account from the popup
+- You're logged in and stay logged in forever
 - Click dashboard date to select and edit previous days
 - Logout button available in the Stats tab footer
 
 ## Security
-✅ **No passwords in your code** - All credentials stored securely in Firebase
-✅ **Industry-standard authentication** - Firebase handles security
+✅ **Google-powered authentication** - Industry-leading security
+✅ **No passwords in your code** - Google handles all credentials
 ✅ **Public repo safe** - No sensitive data exposed
-✅ **Multiple users** - Each person has their own login
+✅ **Persistent sessions** - Stay logged in across browser restarts
+✅ **One-click login** - Fastest authentication possible
