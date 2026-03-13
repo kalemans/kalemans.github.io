@@ -11,7 +11,23 @@
 
 ---
 
-## 📋 Setup Steps (5 minutes)
+## 📋 Setup Steps (10 minutes)
+
+### Step 0: Apply Email Whitelist Security Rules (IMPORTANT!)
+
+**⚠️ Do this FIRST to restrict access to only you and your partner!**
+
+See: [FIREBASE_SECURITY_SETUP.md](FIREBASE_SECURITY_SETUP.md) Step 1
+
+Quick version:
+1. Go to Firebase Console → Firestore Database → Rules
+2. Copy rules from `firestore.rules` file
+3. **Replace placeholder emails with your actual Gmail addresses**
+4. Publish
+
+**This ensures only YOUR emails can access the app, even if URL is public!**
+
+---
 
 ### Step 1: Enable Google Sign-In in Firebase
 

@@ -8,13 +8,23 @@ A personal goal tracking app for couples and individuals.
 
 👉 **Read: [FIREBASE_SECURITY_SETUP.md](FIREBASE_SECURITY_SETUP.md)**
 
-This takes 5 minutes and protects your data. Without it, your goals data may be publicly accessible!
+This takes 10 minutes and protects your data. Without it, anyone with a Google account could access the app!
 
 **Quick checklist:**
-- [ ] Apply Firestore Security Rules
+- [ ] Apply Firestore Security Rules with **Email Whitelist** (most important!)
 - [ ] Configure Authorized Domains
-- [ ] Enable Firebase Authentication
-- [ ] Create user accounts
+- [ ] Enable Google Sign-In
+- [ ] Update whitelist with your actual Gmail addresses
+
+### 🔐 Email Whitelist Protection
+
+The app uses an **email whitelist** - only specific Gmail addresses can access it:
+
+✅ **Your email** → Can access
+✅ **Partner's email** → Can access
+❌ **Anyone else** → Blocked (even if they have the URL)
+
+**Setup Guide:** [EMAIL_WHITELIST_GUIDE.md](EMAIL_WHITELIST_GUIDE.md)
 
 ---
 

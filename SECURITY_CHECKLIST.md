@@ -6,7 +6,7 @@ Complete these 4 steps to protect your data:
 
 ---
 
-## ✅ Step 1: Apply Firestore Security Rules (5 min)
+## ✅ Step 1: Apply Firestore Security Rules with Email Whitelist (5 min)
 
 **Where:** [Firebase Console](https://console.firebase.google.com/) → Firestore Database → Rules
 
@@ -14,11 +14,14 @@ Complete these 4 steps to protect your data:
 1. Open Firestore Database
 2. Click **Rules** tab
 3. Copy/paste rules from `firestore.rules` file
-4. Click **Publish**
+4. **⚠️ REPLACE the placeholder emails with your actual Gmail addresses:**
+   - Change `'your-email@gmail.com'` to your Gmail
+   - Change `'partner-email@gmail.com'` to partner's Gmail
+5. Click **Publish**
 
 **Rule file location:** `firestore.rules` in your project
 
-**Why:** Blocks unauthorized access to your data
+**Why:** Only YOUR and PARTNER'S emails can access data (even if URL is public)
 
 ---
 

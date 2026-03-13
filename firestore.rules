@@ -8,13 +8,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Goals collection - only accessible by authenticated users
-    match /goals/{document=**} {
-      // Allow read if user is authenticated
-      allow read: if isAuthenticated();
+    // Email whitelist - ONLY these emails can access the app
+    // ⚠️ IMPORTANT: Replace these placeholder emails with your actual Gmail addresses!
+    function isAllowedUser() {
+      return request.auth.token.email in [
+        'your-email@gmail.com',        // ← Replace with your Gmail
+        'partner-email@gmail.com'      // ← Replace with partner's Gmail
+      ];
+    }
 
-      // Allow write (create, update, delete) if user is authenticated
-      allow write: if isAuthenticated();
+    // Goals collection - only accessible by whitelisted authenticated users
+    match /goals/{document=**} {
+      // Allow read if user is authenticated AND in the whitelist
+      allow read: if isAuthenticated() && isAllowedUser();
+
+      // Allow write if user is authenticated AND in the whitelist
+      allow write: if isAuthenticated() && isAllowedUser();
     }
 
     // Deny all other collections by default

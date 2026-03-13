@@ -10,7 +10,13 @@ Your Firebase API key is **designed to be public** and is safe in your GitHub re
 
 ## ✅ Step 1: Apply Firestore Security Rules (CRITICAL)
 
-These rules ensure only authenticated users can access your goals data.
+These rules ensure ONLY you and your partner (by email address) can access your goals data.
+
+### ⚠️ IMPORTANT: Update Email Addresses First!
+
+Before applying the rules, you need to know:
+- **Your Gmail address** (the one you'll use to sign in)
+- **Your partner's Gmail address** (the one she'll use to sign in)
 
 ### Method A: Using Firebase Console (Easiest)
 
@@ -33,13 +39,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Goals collection - only accessible by authenticated users
-    match /goals/{document=**} {
-      // Allow read if user is authenticated
-      allow read: if isAuthenticated();
+    // Email whitelist - ONLY these emails can access the app
+    // ⚠️ IMPORTANT: Replace these placeholder emails with your actual Gmail addresses!
+    function isAllowedUser() {
+      return request.auth.token.email in [
+        'your-email@gmail.com',        // ← Replace with your Gmail
+        'partner-email@gmail.com'      // ← Replace with partner's Gmail
+      ];
+    }
 
-      // Allow write (create, update, delete) if user is authenticated
-      allow write: if isAuthenticated();
+    // Goals collection - only accessible by whitelisted authenticated users
+    match /goals/{document=**} {
+      // Allow read if user is authenticated AND in the whitelist
+      allow read: if isAuthenticated() && isAllowedUser();
+
+      // Allow write if user is authenticated AND in the whitelist
+      allow write: if isAuthenticated() && isAllowedUser();
     }
 
     // Deny all other collections by default
@@ -50,10 +65,16 @@ service cloud.firestore {
 }
 ```
 
-7. Click **Publish** button (top right)
-8. Confirm when prompted
+7. **REPLACE the placeholder emails:**
+   - Change `'your-email@gmail.com'` to your actual Gmail
+   - Change `'partner-email@gmail.com'` to your partner's actual Gmail
+   - Keep the single quotes around the emails
+   - Example: `'john.doe@gmail.com'`
 
-**✅ Done! Your Firestore is now secured.**
+8. Click **Publish** button (top right)
+9. Confirm when prompted
+
+**✅ Done! Your Firestore is now secured to ONLY your emails.**
 
 ### Method B: Using Firebase CLI (Advanced)
 
@@ -64,6 +85,40 @@ firebase deploy --only firestore:rules
 ```
 
 This will deploy the `firestore.rules` file from your project.
+
+**⚠️ IMPORTANT:** Make sure to update the email addresses in `firestore.rules` file before deploying!
+
+---
+
+### 📧 How Email Whitelist Works
+
+**What happens with the whitelist:**
+
+✅ **Allowed (whitelisted emails):**
+- Your email → Can sign in with Google → Can access goals
+- Partner's email → Can sign in with Google → Can access goals
+
+❌ **Blocked (non-whitelisted emails):**
+- Random person → Can sign in with Google → **Permission denied error**
+- They authenticate successfully but can't read/write any data
+- App shows error: "Permission denied"
+
+**Adding more emails later:**
+
+Edit the rules in Firebase Console and add more emails to the list:
+
+```javascript
+function isAllowedUser() {
+  return request.auth.token.email in [
+    'your-email@gmail.com',
+    'partner-email@gmail.com',
+    'friend-email@gmail.com',      // Add more emails here
+    'family-email@gmail.com'        // As many as you want
+  ];
+}
+```
+
+Then click **Publish** to update the rules.
 
 ---
 
