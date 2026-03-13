@@ -300,40 +300,50 @@ input, select, textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 0.875rem var(--spacing-md);
-    background: white;
-    color: #3c4043;
-    border: 1px solid #dadce0;
-    border-radius: var(--border-radius-sm);
+    gap: 24px;
+    padding: 0 12px;
+    background: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 2px;
     font-weight: 500;
-    font-size: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    min-height: 48px;
+    font-size: 14px;
+    height: 40px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Inter', -apple-system, sans-serif;
+    transition: all 0.15s ease;
+    font-family: 'Roboto', 'Inter', -apple-system, sans-serif;
+    letter-spacing: 0.25px;
 }
 
 .google-signin-btn:hover {
-    background: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    transform: translateY(-1px);
+    background: #357ae8;
+    box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.3);
 }
 
 .google-signin-btn:active {
-    background: #f1f3f4;
-    transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: #3367d6;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .google-signin-btn:disabled {
+    background: #4285f4;
     opacity: 0.6;
     cursor: not-allowed;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .google-icon {
     flex-shrink: 0;
+    background: white;
+    padding: 8px;
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -4px;
+    width: 18px;
+    height: 18px;
 }
 
 .auth-help {
@@ -3208,23 +3218,26 @@ select:focus-visible {
 }
 
 .app-footer .logout-button {
-    margin-top: 16px;
-    padding: 10px 20px;
-    background: transparent;
-    border: 1px solid var(--stats-border);
-    border-radius: 6px;
-    color: var(--stats-text-secondary);
+    margin-top: 20px;
+    padding: 12px 32px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    color: #5f6368;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .app-footer .logout-button:hover {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: var(--stats-text-primary);
-    color: var(--stats-text-primary);
-    transform: translateY(-1px);
+    background: #f8f9fa;
+    border-color: #d0d0d0;
+    color: #3c4043;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .app-footer .logout-button:active {
